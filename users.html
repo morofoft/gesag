@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gestión de Usuarios - Directorio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+        .custom-scroll::-webkit-scrollbar-thumb:hover { background: #475569; }
+    </style>
+</head>
+
+<body class="bg-slate-950 h-screen flex flex-col text-slate-100 overflow-hidden selection:bg-indigo-500 selection:text-white">
+
+    <!-- HEADER / NAVBAR -->
+    <header class="bg-gradient-to-r from-indigo-900 via-slate-900 to-indigo-950 border-b border-slate-800 px-6 py-5 shadow-2xl shrink-0 z-10">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <a href="index.html" class="bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white w-10 h-10 rounded-2xl flex items-center justify-center transition-all border border-slate-700/60 shadow-inner active:scale-95" title="Volver al Directorio">
+                    <i class="fa fa-arrow-left text-sm"></i>
+                </a>
+                <div>
+                    <p class="text-indigo-400 text-[10px] uppercase tracking-[0.25em] font-extrabold opacity-90">
+                        Administración
+                    </p>
+                    <h1 class="font-black text-2xl tracking-tight text-white">Gestión de Usuarios</h1>
+                </div>
+            </div>
+
+            <button id="btnLogout" class="bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 hover:text-rose-300 border border-rose-500/30 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all active:scale-95 flex items-center gap-2">
+                <i class="fa fa-sign-out-alt"></i>
+                <span class="hidden sm:inline">Salir</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="flex-1 overflow-y-auto px-6 py-8 custom-scroll relative">
+        <!-- Luces de fondo decorativas -->
+        <div class="absolute top-10 left-1/4 w-96 h-96 bg-indigo-600/5 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute bottom-10 right-1/4 w-96 h-96 bg-blue-600/5 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="max-w-6xl mx-auto grid gap-6 lg:grid-cols-3 relative z-10">
+
+            <!-- FORMULARIO: REGISTRAR USUARIO -->
+            <div class="bg-slate-900/80 border border-slate-800/90 p-6 rounded-3xl shadow-2xl backdrop-blur-xl flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center gap-3.5 mb-6">
+                        <div class="w-11 h-11 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 rounded-2xl flex items-center justify-center font-bold text-lg shadow-inner">
+                            <i class="fa fa-user-plus"></i>
+                        </div>
+                        <div>
+                            <h2 class="font-extrabold text-white text-base">Nuevo Usuario</h2>
+                            <p class="text-slate-400 text-xs">Crear cuenta de acceso en la nube</p>
+                        </div>
+                    </div>
+
+                    <form id="createUserForm" class="space-y-4">
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Username / Nombre</label>
+                            <input type="text" id="usernameInput" required placeholder="Ej. Tony2"
+                                class="w-full bg-slate-800/60 border border-slate-700/70 text-white px-4 py-3 rounded-xl text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all placeholder:text-slate-600">
+                        </div>
+
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Correo Electrónico</label>
+                            <input type="email" id="emailInput" required placeholder="usuario@app.com"
+                                class="w-full bg-slate-800/60 border border-slate-700/70 text-white px-4 py-3 rounded-xl text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all placeholder:text-slate-600">
+                        </div>
+
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Contraseña</label>
+                            <input type="password" id="passwordInput" required placeholder="••••••••" minlength="6"
+                                class="w-full bg-slate-800/60 border border-slate-700/70 text-white px-4 py-3 rounded-xl text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all placeholder:text-slate-600">
+                        </div>
+
+                        <p id="formStatusMsg" class="text-xs font-bold hidden text-center py-2 rounded-xl border"></p>
+
+                        <button type="submit" id="btnSaveUser"
+                            class="w-full bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white font-bold py-3.5 rounded-xl text-sm transition-all shadow-lg shadow-indigo-600/25 active:scale-95 flex items-center justify-center gap-2">
+                            <i class="fa fa-plus-circle text-xs"></i>
+                            <span id="btnSaveText">Crear Cuenta y Usuario</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- TABLA DE USUARIOS REGISTRADOS -->
+            <div class="lg:col-span-2 bg-slate-900/80 border border-slate-800/90 p-6 rounded-3xl shadow-2xl backdrop-blur-xl flex flex-col">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h2 class="font-extrabold text-white text-base">Usuarios Registrados</h2>
+                        <p class="text-slate-400 text-xs">Directorio sincronizado desde Firestore</p>
+                    </div>
+                    <span id="userCountBadge" class="bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-black px-3.5 py-1.5 rounded-full">
+                        0 Usuarios
+                    </span>
+                </div>
+
+                <!-- INDICADOR DE CARGA -->
+                <div id="loadingUsers" class="text-center py-16">
+                    <i class="fa fa-circle-notch animate-spin text-3xl text-indigo-500 mb-3"></i>
+                    <p class="text-slate-400 text-xs font-bold uppercase tracking-wider">Cargando usuarios...</p>
+                </div>
+
+                <!-- LISTADO -->
+                <div id="usersList" class="space-y-3 overflow-y-auto max-h-[520px] pr-1 custom-scroll"></div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- PROTECCIÓN DE RUTA -->
+    <script type="module">
+        import { requireAdmin } from "./js/auth.guard.js";
+        requireAdmin();
+    </script>
+
+    <!-- LÓGICA DE CREACIÓN Y GESTIÓN -->
+    <script type="module">
+        import { db, auth } from "./js/firebase/firebase.init.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signOut as secondarySignOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { collection, getDocs, doc, setDoc, updateDoc, deleteDoc, Timestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+        const createUserForm = document.getElementById("createUserForm");
+        const usersList = document.getElementById("usersList");
+        const loadingUsers = document.getElementById("loadingUsers");
+        const userCountBadge = document.getElementById("userCountBadge");
+        const formStatusMsg = document.getElementById("formStatusMsg");
+        const btnLogout = document.getElementById("btnLogout");
+        const btnSaveUser = document.getElementById("btnSaveUser");
+        const btnSaveText = document.getElementById("btnSaveText");
+
+        btnLogout.addEventListener("click", async () => {
+            await signOut(auth);
+            window.location.href = "login.html";
+        });
+
+        // 1. CARGAR USUARIOS DESDE FIRESTORE
+        async function loadUsers() {
+            try {
+                loadingUsers.style.display = "block";
+                usersList.innerHTML = "";
+
+                const snapshot = await getDocs(collection(db, "users"));
+                const users = [];
+
+                snapshot.forEach((docSnap) => {
+                    users.push({
+                        id: docSnap.id,
+                        ...docSnap.data()
+                    });
+                });
+
+                renderUsers(users);
+            } catch (error) {
+                console.error("Error al cargar usuarios:", error);
+                usersList.innerHTML = `
+                    <div class="text-center py-12 text-rose-400 font-semibold text-xs bg-rose-500/5 rounded-2xl border border-rose-500/20">
+                        <i class="fa fa-exclamation-triangle text-2xl mb-2"></i>
+                        <p>Error al conectar con la base de datos: ${error.message}</p>
+                    </div>
+                `;
+            } finally {
+                loadingUsers.style.display = "none";
+            }
+        }
+
+        // 2. RENDERIZAR LISTA CON DISEÑO DARK MODERNO
+        function renderUsers(users) {
+            usersList.innerHTML = "";
+            userCountBadge.innerText = `${users.length} Usuario${users.length === 1 ? '' : 's'}`;
+
+            if (users.length === 0) {
+                usersList.innerHTML = `
+                    <div class="text-center py-14 bg-slate-800/30 rounded-2xl border border-dashed border-slate-800">
+                        <i class="fa fa-users-slash text-3xl text-slate-600 mb-2"></i>
+                        <p class="text-slate-400 text-xs font-semibold">No hay usuarios registrados en la base de datos.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            users.forEach((user) => {
+                const isEnabled = user.enabled === true;
+                const displayName = user.username || user.email || "Sin Nombre";
+                const initial = displayName.charAt(0).toUpperCase();
+
+                const card = document.createElement("div");
+                card.className = `group relative p-4 rounded-2xl border transition-all duration-300 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 ${
+                    !isEnabled 
+                        ? 'bg-slate-900/40 border-slate-800/60 opacity-60' 
+                        : 'bg-slate-800/40 border-slate-700/50 hover:bg-slate-800/80 hover:border-indigo-500/40'
+                }`;
+
+                card.innerHTML = `
+                    <div class="flex items-center gap-3.5 min-w-0">
+                        <!-- AVATAR MODERNO CON INICIAL -->
+                        <div class="relative shrink-0">
+                            <div class="w-11 h-11 rounded-xl flex items-center justify-center font-black text-sm tracking-wider shadow-inner ${
+                                isEnabled 
+                                    ? 'bg-gradient-to-tr from-indigo-600 to-blue-500 text-white shadow-indigo-900/50' 
+                                    : 'bg-slate-800 border border-slate-700 text-slate-500'
+                            }">
+                                ${initial}
+                            </div>
+                            ${isEnabled ? `
+                                <span class="absolute -top-1 -right-1 flex h-3 w-3">
+                                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                  <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500 ring-2 ring-slate-900"></span>
+                                </span>
+                            ` : ''}
+                        </div>
+
+                        <!-- DETALLES DEL USUARIO -->
+                        <div class="min-w-0">
+                            <div class="flex items-center gap-2">
+                                <h3 class="font-bold text-sm text-slate-100 truncate">${displayName}</h3>
+                                
+                                <!-- BADGE DE ESTADO -->
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold tracking-wide uppercase ${
+                                    isEnabled 
+                                        ? 'bg-emerald-500/10 text-emerald-400 ring-1 ring-inset ring-emerald-500/20' 
+                                        : 'bg-rose-500/10 text-rose-400 ring-1 ring-inset ring-rose-500/20'
+                                }">
+                                    <span class="w-1.5 h-1.5 rounded-full ${isEnabled ? 'bg-emerald-400' : 'bg-rose-400'}"></span>
+                                    ${isEnabled ? 'Activo' : 'Inactivo'}
+                                </span>
+                            </div>
+
+                            <div class="flex items-center gap-2 mt-1">
+                                <span class="text-[10px] font-mono text-slate-400 bg-slate-800/80 border border-slate-700/50 px-2 py-0.5 rounded-md truncate max-w-[180px] sm:max-w-none">
+                                    ID: ${user.id}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- BOTONES DE ACCIÓN -->
+                    <div class="flex items-center gap-2 w-full sm:w-auto justify-end border-t border-slate-800 sm:border-0 pt-3 sm:pt-0 shrink-0">
+                        <!-- HABILITAR / DESHABILITAR -->
+                        <button data-id="${user.id}" data-enabled="${isEnabled}" 
+                            class="toggle-status-btn flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all active:scale-95 ${
+                            isEnabled 
+                                ? 'bg-amber-500/10 text-amber-400 hover:bg-amber-500/20 border border-amber-500/20' 
+                                : 'bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 border border-emerald-500/20'
+                        }">
+                            <i class="fa ${isEnabled ? 'fa-user-slash' : 'fa-user-check'} text-xs"></i>
+                            <span>${isEnabled ? 'Inhabilitar' : 'Habilitar'}</span>
+                        </button>
+
+                        <!-- ELIMINAR -->
+                        <button data-id="${user.id}" 
+                            class="delete-user-btn inline-flex items-center justify-center w-9 h-9 rounded-xl bg-slate-800 text-slate-400 hover:bg-rose-500/10 hover:text-rose-400 hover:border-rose-500/30 border border-slate-700/60 transition-all active:scale-95" 
+                            title="Eliminar registro">
+                            <i class="fa fa-trash-alt text-xs"></i>
+                        </button>
+                    </div>
+                `;
+
+                usersList.appendChild(card);
+            });
+
+            // EVENT LISTENERS DE BOTONES
+            document.querySelectorAll(".toggle-status-btn").forEach((btn) => {
+                btn.addEventListener("click", () => toggleUserStatus(btn.dataset.id, btn.dataset.enabled === "true"));
+            });
+
+            document.querySelectorAll(".delete-user-btn").forEach((btn) => {
+                btn.addEventListener("click", () => deleteUser(btn.dataset.id));
+            });
+        }
+
+        // 3. CREAR EN AUTHENTICATION Y EN FIRESTORE CON EL MISMO UID
+        createUserForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            formStatusMsg.classList.add("hidden");
+            setSaving(true);
+
+            const username = document.getElementById("usernameInput").value.trim();
+            const email = document.getElementById("emailInput").value.trim().toLowerCase();
+            const password = document.getElementById("passwordInput").value;
+
+            try {
+                // Instancia secundaria para registrar la cuenta sin desloguear al admin actual
+                const secondaryApp = initializeApp(auth.app.options, "SecondaryRegistrationApp");
+                const secondaryAuth = getAuth(secondaryApp);
+
+                // Crear en Firebase Authentication
+                const userCredential = await createUserWithEmailAndPassword(secondaryAuth, email, password);
+                const uid = userCredential.user.uid;
+
+                // Cerrar sesión en la app secundaria y destruirla
+                await secondarySignOut(secondaryAuth);
+
+                // Crear documento en Firestore usando como ID el UID de Authentication
+                await setDoc(doc(db, "users", uid), {
+                    username: username,
+                    enabled: true,
+                    createdAt: Timestamp.now()
+                });
+
+                showStatus("¡Usuario creado exitosamente!", "bg-emerald-500/10 text-emerald-400 border-emerald-500/20");
+                createUserForm.reset();
+                loadUsers();
+            } catch (error) {
+                console.error("Error al registrar el usuario:", error);
+                if (error.code === 'auth/email-already-in-use') {
+                    showStatus("El correo ya está registrado.", "bg-amber-500/10 text-amber-400 border-amber-500/20");
+                } else {
+                    showStatus(`Error: ${error.message}`, "bg-rose-500/10 text-rose-400 border-rose-500/20");
+                }
+            } finally {
+                setSaving(false);
+            }
+        });
+
+        // 4. CAMBIAR ESTADO "enabled" EN FIRESTORE
+        async function toggleUserStatus(userId, currentlyEnabled) {
+            try {
+                const userDocRef = doc(db, "users", userId);
+                await updateDoc(userDocRef, {
+                    enabled: !currentlyEnabled
+                });
+                loadUsers();
+            } catch (error) {
+                console.error("Error al actualizar estado:", error);
+                alert("Error al actualizar el estado en Firestore.");
+            }
+        }
+
+        // 5. ELIMINAR DOCUMENTO DE FIRESTORE
+        async function deleteUser(userId) {
+            if (!confirm("¿Deseas eliminar este registro de Firestore?")) return;
+
+            try {
+                await deleteDoc(doc(db, "users", userId));
+                loadUsers();
+            } catch (error) {
+                console.error("Error al eliminar:", error);
+                alert("No se pudo eliminar el documento.");
+            }
+        }
+
+        function showStatus(text, classes) {
+            formStatusMsg.innerText = text;
+            formStatusMsg.className = `text-xs font-bold text-center py-2 px-3 rounded-xl border ${classes}`;
+            formStatusMsg.classList.remove("hidden");
+        }
+
+        function setSaving(isSaving) {
+            btnSaveUser.disabled = isSaving;
+            btnSaveText.innerText = isSaving ? "Guardando..." : "Crear Cuenta y Usuario";
+        }
+
+        loadUsers();
+    </script>
+</body>
+
+</html>

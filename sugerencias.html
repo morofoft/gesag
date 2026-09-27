@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sugerencias e Integraciones</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+        .custom-scroll::-webkit-scrollbar-thumb:hover { background: #475569; }
+    </style>
+</head>
+
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between relative selection:bg-indigo-500 selection:text-white">
+
+    <!-- LUCES DE FONDO DECORATIVAS -->
+    <div class="absolute top-0 left-1/4 w-[500px] h-[300px] bg-indigo-600/10 rounded-full blur-[120px] pointer-events-none"></div>
+    <div class="absolute bottom-10 right-10 w-[400px] h-[400px] bg-emerald-600/5 rounded-full blur-[100px] pointer-events-none"></div>
+
+    <!-- HEADER -->
+    <header class="max-w-6xl w-full mx-auto px-6 py-6 flex justify-between items-center relative z-10">
+        <div class="flex items-center gap-3">
+            <a href="index.html" class="w-10 h-10 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-2xl flex items-center justify-center text-slate-300 hover:text-white transition-all">
+                <i class="fa-solid fa-arrow-left text-sm"></i>
+            </a>
+            <div>
+                <p class="text-indigo-400 text-[10px] font-extrabold uppercase tracking-widest">Buzón de Ideas</p>
+                <h1 class="font-black text-xl text-white tracking-tight">Sugerencias & Integraciones</h1>
+            </div>
+        </div>
+        <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+            <i class="fa-solid fa-lightbulb text-xs"></i>
+            Plataforma Abierta
+        </span>
+    </header>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="max-w-6xl w-full mx-auto px-6 py-8 flex-1 relative z-10">
+        
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+
+            <!-- FORMULARIO DE ENVÍO (7 Columnas) -->
+            <div class="lg:col-span-7 bg-slate-900/80 border border-slate-800 p-6 sm:p-8 rounded-3xl shadow-2xl backdrop-blur-xl space-y-6">
+                <div>
+                    <h2 class="text-2xl font-black text-white tracking-tight">¿Tienes una idea o necesitas una integración?</h2>
+                    <p class="text-slate-400 text-xs sm:text-sm mt-1 leading-relaxed">
+                        Escribe tus comentarios, herramientas que usas o módulos que te gustaría ver agregados en las próximas versiones.
+                    </p>
+                </div>
+
+                <!-- FORMULARIO CONECTADO A FORMSUBMIT -->
+                <form action="https://formsubmit.co/z159gp+sugerenciaAPP_agencias@gmail.com" method="POST" class="space-y-4">
+                    
+                    <!-- Configuraciones FormSubmit para evitar spam o captcha molesto -->
+                    <input type="hidden" name="_subject" value="Nueva Sugerencia / Solicitud de Integración">
+                    <input type="hidden" name="_captcha" value="false">
+
+                    <!-- NOMBRE / CONTACTO -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Tu Nombre</label>
+                            <input type="text" name="Nombre" required placeholder="Ej. Juan Pérez"
+                                class="w-full bg-slate-800/60 border border-slate-700/80 text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 transition-all placeholder:text-slate-600">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Correo (Opcional)</label>
+                            <input type="email" name="Email" placeholder="juan@ejemplo.com"
+                                class="w-full bg-slate-800/60 border border-slate-700/80 text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 transition-all placeholder:text-slate-600">
+                        </div>
+                    </div>
+
+                    <!-- TIPO DE SOLICITUD -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Categoría</label>
+                        <select name="Categoria" required class="w-full bg-slate-800/60 border border-slate-700/80 text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 transition-all cursor-pointer">
+                            <option value="Nueva Integracion (API, WhatsApp, ERP, etc.)">Nueva Integración (API, WhatsApp, ERP, etc.)</option>
+                            <option value="Nuevo Modulo / Seccion">Nuevo Módulo / Sección</option>
+                            <option value="Mejora de Funcion Existente">Mejora de Función Existente</option>
+                            <option value="Reporte o Metrica Personalizada">Reporte o Métrica Personalizada</option>
+                            <option value="Otro Comentario">Otro Comentario</option>
+                        </select>
+                    </div>
+
+                    <!-- MENSAJE -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Detalles de la Sugerencia</label>
+                        <textarea name="Sugerencia" required rows="4" placeholder="Explica brevemente qué te gustaría integrar o mejorar y cómo ayudaría al trabajo diario..."
+                            class="w-full bg-slate-800/60 border border-slate-700/80 text-white rounded-xl p-4 text-sm focus:outline-none focus:border-indigo-500 transition-all placeholder:text-slate-600 custom-scroll resize-none"></textarea>
+                    </div>
+
+                    <!-- BOTÓN DE ENVÍO -->
+                    <button type="submit"
+                        class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3.5 px-6 rounded-xl transition-all shadow-lg shadow-indigo-600/25 active:scale-[0.99] flex items-center justify-center gap-2 text-sm">
+                        <i class="fa-solid fa-paper-plane text-xs"></i>
+                        <span>Enviar Sugerencia</span>
+                    </button>
+                </form>
+
+            </div>
+
+            <!-- PANEL LATERAL: IDEAS EVALUADAS Y PLANIFICADAS (5 Columnas) -->
+            <div class="lg:col-span-5 space-y-4">
+                <div class="flex justify-between items-center px-1">
+                    <h3 class="text-xs font-extrabold text-slate-400 uppercase tracking-widest">
+                        Ideas en Evaluación / Planificadas
+                    </h3>
+                    <span class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full font-bold">Roadmap</span>
+                </div>
+
+                <div class="space-y-3 custom-scroll max-h-[500px] overflow-y-auto pr-1" id="planned-container">
+
+                    <!-- ITEM PLANIFICADO 1 -->
+                    <div class="bg-slate-900/60 border border-slate-800/80 p-4 rounded-2xl space-y-2">
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="text-xs font-bold text-white flex items-center gap-2">
+                                <i class="fa-brands fa-whatsapp text-emerald-400"></i> Bot de Notificaciones WhatsApp
+                            </span>
+                            <span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">Aprobado</span>
+                        </div>
+                        <p class="text-slate-400 text-xs leading-relaxed">
+                            Integración para enviar alertas automáticas de estado directamente a grupos de WhatsApp.
+                        </p>
+                    </div>
+
+                    <!-- ITEM PLANIFICADO 2 -->
+                    <div class="bg-slate-900/60 border border-slate-800/80 p-4 rounded-2xl space-y-2">
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="text-xs font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-file-excel text-emerald-500"></i> Exportación Avanzada a Excel/CSV
+                            </span>
+                            <span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-amber-500/10 text-amber-400 border border-amber-500/20">En Revisión</span>
+                        </div>
+                        <p class="text-slate-400 text-xs leading-relaxed">
+                            Descarga directa de métricas formateadas con filtros personalizados.
+                        </p>
+                    </div>
+
+                    <!-- ITEM PLANIFICADO 3 -->
+                    <div class="bg-slate-900/60 border border-slate-800/80 p-4 rounded-2xl space-y-2">
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="text-xs font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-bell text-amber-400"></i> Panel de Monitoreo en Tiempo Real
+                            </span>
+                            <span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-slate-800 text-slate-400 border border-slate-700">Sugerido</span>
+                        </div>
+                        <p class="text-slate-400 text-xs leading-relaxed">
+                            Vista simplificada para pantallas o monitores en la oficina con actualización automática.
+                        </p>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="max-w-6xl w-full mx-auto px-6 py-6 text-center text-xs text-slate-500 border-t border-slate-900 relative z-10">
+        <p>© 2026 Sistema en Desarrollo. Todas las sugerencias ayudan a mejorar la plataforma.</p>
+    </footer>
+
+</body>
+
+</html>

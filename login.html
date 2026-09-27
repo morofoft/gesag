@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión - Consulta de Agencias</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+</head>
+
+<body class="bg-slate-950 min-h-screen flex items-center justify-center p-4 text-slate-100 selection:bg-indigo-500 selection:text-white">
+
+    <!-- CONTENEDOR PRINCIPAL -->
+    <div class="bg-slate-900/80 border border-slate-800/90 w-full max-w-md p-8 rounded-3xl shadow-2xl backdrop-blur-xl relative overflow-hidden">
+        
+        <!-- ELEMENTOS DECORATIVOS DE FONDO -->
+        <div class="absolute -top-16 -right-16 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl pointer-events-none"></div>
+        <div class="absolute -bottom-16 -left-16 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl pointer-events-none"></div>
+
+        <!-- ENCABEZADO CON LOGO Y TÍTULO -->
+        <div class="text-center mb-8 relative">
+            <div class="w-20 h-20 bg-slate-800/80 border border-slate-700/60 rounded-2xl flex items-center justify-center mx-auto mb-4 p-2 shadow-inner group transition-transform hover:scale-105">
+                <img src="img/logo.png" id="appLogo" alt="Logo" class="max-h-full max-w-full object-contain transition-all duration-300"
+                    onerror="this.onerror=null; this.classList.add('hidden'); document.getElementById('fallbackIcon').classList.remove('hidden');" />
+                
+                <!-- Ícono de repuesto si la imagen no existe -->
+                <i id="fallbackIcon" class="fa fa-lock text-indigo-400 text-2xl hidden"></i>
+            </div>
+            
+            <h1 class="text-2xl font-black text-white tracking-tight">Bienvenido</h1>
+            <p class="text-xs font-medium text-slate-400 mt-1">Ingresa con tu cuenta para acceder al directorio</p>
+        </div>
+
+        <!-- FORMULARIO DE INICIO DE SESIÓN -->
+        <form id="loginForm" class="space-y-4 relative">
+            <div>
+                <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Correo Electrónico</label>
+                <div class="relative">
+                    <i class="fa fa-envelope absolute left-3.5 top-3.5 text-slate-500 text-xs"></i>
+                    <input type="email" id="email" required placeholder="usuario@app.com"
+                        class="w-full bg-slate-800/60 border border-slate-700/70 text-white pl-9 pr-4 py-3 rounded-xl text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all placeholder:text-slate-600">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Contraseña</label>
+                <div class="relative">
+                    <i class="fa fa-key absolute left-3.5 top-3.5 text-slate-500 text-xs"></i>
+                    <input type="password" id="password" required placeholder="••••••••"
+                        class="w-full bg-slate-800/60 border border-slate-700/70 text-white pl-9 pr-10 py-3 rounded-xl text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all placeholder:text-slate-600">
+                    <button type="button" id="togglePassword" class="absolute right-3.5 top-3.5 text-slate-500 hover:text-slate-300 transition-colors focus:outline-none">
+                        <i class="fa fa-eye text-xs"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- MENSAJE DE ERROR O ALERTA -->
+            <div id="errorMsg" class="hidden p-3 rounded-xl text-xs font-bold text-center border transition-all"></div>
+
+            <!-- BOTÓN DE SUBMIT -->
+            <button type="submit" id="btnLogin"
+                class="w-full bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white font-bold py-3.5 rounded-xl text-sm transition-all shadow-lg shadow-indigo-600/25 active:scale-95 flex items-center justify-center gap-2">
+                <span id="btnText">Iniciar Sesión</span>
+                <i id="btnIcon" class="fa fa-arrow-right text-xs"></i>
+            </button>
+        </form>
+    </div>
+
+    <!-- SCRIPT DE AUTENTICACIÓN FIREBASE -->
+    <script type="module">
+        import { db, auth } from "./js/firebase/firebase.init.js";
+        import { signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        const form = document.getElementById("loginForm");
+        const errorMsg = document.getElementById("errorMsg");
+        const passwordInput = document.getElementById("password");
+        const togglePassword = document.getElementById("togglePassword");
+        const btnLogin = document.getElementById("btnLogin");
+        const btnText = document.getElementById("btnText");
+        const btnIcon = document.getElementById("btnIcon");
+
+        // Alternar visibilidad de la contraseña
+        togglePassword.addEventListener("click", () => {
+            const isPassword = passwordInput.type === "password";
+            passwordInput.type = isPassword ? "text" : "password";
+            togglePassword.innerHTML = `<i class="fa fa-${isPassword ? 'eye-slash' : 'eye'} text-xs"></i>`;
+        });
+
+        // Manejo del Login
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            showError("", false);
+            setLoading(true);
+
+            const email = document.getElementById("email").value.trim();
+            const password = passwordInput.value;
+
+            try {
+                // 1. Iniciar sesión en Auth
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const uid = userCredential.user.uid;
+
+                // 2. Verificar estado en la colección "users"
+                const userDocRef = doc(db, "users", uid);
+                const userDocSnap = await getDoc(userDocRef);
+
+                if (userDocSnap.exists()) {
+                    const userData = userDocSnap.data();
+
+                    // Verificar si el usuario está inhabilitado
+                    if (userData.enabled === false) {
+                        await signOut(auth); // Cerrar sesión automáticamente
+                        showError("Tu usuario ha sido inhabilitado. Contacta al administrador.", true, "bg-amber-500/10 text-amber-400 border-amber-500/20");
+                        setLoading(false);
+                        return;
+                    }
+                }
+
+                // 3. Redirigir si está activo
+                window.location.href = "index.html";
+
+            } catch (error) {
+                console.error("Error en login:", error);
+                setLoading(false);
+                showError("Credenciales inválidas o problema de conexión.", true, "bg-rose-500/10 text-rose-400 border-rose-500/20");
+            }
+        });
+
+        function showError(msg, visible, classes = "") {
+            errorMsg.innerText = msg;
+            errorMsg.className = `p-3 rounded-xl text-xs font-bold text-center border ${classes}`;
+            if (visible) errorMsg.classList.remove("hidden");
+            else errorMsg.classList.add("hidden");
+        }
+
+        function setLoading(isLoading) {
+            if (isLoading) {
+                btnLogin.disabled = true;
+                btnText.innerText = "Verificando...";
+                btnIcon.className = "fa fa-circle-notch animate-spin text-xs";
+            } else {
+                btnLogin.disabled = false;
+                btnText.innerText = "Iniciar Sesión";
+                btnIcon.className = "fa fa-arrow-right text-xs";
+            }
+        }
+    </script>
+</body>
+</html>

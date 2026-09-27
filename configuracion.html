@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sitio en Construcción</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+    </style>
+</head>
+
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between relative overflow-x-hidden selection:bg-indigo-500 selection:text-white">
+
+    <!-- LUCES DE FONDO DECORATIVAS -->
+    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[350px] bg-indigo-600/10 rounded-full blur-[120px] pointer-events-none"></div>
+    <div class="absolute bottom-0 right-10 w-[400px] h-[400px] bg-emerald-600/5 rounded-full blur-[100px] pointer-events-none"></div>
+
+    <!-- HEADER / NAVEGACIÓN SIMPLE -->
+    <header class="max-w-6xl w-full mx-auto px-6 py-6 flex justify-between items-center relative z-10">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-indigo-600/20 border border-indigo-500/30 rounded-2xl flex items-center justify-center text-indigo-400 font-black">
+                <i class="fa-solid fa-code text-sm"></i>
+            </div>
+            <span class="font-bold text-lg tracking-tight text-white">Mi Plataforma</span>
+        </div>
+        <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">
+            <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+            En Desarrollo Active
+        </span>
+    </header>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="max-w-4xl w-full mx-auto px-6 py-12 flex-1 flex flex-col justify-center relative z-10">
+        
+        <!-- HERO / ESTADO -->
+        <div class="text-center space-y-4 mb-12">
+            <div class="inline-flex items-center justify-center w-16 h-16 bg-slate-900 border border-slate-800 rounded-3xl shadow-2xl mb-2 text-indigo-400 text-2xl">
+                <i class="fa-solid fa-screwdriver-wrench animate-bounce"></i>
+            </div>
+            <h1 class="text-3xl sm:text-5xl font-black text-white tracking-tight">
+                Estamos construyendo algo grande
+            </h1>
+            <p class="text-slate-400 text-sm sm:text-base max-w-xl mx-auto leading-relaxed">
+                Estamos configurando las diferentes herramientas y módulos de la plataforma. A continuación puedes ver el avance de lo que estamos integrando.
+            </p>
+        </div>
+
+        <!-- BARRA DE PROGRESO GLOBAL -->
+        <div class="bg-slate-900/80 border border-slate-800 p-6 rounded-3xl shadow-xl backdrop-blur-xl mb-10">
+            <div class="flex justify-between items-center mb-2 text-xs font-bold">
+                <span class="text-slate-400 uppercase tracking-wider">Progreso del Proyecto</span>
+                <span class="text-indigo-400">35% Completado</span>
+            </div>
+            <div class="w-full bg-slate-800 rounded-full h-3 overflow-hidden p-0.5 border border-slate-700/50">
+                <div class="bg-gradient-to-r from-indigo-500 to-emerald-400 h-full rounded-full transition-all duration-500" style="width: 35%"></div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN DE MÓDULOS / ELEMENTOS (AQUÍ IRÁS AGREGANDO NUEVOS) -->
+        <div class="space-y-4">
+            <h2 class="text-xs font-extrabold text-slate-500 uppercase tracking-widest px-1">
+                Estado de Integración
+            </h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="items-container">
+                
+                <!-- ======================================================= -->
+                <!-- ELEMENTO 1: EN PROCESO -->
+                <!-- ======================================================= -->
+                <div class="bg-slate-900/60 border border-slate-800 p-5 rounded-2xl flex items-start gap-4 transition-all hover:border-slate-700">
+                    <div class="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center shrink-0">
+                        <i class="fa-solid fa-chart-line"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center justify-between gap-2">
+                            <h3 class="font-bold text-white text-sm truncate">Módulo de Reportes & Métricas</h3>
+                            <span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-amber-500/10 text-amber-400 border border-amber-500/20">En Desarrollo</span>
+                        </div>
+                        <p class="text-slate-400 text-xs mt-1">Configuración e integración de datos estadísticos.</p>
+                    </div>
+                </div>
+
+                <!-- ======================================================= -->
+                <!-- ELEMENTO 2: LISTO / COMPLETADO -->
+                <!-- ======================================================= -->
+                <div class="bg-slate-900/60 border border-slate-800 p-5 rounded-2xl flex items-start gap-4 transition-all hover:border-slate-700">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center justify-between gap-2">
+                            <h3 class="font-bold text-white text-sm truncate">Autenticación y Seguridad</h3>
+                            <span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Listo</span>
+                        </div>
+                        <p class="text-slate-400 text-xs mt-1">Estructura base de usuarios y permisos.</p>
+                    </div>
+                </div>
+
+                <!-- ======================================================= -->
+                <!-- ELEMENTO 3: PRÓXIMAMENTE -->
+                <!-- ======================================================= -->
+                <div class="bg-slate-900/30 border border-slate-800/60 p-5 rounded-2xl flex items-start gap-4 opacity-60">
+                    <div class="w-10 h-10 rounded-xl bg-slate-800 text-slate-500 flex items-center justify-center shrink-0">
+                        <i class="fa-solid fa-plug"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center justify-between gap-2">
+                            <h3 class="font-bold text-slate-300 text-sm truncate">Integraciones API</h3>
+                            <span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-slate-800 text-slate-400 border border-slate-700">Próximamente</span>
+                        </div>
+                        <p class="text-slate-500 text-xs mt-1">Conexión con servicios externos.</p>
+                    </div>
+                </div>
+
+                <!-- 💡 PARA AGREGAR OTRO ELEMENTO SOLO COPIA Y PEGA UN BLOQUE COMO ESTE -->
+
+            </div>
+        </div>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="max-w-6xl w-full mx-auto px-6 py-6 text-center text-xs text-slate-500 border-t border-slate-900 relative z-10">
+        <p>© 2026 Sistema en Desarrollo. Todos los derechos reservados.</p>
+    </footer>
+
+</body>
+
+</html>
