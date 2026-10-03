@@ -1,850 +1,454 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="h-full bg-slate-950">
 
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Zonas & Estadísticas - Agencias</title>
+    <title>AGENCYPRO | Gestión de Zonas (Solo Admins)</title>
+    
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            800: '#3730a3',
+                            900: '#312e81',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- FontAwesome 6 & Toastify CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Leaflet Maps CSS & JS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
-        .custom-scroll::-webkit-scrollbar { width: 5px; }
-        .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
-        
-        /* Estilos personalizados para los popups de Leaflet */
-        .leaflet-popup-content-wrapper, .leaflet-popup-tip {
-            background: #0f172a !important;
-            color: #f8fafc !important;
-            border: 1px solid #334155;
-            border-radius: 1rem;
-        }
+        .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 8px; }
     </style>
 </head>
 
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-indigo-500 selection:text-white">
+<body class="h-full bg-slate-950 text-slate-100 flex overflow-hidden antialiased">
 
-    <!-- HEADER / NAVBAR -->
-    <header class="border-b border-slate-800/80 bg-slate-900/80 backdrop-blur-md sticky top-0 z-40 px-6 py-4">
-        <div class="max-w-7xl mx-auto flex justify-between items-center gap-4">
-            <div class="flex items-center gap-4">
-                <a href="index.html" class="w-10 h-10 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center transition-all border border-slate-700/50 active:scale-95" title="Volver al Inicio">
-                    <i class="fa fa-arrow-left text-sm"></i>
+    <!-- OVERLAY CARGANDO / VERIFICANDO SEGURIDAD -->
+    <div id="securityOverlay" class="fixed inset-0 bg-slate-950 z-50 flex flex-col items-center justify-center space-y-3">
+        <div class="w-10 h-10 border-4 border-brand-500 border-t-transparent rounded-full animate-spin"></div>
+        <p class="text-xs font-bold text-slate-400 tracking-wider uppercase">Verificando Credenciales de Administrador...</p>
+    </div>
+
+    <!-- BACKDROP MOBILE -->
+    <div id="mobileBackdrop" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-40 hidden lg:hidden"></div>
+
+    <!-- SIDEBAR -->
+    <aside id="sidebar" class="fixed lg:static inset-y-0 left-0 z-50 w-72 bg-slate-900/90 border-r border-slate-800/80 flex flex-col justify-between -translate-x-full lg:translate-x-0 transition-transform duration-300 backdrop-blur-xl">
+        <div>
+            <!-- LOGO / BRANDING -->
+            <div class="h-16 px-6 flex items-center justify-between border-b border-slate-800/80">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-500 flex items-center justify-center text-white font-black text-lg shadow-lg shadow-brand-500/20">
+                        A
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-sm tracking-wide text-white">AGENCY<span class="text-brand-500">PRO</span></h1>
+                        <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Gestión de Zonas</p>
+                    </div>
+                </div>
+                <button id="closeSidebarMobile" class="lg:hidden text-slate-400 hover:text-white text-lg">
+                    <i class="fa fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- NAVEGACIÓN -->
+            <nav class="p-4 space-y-1.5 custom-scroll overflow-y-auto max-h-[calc(100vh-140px)]">
+                <p class="px-3 pt-2 pb-1 text-[10px] font-bold uppercase tracking-widest text-slate-500">Menú Principal</p>
+                <a href="index.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 text-xs font-medium transition-all">
+                    <i class="fa fa-building w-4 text-center text-sm"></i>
+                    <span>Inicio</span>
                 </a>
-                <div>
-                    <span class="text-[10px] font-bold uppercase tracking-widest text-indigo-400">Control Geográfico</span>
-                    <h1 class="text-xl font-extrabold text-white tracking-tight">Gestión de Zonas y Métricas</h1>
-                </div>
-            </div>
+                <a href="zonas.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl bg-brand-600/10 text-brand-400 font-semibold text-xs border border-brand-500/20">
+                    <i class="fa fa-map-location-dot w-4 text-center text-sm"></i>
+                    <span>Mapa y Zonas</span>
+                </a>
+                <p class="px-3 pt-4 pb-1 text-[10px] font-bold uppercase tracking-widest text-slate-500">Administración</p>
+                <a href="users.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 text-xs font-medium transition-all">
+                    <i class="fa fa-users-gear w-4 text-center text-sm"></i>
+                    <span>Usuarios y Permisos</span>
+                </a>
+                <a href="configuracion.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 text-xs font-medium transition-all">
+                    <i class="fa fa-sliders w-4 text-center text-sm"></i>
+                    <span>Configuración</span>
+                </a>
+            </nav>
+        </div>
 
-            <div class="flex items-center gap-3">
-                <button id="btnOpenMassiveModal" class="bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition-all shadow-lg shadow-indigo-600/20 active:scale-95 flex items-center gap-2">
-                    <i class="fa fa-right-left"></i>
-                    <span class="hidden sm:inline">Cambio Masivo</span>
-                </button>
-                <button id="btnLogout" class="bg-slate-800 hover:bg-rose-500/20 hover:text-rose-400 text-slate-300 border border-slate-700/50 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all active:scale-95">
-                    <i class="fa fa-sign-out-alt"></i>
+        <!-- FOOTER USER -->
+        <div class="p-4 border-t border-slate-800/80 bg-slate-900/50">
+            <div class="flex items-center justify-between gap-2">
+                <div class="flex items-center gap-2.5 min-w-0">
+                    <div class="w-8 h-8 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center text-brand-400 font-bold text-xs shrink-0">
+                        <i class="fa fa-user-shield"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <p id="userEmail" class="text-xs font-semibold text-slate-200 truncate">Cargando...</p>
+                        <span class="text-[9px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-1.5 py-0.5 rounded font-bold uppercase">ADMIN</span>
+                    </div>
+                </div>
+                <button id="btnLogout" class="text-slate-400 hover:text-rose-400 p-2 rounded-lg hover:bg-rose-500/10 transition-colors" title="Cerrar Sesión">
+                    <i class="fa fa-arrow-right-from-bracket"></i>
                 </button>
             </div>
         </div>
-    </header>
+    </aside>
 
-    <!-- CONTENIDO PRINCIPAL -->
-    <main class="flex-1 max-w-7xl w-full mx-auto px-6 py-8 space-y-8">
-
-        <!-- DASHBOARD KPIS -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div class="bg-slate-900/60 border border-slate-800/80 p-5 rounded-3xl backdrop-blur-sm flex items-center gap-4">
-                <div class="w-12 h-12 rounded-2xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 flex items-center justify-center text-lg shrink-0">
-                    <i class="fa fa-building"></i>
-                </div>
+    <!-- ÁREA PRINCIPAL -->
+    <div class="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
+        <header class="h-16 bg-slate-900/80 border-b border-slate-800/80 px-6 flex items-center justify-between gap-4 shrink-0 backdrop-blur-md">
+            <div class="flex items-center gap-4">
+                <button id="openSidebarMobile" class="lg:hidden text-slate-400 hover:text-white p-2">
+                    <i class="fa fa-bars"></i>
+                </button>
                 <div>
-                    <p class="text-slate-400 text-[11px] font-bold uppercase tracking-wider">Agencias</p>
-                    <h3 id="statTotalAgencies" class="text-2xl font-black text-white">0</h3>
+                    <h2 class="text-base font-bold text-slate-100">Administración Global de Zonas</h2>
+                    <p class="text-[11px] text-slate-400">Edita zonas y actualiza automáticamente todas las agencias vinculadas en Firestore</p>
                 </div>
             </div>
+        </header>
 
-            <div class="bg-slate-900/60 border border-slate-800/80 p-5 rounded-3xl backdrop-blur-sm flex items-center gap-4">
-                <div class="w-12 h-12 rounded-2xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 flex items-center justify-center text-lg shrink-0">
-                    <i class="fa fa-map-pin"></i>
-                </div>
-                <div>
-                    <p class="text-slate-400 text-[11px] font-bold uppercase tracking-wider">Zonas Activas</p>
-                    <h3 id="statTotalZones" class="text-2xl font-black text-white">0</h3>
-                </div>
-            </div>
-
-            <div class="bg-slate-900/60 border border-slate-800/80 p-5 rounded-3xl backdrop-blur-sm flex items-center gap-4">
-                <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center text-lg shrink-0">
-                    <i class="fa fa-circle-check"></i>
-                </div>
-                <div>
-                    <p class="text-slate-400 text-[11px] font-bold uppercase tracking-wider">Habilitadas</p>
-                    <h3 id="statActiveAgencies" class="text-2xl font-black text-white">0</h3>
-                </div>
-            </div>
-
-            <div class="bg-slate-900/60 border border-slate-800/80 p-5 rounded-3xl backdrop-blur-sm flex items-center gap-4">
-                <div class="w-12 h-12 rounded-2xl bg-rose-500/10 text-rose-400 border border-rose-500/20 flex items-center justify-center text-lg shrink-0">
-                    <i class="fa fa-ban"></i>
-                </div>
-                <div>
-                    <p class="text-slate-400 text-[11px] font-bold uppercase tracking-wider">Inhabilitadas</p>
-                    <h3 id="statInactiveAgencies" class="text-2xl font-black text-white">0</h3>
-                </div>
-            </div>
-        </div>
-
-        <!-- SECCIÓN DE MAPA INTERACTIVO CON TOGGLE Y RESET -->
-        <div class="bg-slate-900/60 border border-slate-800/80 p-4 rounded-3xl space-y-3">
-            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 px-2">
-                <div class="flex items-center gap-2">
-                    <i class="fa fa-map text-indigo-400 text-sm"></i>
-                    <h2 class="font-bold text-sm text-white">Mapa Interactivo</h2>
-                </div>
-                
-                <div class="flex flex-wrap items-center gap-2">
-                    <!-- BOTÓN RESTABLECER MAPA COMPLETO -->
-                    <button id="btnResetMap" class="hidden px-3 py-1 rounded-xl font-semibold bg-slate-800 hover:bg-slate-700 text-amber-400 border border-amber-500/30 text-xs transition-all flex items-center gap-1.5 shadow-sm active:scale-95">
-                        <i class="fa fa-rotate-left text-[10px]"></i> Restablecer vista general
+        <main class="flex-1 overflow-y-auto px-6 py-6 custom-scroll bg-slate-950 space-y-6">
+            
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+                <!-- FORMULARIO NUEVA ZONA -->
+                <div class="md:col-span-4 bg-slate-900/60 border border-slate-800/80 p-5 rounded-2xl h-fit space-y-4 shadow-xl">
+                    <h3 class="text-sm font-bold text-slate-100 flex items-center gap-2">
+                        <i class="fa fa-plus-circle text-brand-400"></i>
+                        Crear Nueva Zona
+                    </h3>
+                    <div class="space-y-2">
+                        <label class="block text-xs font-semibold text-slate-400">Nombre de la Zona</label>
+                        <input type="text" id="newZoneInput" placeholder="Ej: SAN JUAN CENTRO" 
+                               class="w-full bg-slate-950 border border-slate-800 text-xs text-slate-200 rounded-xl p-3 focus:outline-none focus:border-brand-500 uppercase font-bold">
+                    </div>
+                    <button id="btnCreateZone" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-bold py-2.5 px-4 rounded-xl text-xs transition-all flex items-center justify-center gap-2 active:scale-[0.99] shadow-lg shadow-brand-600/20">
+                        <i class="fa fa-save"></i> Guardar Zona
                     </button>
+                </div>
 
-                    <!-- BOTONES DE CONMUTACIÓN DE VISTA -->
-                    <div class="flex items-center gap-1 bg-slate-800 p-1 rounded-xl border border-slate-700/60 text-xs">
-                        <button id="btnViewAgencies" class="px-3 py-1 rounded-lg font-semibold bg-indigo-600 text-white transition-all flex items-center gap-1.5">
-                            <i class="fa fa-store text-[10px]"></i> Ver Agencias
+                <!-- LISTA Y EDICIÓN DE ZONAS -->
+                <div class="md:col-span-8 bg-slate-900/60 border border-slate-800/80 p-5 rounded-2xl space-y-4 shadow-xl">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-sm font-bold text-slate-100 flex items-center gap-2">
+                            <i class="fa fa-layer-group text-emerald-400"></i>
+                            Zonas Registradas
+                        </h3>
+                        <button id="btnRefreshZones" class="text-xs text-slate-400 hover:text-slate-200 transition-colors">
+                            <i class="fa fa-rotate-right"></i> Recargar Lista
                         </button>
-                        <button id="btnViewZones" class="px-3 py-1 rounded-lg font-semibold text-slate-400 hover:text-white transition-all flex items-center gap-1.5">
-                            <i class="fa fa-draw-polygon text-[10px]"></i> Ver Zonas
-                        </button>
+                    </div>
+
+                    <div class="overflow-x-auto border border-slate-800/80 rounded-xl bg-slate-950/50">
+                        <table class="w-full text-left text-xs text-slate-300">
+                            <thead class="bg-slate-900/90 text-slate-400 uppercase text-[10px] font-bold border-b border-slate-800">
+                                <tr>
+                                    <th class="p-3">Nombre de la Zona</th>
+                                    <th class="p-3 text-center">Agencias Asociadas</th>
+                                    <th class="p-3 text-center">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="zonesTableBody" class="divide-y divide-slate-800/60">
+                                <tr>
+                                    <td colspan="3" class="p-6 text-center text-slate-500 italic">Cargando zonas...</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
-            <div id="map" class="w-full h-80 rounded-2xl border border-slate-800 z-10 overflow-hidden"></div>
-        </div>
 
-        <!-- BARRA DE BÚSQUEDA Y HERRAMIENTAS -->
-        <div class="flex flex-col md:flex-row items-center justify-between gap-4 bg-slate-900/40 p-4 rounded-2xl border border-slate-800/60">
-            <!-- Buscador en tiempo real -->
-            <div class="relative w-full md:w-80">
-                <i class="fa fa-search absolute left-3.5 top-3.5 text-slate-500 text-xs"></i>
-                <input type="text" id="searchInput" placeholder="Buscar agencia por nombre o código..."
-                    class="w-full bg-slate-800/80 border border-slate-700/60 text-white pl-9 pr-4 py-2 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all">
+        </main>
+    </div>
+
+    <!-- MODAL EDITAR ZONA -->
+    <div id="editModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 w-full max-w-md space-y-4 shadow-2xl">
+            <h3 class="text-sm font-bold text-slate-100 flex items-center gap-2">
+                <i class="fa fa-pen-to-square text-brand-400"></i>
+                Renombrar Zona en Todo el Sistema
+            </h3>
+            <p class="text-xs text-slate-400">
+                Al renombrar esta zona, un proceso Batch actualizará automáticamente <strong class="text-brand-400 font-bold" id="agencyCountText">0</strong> agencias vinculadas en Firestore.
+            </p>
+            <input type="hidden" id="oldZoneName">
+            <div>
+                <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">Nuevo Nombre de la Zona</label>
+                <input type="text" id="editZoneInput" class="w-full bg-slate-950 border border-slate-800 text-xs text-slate-200 rounded-xl p-3 focus:outline-none focus:border-brand-500 uppercase font-bold">
             </div>
-
-            <!-- Filtro por Estado -->
-            <div class="flex items-center gap-1 bg-slate-800/80 p-1 rounded-xl border border-slate-700/60 w-full md:w-auto">
-                <button data-filter="all" class="filter-btn active-filter px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-indigo-600 transition-all flex-1 md:flex-none">Todas</button>
-                <button data-filter="active" class="filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition-all flex-1 md:flex-none">Activas</button>
-                <button data-filter="inactive" class="filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition-all flex-1 md:flex-none">Inactivas</button>
-            </div>
-
-            <!-- Control de Acordeones -->
-            <div class="flex items-center gap-2">
-                <button id="btnExpandAll" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-2 rounded-xl text-xs font-medium border border-slate-700/50 transition-all">
-                    <i class="fa fa-angles-down mr-1"></i> Abrir todo
-                </button>
-                <button id="btnCollapseAll" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-2 rounded-xl text-xs font-medium border border-slate-700/50 transition-all">
-                    <i class="fa fa-angles-up mr-1"></i> Cerrar todo
+            <div class="flex justify-end gap-2 pt-2">
+                <button id="btnCancelEdit" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl">Cancelar</button>
+                <button id="btnConfirmEdit" class="px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold rounded-xl flex items-center gap-2">
+                    <i class="fa fa-arrows-rotate"></i> Actualizar en Todo
                 </button>
             </div>
-        </div>
-
-        <!-- SECCIÓN DE GRÁFICO Y LISTADO -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-
-            <!-- GRÁFICO DE DONA -->
-            <div class="bg-slate-900/60 border border-slate-800/80 p-6 rounded-3xl flex flex-col items-center">
-                <div class="w-full mb-6">
-                    <h2 class="font-bold text-base text-white">Distribución Geográfica</h2>
-                    <p class="text-xs text-slate-400">Porcentaje de agencias por zona</p>
-                </div>
-                <div class="w-full max-w-[240px] relative aspect-square">
-                    <canvas id="zonesChart"></canvas>
-                </div>
-            </div>
-
-            <!-- ACORDEÓN DE ZONAS -->
-            <div class="lg:col-span-2 space-y-4">
-                <div id="loadingZones" class="text-center py-16 bg-slate-900/30 rounded-3xl border border-slate-800">
-                    <i class="fa fa-circle-notch animate-spin text-3xl text-indigo-500 mb-3"></i>
-                    <p class="text-slate-400 text-xs font-bold uppercase tracking-wider">Cargando agencias y zonas...</p>
-                </div>
-
-                <div id="zonesList" class="space-y-4"></div>
-            </div>
-        </div>
-    </main>
-
-    <!-- MODAL: CAMBIO MASIVO -->
-    <div id="massiveModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-3xl p-6 shadow-2xl relative">
-            <button id="btnCloseMassiveModal" class="absolute top-5 right-5 text-slate-500 hover:text-slate-300">
-                <i class="fa fa-xmark text-lg"></i>
-            </button>
-
-            <div class="flex items-center gap-3 mb-6">
-                <div class="w-10 h-10 rounded-2xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center font-bold">
-                    <i class="fa fa-right-left"></i>
-                </div>
-                <div>
-                    <h3 class="font-bold text-white text-base">Reasignación Masiva</h3>
-                    <p class="text-xs text-slate-400">Transferir agencias entre zonas</p>
-                </div>
-            </div>
-
-            <form id="massiveForm" class="space-y-4">
-                <div>
-                    <label class="block text-xs font-bold text-slate-400 uppercase mb-2">Zona de Origen</label>
-                    <select id="sourceZoneSelect" required class="w-full bg-slate-800 border border-slate-700 text-white px-4 py-3 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                    </select>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold text-slate-400 uppercase mb-2">Nueva Zona de Destino</label>
-                    <input type="text" id="targetZoneInput" required placeholder="Ej. Zona Norte / Santo Domingo Este"
-                        class="w-full bg-slate-800 border border-slate-700 text-white px-4 py-3 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                </div>
-
-                <div class="pt-4 border-t border-slate-800">
-                    <label class="block text-xs font-bold text-rose-400 uppercase mb-2">Confirmar Contraseña del Admin</label>
-                    <input type="password" id="adminPasswordInput" required placeholder="••••••••"
-                        class="w-full bg-slate-800 border border-rose-500/40 text-white px-4 py-3 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-rose-500">
-                </div>
-
-                <p id="massiveStatusMsg" class="text-xs font-bold text-center hidden py-1"></p>
-
-                <button type="submit" id="btnExecuteMassive" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3.5 rounded-xl text-sm transition-all shadow-lg active:scale-95 flex items-center justify-center gap-2">
-                    <i class="fa fa-shield-halved"></i>
-                    <span>Autorizar y Transferir</span>
-                </button>
-            </form>
         </div>
     </div>
 
-    <!-- PROTECCIÓN DE RUTA ADMIN -->
-    <script type="module">
-        import { requireAdmin } from "./js/auth.guard.js";
-        requireAdmin();
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 
-    <!-- LÓGICA DE FIRESTORE, MAPA Y BÚSQUEDA -->
+    <!-- FIREBASE LOGIC CON SEGURIDAD ADMIN -->
     <script type="module">
         import { db, auth } from "./js/firebase/firebase.init.js";
-        import { collection, getDocs, writeBatch, doc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-        import { EmailAuthProvider, reauthenticateWithCredential, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { 
+            collection, 
+            doc, 
+            getDoc,
+            getDocs, 
+            setDoc, 
+            deleteDoc, 
+            query, 
+            where, 
+            writeBatch 
+        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
+        const securityOverlay = document.getElementById("securityOverlay");
+        const userEmailSpan = document.getElementById("userEmail");
         const btnLogout = document.getElementById("btnLogout");
-        const loadingZones = document.getElementById("loadingZones");
-        const zonesList = document.getElementById("zonesList");
 
-        const statTotalAgencies = document.getElementById("statTotalAgencies");
-        const statTotalZones = document.getElementById("statTotalZones");
-        const statActiveAgencies = document.getElementById("statActiveAgencies");
-        const statInactiveAgencies = document.getElementById("statInactiveAgencies");
+        const sidebar = document.getElementById("sidebar");
+        const openSidebarMobile = document.getElementById("openSidebarMobile");
+        const closeSidebarMobile = document.getElementById("closeSidebarMobile");
+        const mobileBackdrop = document.getElementById("mobileBackdrop");
 
-        const searchInput = document.getElementById("searchInput");
-        const filterBtns = document.querySelectorAll(".filter-btn");
-        const btnExpandAll = document.getElementById("btnExpandAll");
-        const btnCollapseAll = document.getElementById("btnCollapseAll");
+        const newZoneInput = document.getElementById("newZoneInput");
+        const btnCreateZone = document.getElementById("btnCreateZone");
+        const zonesTableBody = document.getElementById("zonesTableBody");
+        const btnRefreshZones = document.getElementById("btnRefreshZones");
 
-        const btnViewAgencies = document.getElementById("btnViewAgencies");
-        const btnViewZones = document.getElementById("btnViewZones");
-        const btnResetMap = document.getElementById("btnResetMap");
+        const editModal = document.getElementById("editModal");
+        const oldZoneName = document.getElementById("oldZoneName");
+        const editZoneInput = document.getElementById("editZoneInput");
+        const agencyCountText = document.getElementById("agencyCountText");
+        const btnCancelEdit = document.getElementById("btnCancelEdit");
+        const btnConfirmEdit = document.getElementById("btnConfirmEdit");
 
-        const massiveModal = document.getElementById("massiveModal");
-        const btnOpenMassiveModal = document.getElementById("btnOpenMassiveModal");
-        const btnCloseMassiveModal = document.getElementById("btnCloseMassiveModal");
-        const massiveForm = document.getElementById("massiveForm");
-        const sourceZoneSelect = document.getElementById("sourceZoneSelect");
-        const targetZoneInput = document.getElementById("targetZoneInput");
-        const adminPasswordInput = document.getElementById("adminPasswordInput");
-        const massiveStatusMsg = document.getElementById("massiveStatusMsg");
-
-        let globalAgencies = [];
-        let globalZonesGrouped = {};
-        let chartInstance = null;
-        
-        let map = null;
-        let mapMarkers = [];
-        let zonePolygons = [];
-        let currentMapView = "agencies"; // 'agencies' o 'zones'
-        let currentFilterStatus = "all";
-
-        // Paleta de colores para las zonas
-        const zoneColors = [
-            '#6366f1', // Indigo
-            '#06b6d4', // Cyan
-            '#10b981', // Emerald
-            '#f59e0b', // Amber
-            '#ec4899', // Pink
-            '#8b5cf6', // Violet
-            '#f97316', // Orange
-            '#14b8a6', // Teal
-            '#3b82f6', // Blue
-            '#e11d48'  // Rose
-        ];
-
-        // Inicializar Mapa Leaflet con OpenStreetMap
-        function initMap() {
-            map = L.map('map').setView([18.4861, -69.9312], 8);
-
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 19,
-                attribution: '&copy; OpenStreetMap contributors'
-            }).addTo(map);
+        // NOTIFICACIONES
+        function showToast(msg, type = "info") {
+            let bg = type === "success" ? "linear-gradient(to right, #059669, #10b981)" : type === "error" ? "linear-gradient(to right, #e11d48, #f43f5e)" : "#4f46e5";
+            Toastify({ text: msg, duration: 3000, style: { background: bg, borderRadius: "10px", fontSize: "12px", fontWeight: "600" } }).showToast();
         }
 
-        // Algoritmo Convex Hull (Envoltura Convexa) para evitar trazos con líneas cruzadas
-        function getConvexHull(points) {
-            if (points.length <= 2) return points;
-
-            const pts = points.slice().sort((a, b) => a[0] !== b[0] ? a[0] - b[0] : a[1] - b[1]);
-            const crossProduct = (o, a, b) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
-
-            const lower = [];
-            for (let p of pts) {
-                while (lower.length >= 2 && crossProduct(lower[lower.length - 2], lower[lower.length - 1], p) <= 0) {
-                    lower.pop();
-                }
-                lower.push(p);
-            }
-
-            const upper = [];
-            for (let i = pts.length - 1; i >= 0; i--) {
-                let p = pts[i];
-                while (upper.length >= 2 && crossProduct(upper[upper.length - 2], upper[upper.length - 1], p) <= 0) {
-                    upper.pop();
-                }
-                upper.push(p);
-            }
-
-            upper.pop();
-            lower.pop();
-            return lower.concat(upper);
+        // CONTROL SIDEBAR MOBILE
+        function toggleSidebar() {
+            sidebar.classList.toggle("-translate-x-full");
+            mobileBackdrop.classList.toggle("hidden");
         }
+        openSidebarMobile?.addEventListener("click", toggleSidebar);
+        closeSidebarMobile?.addEventListener("click", toggleSidebar);
+        mobileBackdrop?.addEventListener("click", toggleSidebar);
 
-        // Limpieza de capas del mapa
-        function clearMapLayers() {
-            mapMarkers.forEach(m => map.removeLayer(m));
-            zonePolygons.forEach(p => map.removeLayer(p));
-            mapMarkers = [];
-            zonePolygons = [];
-        }
-
-        // Helper para obtener el color asociado a una zona
-        function getZoneColor(zoneName) {
-            const zoneKeys = Object.keys(globalZonesGrouped);
-            const index = zoneKeys.indexOf(zoneName);
-            return index !== -1 ? zoneColors[index % zoneColors.length] : '#64748b';
-        }
-
-        // Renderizado general del mapa según la vista activa
-        function renderMapElements() {
-            if (!map) return;
-            clearMapLayers();
-            btnResetMap.classList.add("hidden");
-
-            const bounds = [];
-            const zoneKeys = Object.keys(globalZonesGrouped);
-
-            const colorMap = {};
-            zoneKeys.forEach((zoneName, index) => {
-                colorMap[zoneName] = zoneColors[index % zoneColors.length];
-            });
-
-            if (currentMapView === "agencies") {
-                // VISTA: PINES CON ÍCONO Y COLOR POR ZONA
-                globalAgencies.forEach(agency => {
-                    const lat = parseFloat(agency.lat || agency.latitud);
-                    const lng = parseFloat(agency.lng || agency.longitud);
-
-                    if (!isNaN(lat) && !isNaN(lng)) {
-                        const isEnabled = agency.enabled !== false;
-                        const zoneName = (agency.zona || agency.region || 'Sin Zona').trim();
-                        const color = colorMap[zoneName] || '#64748b';
-
-                        const customIcon = L.divIcon({
-                            className: 'custom-map-pin',
-                            html: `
-                                <div style="
-                                    background-color: ${color};
-                                    width: 30px;
-                                    height: 30px;
-                                    border-radius: 50% 50% 50% 0;
-                                    transform: rotate(-45deg);
-                                    display: flex;
-                                    align-items: center;
-                                    justify-content: center;
-                                    border: 2px solid ${isEnabled ? '#ffffff' : '#f43f5e'};
-                                    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-                                ">
-                                    <i class="fa fa-store" style="
-                                        transform: rotate(45deg);
-                                        color: #ffffff;
-                                        font-size: 11px;
-                                    "></i>
-                                </div>
-                            `,
-                            iconSize: [30, 30],
-                            iconAnchor: [15, 30],
-                            popupAnchor: [0, -30]
-                        });
-
-                        const marker = L.marker([lat, lng], { icon: customIcon }).addTo(map);
-
-                        marker.bindPopup(`
-                            <div class="text-xs font-sans p-1">
-                                <strong class="block text-white font-bold text-sm mb-1">${agency.idReal || agency.nombre || agency.id}</strong>
-                                <div class="flex items-center gap-1.5 mb-1">
-                                    <span class="w-2.5 h-2.5 rounded-full inline-block" style="background-color: ${color}"></span>
-                                    <span class="text-slate-300 font-semibold">${zoneName}</span>
-                                </div>
-                                <span class="text-slate-400 font-mono text-[10px]">Dirección: ${agency.direccion || 'N/A'}</span>
-                            </div>
-                        `);
-
-                        mapMarkers.push(marker);
-                        bounds.push([lat, lng]);
-                    }
-                });
-            } else {
-                // VISTA: POLÍGONOS PERIMETRALES LIMPIOS POR ZONA (CONVEX HULL)
-                zoneKeys.forEach((zoneName) => {
-                    const list = globalZonesGrouped[zoneName];
-                    const rawCoords = [];
-                    const color = colorMap[zoneName];
-
-                    list.forEach(agency => {
-                        const lat = parseFloat(agency.lat || agency.latitud);
-                        const lng = parseFloat(agency.lng || agency.longitud);
-                        if (!isNaN(lat) && !isNaN(lng)) {
-                            rawCoords.push([lat, lng]);
-                            bounds.push([lat, lng]);
-                        }
-                    });
-
-                    if (rawCoords.length > 0) {
-                        if (rawCoords.length <= 2) {
-                            rawCoords.forEach(pt => {
-                                const circle = L.circle(pt, {
-                                    radius: 2000,
-                                    color: color,
-                                    fillColor: color,
-                                    fillOpacity: 0.25,
-                                    weight: 1.5
-                                }).addTo(map);
-
-                                circle.bindPopup(`<strong class="text-white text-xs">${zoneName}</strong>`);
-                                zonePolygons.push(circle);
-                            });
-                        } else {
-                            const hullCoords = getConvexHull(rawCoords);
-                            const polygon = L.polygon(hullCoords, {
-                                color: color,
-                                fillColor: color,
-                                fillOpacity: 0.25,
-                                weight: 2.5
-                            }).addTo(map);
-
-                            polygon.bindPopup(`<strong class="text-white">${zoneName}</strong><br><span class="text-xs text-slate-300">${rawCoords.length} Agencias en esta área</span>`);
-                            zonePolygons.push(polygon);
-                        }
-                    }
-                });
-            }
-
-            if (bounds.length > 0) {
-                map.fitBounds(bounds, { padding: [30, 30] });
-            }
-        }
-
-        // FUNCIÓN CLAVE: Limpia el mapa por completo y dibuja EXCLUSIVAMENTE la agencia seleccionada
-        window.focusAgencyOnMap = function(agencyId) {
-            const agency = globalAgencies.find(a => a.id === agencyId);
-            if (!agency) return;
-
-            const lat = parseFloat(agency.lat || agency.latitud);
-            const lng = parseFloat(agency.lng || agency.longitud);
-
-            if (isNaN(lat) || isNaN(lng)) return;
-
-            // 1. Limpia todo el mapa
-            clearMapLayers();
-
-            const isEnabled = agency.enabled !== false;
-            const zoneName = (agency.zona || agency.region || 'Sin Zona').trim();
-            const color = getZoneColor(zoneName);
-
-            // 2. Crea únicamente el marcador de esta agencia
-            const customIcon = L.divIcon({
-                className: 'custom-map-pin',
-                html: `
-                    <div style="
-                        background-color: ${color};
-                        width: 36px;
-                        height: 36px;
-                        border-radius: 50% 50% 50% 0;
-                        transform: rotate(-45deg);
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        border: 3px solid ${isEnabled ? '#ffffff' : '#f43f5e'};
-                        box-shadow: 0 6px 16px rgba(0,0,0,0.7);
-                    ">
-                        <i class="fa fa-store" style="
-                            transform: rotate(45deg);
-                            color: #ffffff;
-                            font-size: 14px;
-                        "></i>
-                    </div>
-                `,
-                iconSize: [36, 36],
-                iconAnchor: [18, 36],
-                popupAnchor: [0, -36]
-            });
-
-            const marker = L.marker([lat, lng], { icon: customIcon }).addTo(map);
-
-            marker.bindPopup(`
-                <div class="text-xs font-sans p-1">
-                    <strong class="block text-white font-bold text-sm mb-1">${agency.idReal || agency.nombre || agency.id}</strong>
-                    <div class="flex items-center gap-1.5 mb-1">
-                        <span class="w-2.5 h-2.5 rounded-full inline-block" style="background-color: ${color}"></span>
-                        <span class="text-slate-300 font-semibold">${zoneName}</span>
-                    </div>
-                    <span class="text-slate-400 font-mono text-[10px]">Dirección: ${agency.direccion || 'N/A'}</span>
-                </div>
-            `).openPopup();
-
-            mapMarkers.push(marker);
-
-            // 3. Desplaza el mapa hacia la ubicación focalizada
-            map.flyTo([lat, lng], 16, { duration: 1.2 });
-
-            // 4. Muestra el botón para restablecer la vista general del mapa
-            btnResetMap.classList.remove("hidden");
-
-            // Scroll suave hacia el contenedor del mapa para mejor visibilidad
-            document.getElementById("map").scrollIntoView({ behavior: 'smooth', block: 'center' });
-        };
-
-        // Eventos del conmutador y de restablecer el mapa
-        btnResetMap.addEventListener("click", () => {
-            renderMapElements();
-        });
-
-        btnViewAgencies.addEventListener("click", () => {
-            currentMapView = "agencies";
-            btnViewAgencies.classList.add("bg-indigo-600", "text-white");
-            btnViewAgencies.classList.remove("text-slate-400");
-            btnViewZones.classList.remove("bg-indigo-600", "text-white");
-            btnViewZones.classList.add("text-slate-400");
-            renderMapElements();
-        });
-
-        btnViewZones.addEventListener("click", () => {
-            currentMapView = "zones";
-            btnViewZones.classList.add("bg-indigo-600", "text-white");
-            btnViewZones.classList.remove("text-slate-400");
-            btnViewAgencies.classList.remove("bg-indigo-600", "text-white");
-            btnViewAgencies.classList.add("text-slate-400");
-            renderMapElements();
-        });
-
-        btnLogout.addEventListener("click", async () => {
+        // LOGOUT
+        btnLogout?.addEventListener("click", async () => {
             await signOut(auth);
             window.location.href = "login.html";
         });
 
-        // Carga de datos Firestore
-        async function loadZonesData() {
-            try {
-                loadingZones.style.display = "block";
-                zonesList.innerHTML = "";
-
-                const snapshot = await getDocs(collection(db, "agencias"));
-                globalAgencies = [];
-
-                snapshot.forEach((docSnap) => {
-                    globalAgencies.push({ id: docSnap.id, ...docSnap.data() });
-                });
-
-                processAndRender();
-                renderMapElements();
-            } catch (error) {
-                console.error("Error al cargar agencias:", error);
-                zonesList.innerHTML = `
-                    <div class="text-center py-8 text-rose-400 font-semibold text-xs bg-slate-900/40 rounded-3xl border border-rose-500/20">
-                        <i class="fa fa-exclamation-triangle text-xl mb-2"></i>
-                        <p>Error de lectura: ${error.message}</p>
-                    </div>
-                `;
-            } finally {
-                loadingZones.style.display = "none";
-            }
-        }
-
-        function processAndRender() {
-            let activeCount = 0;
-            let inactiveCount = 0;
-            globalZonesGrouped = {};
-
-            const searchTerm = searchInput.value.toLowerCase().trim();
-
-            globalAgencies.forEach((agency) => {
-                const isEnabled = agency.enabled !== false;
-                if (isEnabled) activeCount++;
-                else inactiveCount++;
-
-                if (currentFilterStatus === "active" && !isEnabled) return;
-                if (currentFilterStatus === "inactive" && isEnabled) return;
-
-                const name = (agency.idReal || agency.nombre || agency.id || "").toLowerCase();
-                const code = (agency.direccion || agency.codigo || "").toLowerCase();
-                if (searchTerm && !name.includes(searchTerm) && !code.includes(searchTerm)) return;
-
-                const zoneName = (agency.zona || agency.region || "Sin Zona").trim();
-                if (!globalZonesGrouped[zoneName]) globalZonesGrouped[zoneName] = [];
-                globalZonesGrouped[zoneName].push(agency);
-            });
-
-            statTotalAgencies.innerText = globalAgencies.length;
-            statTotalZones.innerText = Object.keys(globalZonesGrouped).length;
-            statActiveAgencies.innerText = activeCount;
-            statInactiveAgencies.innerText = inactiveCount;
-
-            populateSourceSelect(Object.keys(globalZonesGrouped));
-            renderChart(globalZonesGrouped);
-            renderAccordion(globalZonesGrouped);
-        }
-
-        function populateSourceSelect(zones) {
-            sourceZoneSelect.innerHTML = zones.map(z => `<option value="${z}">${z} (${globalZonesGrouped[z].length} agencias)</option>`).join("");
-        }
-
-        function renderChart(zonesGrouped) {
-            const ctx = document.getElementById('zonesChart').getContext('2d');
-            const labels = Object.keys(zonesGrouped);
-            const dataCounts = labels.map(l => zonesGrouped[l].length);
-
-            if (chartInstance) chartInstance.destroy();
-
-            chartInstance = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        data: dataCounts,
-                        backgroundColor: zoneColors,
-                        borderWidth: 2,
-                        borderColor: '#0f172a'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: { color: '#94a3b8', font: { family: 'Plus Jakarta Sans', size: 10, weight: '600' }, boxWidth: 10, usePointStyle: true }
-                        }
-                    },
-                    cutout: '75%'
-                }
-            });
-        }
-
-        function renderAccordion(zonesGrouped) {
-            zonesList.innerHTML = "";
-            const zoneKeys = Object.keys(zonesGrouped);
-
-            if (zoneKeys.length === 0) {
-                zonesList.innerHTML = `<div class="text-center py-12 text-slate-500 text-xs bg-slate-900/30 rounded-3xl border border-slate-800">No hay agencias que coincidan con los filtros aplicados.</div>`;
+        // VERIFICACIÓN ESTRICTA DE ROL ADMIN
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = "login.html";
                 return;
             }
 
-            zoneKeys.forEach((zoneName) => {
-                const list = zonesGrouped[zoneName];
-                const activeInZone = list.filter(a => a.enabled !== false).length;
-
-                const card = document.createElement("div");
-                card.className = "zone-accordion-card bg-slate-900/40 border border-slate-800 rounded-3xl overflow-hidden transition-all hover:border-slate-700/80";
-
-                const itemsHtml = list.map(agency => {
-                    const isEnabled = agency.enabled !== false;
-                    const name = agency.idReal || agency.nombre || "Sin nombre";
-                    const code = agency.direccion || agency.codigo || "Sin dirección";
-                    const lat = agency.lat || agency.latitud;
-                    const lng = agency.lng || agency.longitud;
-                    const address = agency.direccion || agency.address;
-
-                    let mapUrl = lat && lng ? `https://www.google.com/maps?q=${lat},${lng}` : address ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}` : null;
-
-                    return `
-                        <div class="p-3.5 rounded-2xl bg-slate-900/80 border border-slate-800/80 flex items-center justify-between gap-3 hover:border-indigo-500/30 transition-all">
-                            <div class="flex items-center gap-3 min-w-0">
-                                <div class="w-8 h-8 rounded-xl bg-slate-800 text-slate-300 flex items-center justify-center font-bold text-xs shrink-0 border border-slate-700/50">
-                                    ${name.charAt(0).toUpperCase()}
-                                </div>
-                                <div class="min-w-0">
-                                    <h4 class="font-bold text-xs text-slate-200 truncate">${name}</h4>
-                                    <p class="text-[10px] font-mono text-slate-500 truncate">Dirección: ${code}</p>
-                                </div>
-                            </div>
-                            <div class="flex items-center gap-2 shrink-0">
-                                <span class="text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-md ${isEnabled ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'}">
-                                    ${isEnabled ? 'Activa' : 'Inactiva'}
-                                </span>
-                                ${lat && lng ? `
-                                    <button onclick="focusAgencyOnMap('${agency.id}')" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-indigo-600 text-slate-400 hover:text-white flex items-center justify-center transition-all border border-slate-700/50" title="Ver únicamente esta agencia en el mapa">
-                                        <i class="fa fa-crosshairs text-xs"></i>
-                                    </button>
-                                ` : ''}
-                                ${mapUrl ? `
-                                    <a href="${mapUrl}" target="_blank" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition-all border border-slate-700/50" title="Abrir en Google Maps">
-                                        <i class="fa fa-arrow-up-right-from-square text-[10px]"></i>
-                                    </a>
-                                ` : ''}
-                            </div>
-                        </div>
-                    `;
-                }).join("");
-
-                card.innerHTML = `
-                    <button class="accordion-header w-full p-5 flex items-center justify-between gap-4 text-left focus:outline-none bg-slate-900/60 hover:bg-slate-800/50 transition-all">
-                        <div class="flex items-center gap-3.5">
-                            <div class="w-9 h-9 rounded-2xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center text-sm font-bold border border-indigo-500/20 shrink-0">
-                                <i class="fa fa-layer-group"></i>
-                            </div>
-                            <div>
-                                <h3 class="font-bold text-sm text-white">${zoneName}</h3>
-                                <p class="text-[11px] text-slate-400 font-medium">${list.length} Agencias (${activeInZone} Habilitadas)</p>
-                            </div>
-                        </div>
-                        <i class="fa fa-chevron-down text-slate-500 text-xs transition-transform duration-300 accordion-arrow"></i>
-                    </button>
-                    <div class="accordion-content hidden px-5 pb-5 pt-1 space-y-2.5 border-t border-slate-800/60 bg-slate-950/40">
-                        ${itemsHtml}
-                    </div>
-                `;
-
-                const header = card.querySelector(".accordion-header");
-                const content = card.querySelector(".accordion-content");
-                const arrow = card.querySelector(".accordion-arrow");
-
-                header.addEventListener("click", () => {
-                    const isHidden = content.classList.contains("hidden");
-                    if (isHidden) {
-                        content.classList.remove("hidden");
-                        arrow.classList.add("rotate-180");
-                    } else {
-                        content.classList.add("hidden");
-                        arrow.classList.remove("rotate-180");
-                    }
-                });
-
-                zonesList.appendChild(card);
-            });
-        }
-
-        // Filtros y Búsqueda
-        searchInput.addEventListener("input", () => {
-            processAndRender();
-        });
-
-        filterBtns.forEach(btn => {
-            btn.addEventListener("click", (e) => {
-                filterBtns.forEach(b => {
-                    b.classList.remove("bg-indigo-600", "text-white");
-                    b.classList.add("text-slate-400");
-                });
-                btn.classList.add("bg-indigo-600", "text-white");
-                btn.classList.remove("text-slate-400");
-
-                currentFilterStatus = btn.dataset.filter;
-                processAndRender();
-            });
-        });
-
-        // Controles de Acordeón Masivo
-        btnExpandAll.addEventListener("click", () => {
-            document.querySelectorAll(".accordion-content").forEach(el => el.classList.remove("hidden"));
-            document.querySelectorAll(".accordion-arrow").forEach(el => el.classList.add("rotate-180"));
-        });
-
-        btnCollapseAll.addEventListener("click", () => {
-            document.querySelectorAll(".accordion-content").forEach(el => el.classList.add("hidden"));
-            document.querySelectorAll(".accordion-arrow").forEach(el => el.classList.remove("rotate-180"));
-        });
-
-        // Modal de Reasignación Masiva
-        btnOpenMassiveModal.addEventListener("click", () => {
-            massiveModal.classList.remove("hidden");
-        });
-
-        btnCloseMassiveModal.addEventListener("click", () => {
-            massiveModal.classList.add("hidden");
-            massiveForm.reset();
-            massiveStatusMsg.classList.add("hidden");
-        });
-
-        massiveForm.addEventListener("submit", async (e) => {
-            e.preventDefault();
-            const sourceZone = sourceZoneSelect.value;
-            const targetZone = targetZoneInput.value.trim();
-            const password = adminPasswordInput.value;
-
-            if (!sourceZone || !targetZone || !password) return;
-
             try {
-                massiveStatusMsg.innerText = "Autenticando y actualizando...";
-                massiveStatusMsg.className = "text-xs font-bold text-center text-indigo-400 block py-1";
+                // Verificar en la colección 'users' el rol del UID actual
+                const userDocRef = doc(db, "users", user.uid);
+                const userSnap = await getDoc(userDocRef);
 
-                const user = auth.currentUser;
-                const credential = EmailAuthProvider.credential(user.email, password);
-                await reauthenticateWithCredential(user, credential);
+                if (!userSnap.exists() || userSnap.data().role !== "admin") {
+                    alert("Acceso denegado: Solo los usuarios con rol de Administrador pueden acceder a esta sección.");
+                    window.location.href = "index.html"; // Redirigir a inicio
+                    return;
+                }
 
-                const agenciesToUpdate = globalAgencies.filter(a => (a.zona || a.region || "Sin Zona").trim() === sourceZone);
-                const batch = writeBatch(db);
-
-                agenciesToUpdate.forEach(agency => {
-                    const ref = doc(db, "agencias", agency.id);
-                    batch.update(ref, { zona: targetZone });
-                });
-
-                await batch.commit();
-
-                massiveStatusMsg.innerText = "¡Zonas reasignadas exitosamente!";
-                massiveStatusMsg.className = "text-xs font-bold text-center text-emerald-400 block py-1";
-
-                setTimeout(() => {
-                    massiveModal.classList.add("hidden");
-                    massiveForm.reset();
-                    massiveStatusMsg.classList.add("hidden");
-                    loadZonesData();
-                }, 1500);
+                // Permiso concedido
+                userEmailSpan.innerText = user.email;
+                securityOverlay.classList.add("hidden"); // Ocultar overlay
+                loadZones();
 
             } catch (error) {
-                console.error("Error en cambio masivo:", error);
-                massiveStatusMsg.innerText = "Error: Contraseña incorrecta o fallo de red.";
-                massiveStatusMsg.className = "text-xs font-bold text-center text-rose-400 block py-1";
+                console.error("Error al validar permisos:", error);
+                alert("Ocurrió un error al verificar tus credenciales.");
+                window.location.href = "index.html";
             }
         });
 
-        // Inicialización al cargar el DOM
-        document.addEventListener("DOMContentLoaded", () => {
-            initMap();
-            loadZonesData();
+        // CARGAR ZONAS Y CONTAR AGENCIAS
+        async function loadZones() {
+            zonesTableBody.innerHTML = `<tr><td colspan="3" class="p-6 text-center text-slate-500 italic">Cargando zonas y agencias asociadas...</td></tr>`;
+            try {
+                const [zonesSnap, agenciasSnap] = await Promise.all([
+                    getDocs(collection(db, "zonas")),
+                    getDocs(collection(db, "agencias"))
+                ]);
+
+                const agencyCounts = {};
+                agenciasSnap.forEach(docSnap => {
+                    const data = docSnap.data();
+                    if (data.zona) {
+                        const zName = data.zona.toUpperCase().trim();
+                        agencyCounts[zName] = (agencyCounts[zName] || 0) + 1;
+                    }
+                });
+
+                const zonesList = [];
+                zonesSnap.forEach(docSnap => {
+                    zonesList.push(docSnap.id);
+                });
+
+                // Incluir zonas detectadas en agencias que no estén creadas explícitamente en /zonas
+                Object.keys(agencyCounts).forEach(z => {
+                    if (!zonesList.includes(z)) zonesList.push(z);
+                });
+
+                if (zonesList.length === 0) {
+                    zonesTableBody.innerHTML = `<tr><td colspan="3" class="p-6 text-center text-slate-500 italic">No hay zonas registradas en el sistema.</td></tr>`;
+                    return;
+                }
+
+                zonesTableBody.innerHTML = "";
+                zonesList.sort().forEach(zoneName => {
+                    const count = agencyCounts[zoneName] || 0;
+                    const tr = document.createElement("tr");
+                    tr.className = "hover:bg-slate-900/50 transition-colors";
+                    tr.innerHTML = `
+                        <td class="p-3 font-bold text-slate-200">${zoneName}</td>
+                        <td class="p-3 text-center">
+                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${count > 0 ? 'bg-brand-500/10 text-brand-400 border border-brand-500/20' : 'bg-slate-800 text-slate-500'}">
+                                ${count} Agencias
+                            </span>
+                        </td>
+                        <td class="p-3 text-center space-x-2">
+                            <button class="btnEdit text-brand-400 hover:text-brand-300 p-1.5 rounded-lg hover:bg-brand-500/10 transition-colors" data-zone="${zoneName}" data-count="${count}" title="Renombrar Zona">
+                                <i class="fa fa-pen-to-square"></i>
+                            </button>
+                            <button class="btnDelete text-rose-400 hover:text-rose-300 p-1.5 rounded-lg hover:bg-rose-500/10 transition-colors" data-zone="${zoneName}" title="Eliminar Zona">
+                                <i class="fa fa-trash-can"></i>
+                            </button>
+                        </td>
+                    `;
+                    zonesTableBody.appendChild(tr);
+                });
+
+                // EVENTOS EDITAR / ELIMINAR
+                document.querySelectorAll(".btnEdit").forEach(btn => {
+                    btn.addEventListener("click", (e) => {
+                        const z = e.currentTarget.getAttribute("data-zone");
+                        const c = e.currentTarget.getAttribute("data-count");
+                        oldZoneName.value = z;
+                        editZoneInput.value = z;
+                        agencyCountText.innerText = c;
+                        editModal.classList.remove("hidden");
+                    });
+                });
+
+                document.querySelectorAll(".btnDelete").forEach(btn => {
+                    btn.addEventListener("click", async (e) => {
+                        const z = e.currentTarget.getAttribute("data-zone");
+                        if (confirm(`¿Seguro que deseas eliminar la zona "${z}"? (Nota: Las agencias conservarán el texto pero la zona se removerá del catálogo de zonas)`)) {
+                            await deleteDoc(doc(db, "zonas", z));
+                            showToast("Zona eliminada del catálogo", "info");
+                            loadZones();
+                        }
+                    });
+                });
+
+            } catch (err) {
+                console.error("Error al cargar las zonas:", err);
+                showToast("Error al cargar zonas de Firestore", "error");
+            }
+        }
+
+        // CREAR ZONA
+        btnCreateZone.addEventListener("click", async () => {
+            const zName = newZoneInput.value.toUpperCase().trim();
+            if (!zName) return showToast("Debes escribir un nombre para la zona", "error");
+
+            try {
+                await setDoc(doc(db, "zonas", zName), { nombre: zName, created_at: Date.now() });
+                newZoneInput.value = "";
+                showToast("Zona creada con éxito", "success");
+                loadZones();
+            } catch (err) {
+                console.error(err);
+                showToast("Error al crear la zona", "error");
+            }
         });
+
+        // RENOMBRAR ZONA Y ACTUALIZAR EN BATCH LAS AGENCIAS
+        btnConfirmEdit.addEventListener("click", async () => {
+            const oldZ = oldZoneName.value;
+            const newZ = editZoneInput.value.toUpperCase().trim();
+
+            if (!newZ || oldZ === newZ) {
+                editModal.classList.add("hidden");
+                return;
+            }
+
+            btnConfirmEdit.disabled = true;
+            btnConfirmEdit.innerHTML = `<i class="fa fa-spinner fa-spin"></i> Actualizando...`;
+
+            try {
+                // 1. Crear nueva zona y borrar la antigua en catálogo
+                await setDoc(doc(db, "zonas", newZ), { nombre: newZ, updated_at: Date.now() });
+                if (oldZ !== newZ) await deleteDoc(doc(db, "zonas", oldZ));
+
+                // 2. Buscar agencias asociadas al nombre viejo
+                const q = query(collection(db, "agencias"), where("zona", "==", oldZ));
+                const querySnap = await getDocs(q);
+
+                // 3. Lote Batch de actualización en Firestore
+                if (!querySnap.empty) {
+                    const batch = writeBatch(db);
+                    querySnap.forEach(docSnap => {
+                        const ref = doc(db, "agencias", docSnap.id);
+                        const agencyData = docSnap.data();
+                        
+                        batch.update(ref, {
+                            zona: newZ,
+                            updated_at: Date.now(),
+                            searchable: `${docSnap.id} ${newZ} ${agencyData.direccion || ''}`.toLowerCase()
+                        });
+                    });
+                    await batch.commit();
+                }
+
+                showToast(`Zona cambiada a "${newZ}" en ${querySnap.size} agencias`, "success");
+                editModal.classList.add("hidden");
+                loadZones();
+
+            } catch (err) {
+                console.error("Error al actualizar la zona:", err);
+                showToast("Error al actualizar las agencias vinculadas", "error");
+            } finally {
+                btnConfirmEdit.disabled = false;
+                btnConfirmEdit.innerHTML = `<i class="fa fa-arrows-rotate"></i> Actualizar en Todo`;
+            }
+        });
+
+        btnCancelEdit.addEventListener("click", () => editModal.classList.add("hidden"));
+        btnRefreshZones.addEventListener("click", loadZones);
     </script>
 </body>
-
 </html>

@@ -1,347 +1,415 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Reportes y Métricas - Dashboard</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reportes y Analítica - Agencias</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-    <!-- Chart.js para gráficos dinámicos -->
+    <!-- FontAwesome Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- SheetJS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <!-- SweetAlert2 CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
-        .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
-        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
-        .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
-        .custom-scroll::-webkit-scrollbar-thumb:hover { background: #475569; }
-    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            500: '#0284c7',
+                            600: '#0369a1',
+                            700: '#075985',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
 </head>
+<body class="bg-slate-50 font-sans text-slate-800 antialiased min-h-screen">
 
-<body class="bg-slate-950 min-h-screen flex flex-col text-slate-100 selection:bg-indigo-500 selection:text-white">
-
-    <!-- HEADER / NAVBAR -->
-    <header class="bg-gradient-to-r from-indigo-950 via-slate-900 to-slate-950 border-b border-slate-800/80 px-6 py-4 shadow-2xl shrink-0 z-10 sticky top-0 backdrop-blur-md">
-        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div class="flex items-center gap-4">
-                <a href="index.html" class="bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white w-10 h-10 rounded-2xl flex items-center justify-center transition-all border border-slate-700/60 shadow-inner active:scale-95" title="Volver al inicio">
-                    <i class="fa fa-arrow-left text-sm"></i>
-                </a>
-                <div>
-                    <p class="text-indigo-400 text-[10px] uppercase tracking-[0.25em] font-extrabold opacity-90">
-                        Analítica & Business Intelligence
-                    </p>
-                    <h1 class="font-black text-2xl tracking-tight text-white">Reportes y Métricas</h1>
-                </div>
+    <div class="max-w-7xl mx-auto px-4 py-8">
+        
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8 pb-4 border-b border-slate-200">
+            <div>
+                <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight flex items-center gap-3">
+                    <span class="p-2 bg-brand-500 text-white rounded-xl shadow-md">
+                        <i class="fa-solid fa-chart-pie text-xl"></i>
+                    </span>
+                    Reportes y Analítica de Agencias
+                </h1>
+                <p class="text-slate-500 mt-1 text-sm">Visualiza métricas clave, distribución por zona y exporta reportes detallados.</p>
             </div>
-
-            <!-- CONTROLES Y FILTROS -->
-            <div class="flex items-center gap-3 w-full sm:w-auto">
-                <select id="timeRange" class="bg-slate-900 border border-slate-700/80 text-slate-200 text-xs font-semibold px-4 py-2.5 rounded-xl focus:outline-none focus:border-indigo-500 transition-all cursor-pointer">
-                    <option value="7d">Últimos 7 días</option>
-                    <option value="30d" selected>Últimos 30 días</option>
-                    <option value="90d">Último trimestre</option>
-                    <option value="1y">Año actual</option>
-                </select>
-
-                <button onclick="exportReport()" class="bg-indigo-600 hover:bg-indigo-500 text-white border border-indigo-400/30 px-4 py-2.5 rounded-xl text-xs font-bold transition-all active:scale-95 flex items-center gap-2 shadow-lg shadow-indigo-600/20">
-                    <i class="fa fa-download text-xs"></i>
-                    <span>Exportar PDF</span>
+            <div class="mt-4 md:mt-0 flex items-center gap-3">
+                <button id="btnExportExcel" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md transition-all flex items-center gap-2">
+                    <i class="fa-solid fa-file-excel"></i> Exportar Excel
+                </button>
+                <button id="btnPrintReport" class="px-4 py-2 bg-slate-700 hover:bg-slate-800 text-white text-xs font-bold rounded-xl shadow-md transition-all flex items-center gap-2">
+                    <i class="fa-solid fa-print"></i> Imprimir / PDF
                 </button>
             </div>
         </div>
-    </header>
 
-    <!-- CONTENIDO PRINCIPAL -->
-    <main class="flex-1 overflow-y-auto px-6 py-8 custom-scroll relative">
-        <!-- Luces de fondo decorativas -->
-        <div class="absolute top-10 left-10 w-96 h-96 bg-indigo-600/5 rounded-full blur-3xl pointer-events-none"></div>
-        <div class="absolute top-1/3 right-10 w-96 h-96 bg-emerald-600/5 rounded-full blur-3xl pointer-events-none"></div>
-
-        <div class="max-w-7xl mx-auto space-y-8 relative z-10">
-
-            <!-- METRICAS CLAVE / KPIS -->
-            <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-                <!-- KPI 1 -->
-                <div class="bg-slate-900/80 border border-slate-800/90 p-5 rounded-3xl shadow-xl backdrop-blur-xl relative overflow-hidden group hover:border-slate-700 transition-all">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <p class="text-slate-400 text-xs font-extrabold uppercase tracking-wider">Ingresos Totales</p>
-                            <h3 class="text-2xl font-black text-white mt-1">$45,280.00</h3>
-                        </div>
-                        <div class="w-10 h-10 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 rounded-2xl flex items-center justify-center font-bold text-base">
-                            <i class="fa fa-dollar-sign"></i>
-                        </div>
-                    </div>
-                    <div class="mt-4 flex items-center gap-2 text-xs">
-                        <span class="text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded-md flex items-center gap-1">
-                            <i class="fa fa-arrow-up text-[10px]"></i> +12.5%
-                        </span>
-                        <span class="text-slate-500">vs período anterior</span>
-                    </div>
+        <!-- Filters Bar -->
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 mb-8 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+                <label for="filterZona" class="block text-xs font-bold text-slate-600 mb-1.5 uppercase">Filtrar por Zona</label>
+                <select id="filterZona" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                    <option value="ALL">Todas las Zonas</option>
+                </select>
+            </div>
+            <div>
+                <label for="searchQuery" class="block text-xs font-bold text-slate-600 mb-1.5 uppercase">Buscar Agencia / ID / Dirección</label>
+                <div class="relative">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-400 text-xs"></i>
+                    <input type="text" id="searchQuery" placeholder="Ej. 8125840 o Calle Principal..." class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
                 </div>
-
-                <!-- KPI 2 -->
-                <div class="bg-slate-900/80 border border-slate-800/90 p-5 rounded-3xl shadow-xl backdrop-blur-xl relative overflow-hidden group hover:border-slate-700 transition-all">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <p class="text-slate-400 text-xs font-extrabold uppercase tracking-wider">Nuevos Usuarios</p>
-                            <h3 class="text-2xl font-black text-white mt-1">1,482</h3>
-                        </div>
-                        <div class="w-10 h-10 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-2xl flex items-center justify-center font-bold text-base">
-                            <i class="fa fa-user-plus"></i>
-                        </div>
-                    </div>
-                    <div class="mt-4 flex items-center gap-2 text-xs">
-                        <span class="text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded-md flex items-center gap-1">
-                            <i class="fa fa-arrow-up text-[10px]"></i> +8.2%
-                        </span>
-                        <span class="text-slate-500">vs período anterior</span>
-                    </div>
-                </div>
-
-                <!-- KPI 3 -->
-                <div class="bg-slate-900/80 border border-slate-800/90 p-5 rounded-3xl shadow-xl backdrop-blur-xl relative overflow-hidden group hover:border-slate-700 transition-all">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <p class="text-slate-400 text-xs font-extrabold uppercase tracking-wider">Tasa de Conversión</p>
-                            <h3 class="text-2xl font-black text-white mt-1">3.42%</h3>
-                        </div>
-                        <div class="w-10 h-10 bg-amber-500/10 border border-amber-500/20 text-amber-400 rounded-2xl flex items-center justify-center font-bold text-base">
-                            <i class="fa fa-chart-pie"></i>
-                        </div>
-                    </div>
-                    <div class="mt-4 flex items-center gap-2 text-xs">
-                        <span class="text-rose-400 font-bold bg-rose-500/10 px-2 py-0.5 rounded-md flex items-center gap-1">
-                            <i class="fa fa-arrow-down text-[10px]"></i> -1.1%
-                        </span>
-                        <span class="text-slate-500">vs período anterior</span>
-                    </div>
-                </div>
-
-                <!-- KPI 4 -->
-                <div class="bg-slate-900/80 border border-slate-800/90 p-5 rounded-3xl shadow-xl backdrop-blur-xl relative overflow-hidden group hover:border-slate-700 transition-all">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <p class="text-slate-400 text-xs font-extrabold uppercase tracking-wider">Soporte Atendido</p>
-                            <h3 class="text-2xl font-black text-white mt-1">98.6%</h3>
-                        </div>
-                        <div class="w-10 h-10 bg-blue-500/10 border border-blue-500/20 text-blue-400 rounded-2xl flex items-center justify-center font-bold text-base">
-                            <i class="fa fa-headset"></i>
-                        </div>
-                    </div>
-                    <div class="mt-4 flex items-center gap-2 text-xs">
-                        <span class="text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded-md flex items-center gap-1">
-                            <i class="fa fa-arrow-up text-[10px]"></i> +2.4%
-                        </span>
-                        <span class="text-slate-500">vs período anterior</span>
-                    </div>
-                </div>
-            </section>
-
-            <!-- SECCIÓN DE GRÁFICOS -->
-            <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <!-- GRÁFICO PRINCIPAL: RENDIMIENTO / INGRESOS -->
-                <div class="lg:col-span-2 bg-slate-900/80 border border-slate-800/90 p-6 rounded-3xl shadow-2xl backdrop-blur-xl">
-                    <div class="flex justify-between items-center mb-6">
-                        <div>
-                            <h2 class="font-extrabold text-white text-base">Tendencia de Ingresos</h2>
-                            <p class="text-slate-400 text-xs">Comparativa mensual entre ingresos brutos y netos</p>
-                        </div>
-                        <span class="bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-extrabold px-3 py-1 rounded-full">
-                            En Tiempo Real
-                        </span>
-                    </div>
-                    <div class="relative h-72 w-full">
-                        <canvas id="revenueChart"></canvas>
-                    </div>
-                </div>
-
-                <!-- GRÁFICO SECUNDARIO: DISTRIBUCIÓN -->
-                <div class="bg-slate-900/80 border border-slate-800/90 p-6 rounded-3xl shadow-2xl backdrop-blur-xl flex flex-col justify-between">
-                    <div>
-                        <div class="mb-6">
-                            <h2 class="font-extrabold text-white text-base">Distribución por Canal</h2>
-                            <p class="text-slate-400 text-xs">Origen de tráfico y ventas</p>
-                        </div>
-                        <div class="relative h-56 w-full flex items-center justify-center">
-                            <canvas id="channelChart"></canvas>
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-2 gap-2 mt-4 pt-4 border-t border-slate-800 text-center text-xs text-slate-400">
-                        <div>Directo: <span class="font-bold text-white">45%</span></div>
-                        <div>Social: <span class="font-bold text-white">30%</span></div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- TABLA DE DESGLOSE DE ACTIVIDAD -->
-            <section class="bg-slate-900/80 border border-slate-800/90 p-6 rounded-3xl shadow-2xl backdrop-blur-xl">
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-                    <div>
-                        <h2 class="font-extrabold text-white text-base">Resumen de Transacciones Recientes</h2>
-                        <p class="text-slate-400 text-xs">Detalle de operaciones registradas durante el período seleccionado</p>
-                    </div>
-                    <div class="relative w-full sm:w-64">
-                        <i class="fa fa-search absolute left-3.5 top-3 text-slate-500 text-xs"></i>
-                        <input type="text" id="searchInput" placeholder="Buscar transacción..."
-                            class="w-full bg-slate-800/60 border border-slate-700/70 text-white pl-9 pr-4 py-2 rounded-xl text-xs focus:outline-none focus:border-indigo-500 transition-all placeholder:text-slate-500">
-                    </div>
-                </div>
-
-                <div class="overflow-x-auto custom-scroll">
-                    <table class="w-full text-left text-xs text-slate-300">
-                        <thead class="bg-slate-800/50 text-slate-400 uppercase tracking-wider border-b border-slate-800">
-                            <tr>
-                                <th class="p-3.5 rounded-l-xl">ID Ref.</th>
-                                <th class="p-3.5">Cliente / Usuario</th>
-                                <th class="p-3.5">Fecha</th>
-                                <th class="p-3.5">Estado</th>
-                                <th class="p-3.5 text-right rounded-r-xl">Monto</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-800/60 font-medium">
-                            <tr class="hover:bg-slate-800/30 transition-colors">
-                                <td class="p-3.5 font-mono text-indigo-400">#TRX-8921</td>
-                                <td class="p-3.5 font-bold text-white">Carlos Mendoza</td>
-                                <td class="p-3.5 text-slate-400">2026-09-27</td>
-                                <td class="p-3.5">
-                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Completado
-                                    </span>
-                                </td>
-                                <td class="p-3.5 text-right font-black text-white">$1,250.00</td>
-                            </tr>
-                            <tr class="hover:bg-slate-800/30 transition-colors">
-                                <td class="p-3.5 font-mono text-indigo-400">#TRX-8920</td>
-                                <td class="p-3.5 font-bold text-white">Ana Lucía Gómez</td>
-                                <td class="p-3.5 text-slate-400">2026-09-27</td>
-                                <td class="p-3.5">
-                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-amber-500/10 text-amber-400 border border-amber-500/20">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span> Pendiente
-                                    </span>
-                                </td>
-                                <td class="p-3.5 text-right font-black text-white">$840.50</td>
-                            </tr>
-                            <tr class="hover:bg-slate-800/30 transition-colors">
-                                <td class="p-3.5 font-mono text-indigo-400">#TRX-8919</td>
-                                <td class="p-3.5 font-bold text-white">Marcos Ramos</td>
-                                <td class="p-3.5 text-slate-400">2026-09-26</td>
-                                <td class="p-3.5">
-                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Completado
-                                    </span>
-                                </td>
-                                <td class="p-3.5 text-right font-black text-white">$3,100.00</td>
-                            </tr>
-                            <tr class="hover:bg-slate-800/30 transition-colors">
-                                <td class="p-3.5 font-mono text-indigo-400">#TRX-8918</td>
-                                <td class="p-3.5 font-bold text-white">Empresa VIP S.R.L.</td>
-                                <td class="p-3.5 text-slate-400">2026-09-25</td>
-                                <td class="p-3.5">
-                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-rose-500/10 text-rose-400 border border-rose-500/20">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-rose-400"></span> Cancelado
-                                    </span>
-                                </td>
-                                <td class="p-3.5 text-right font-black text-white">$450.00</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </section>
-
+            </div>
+            <div class="flex items-end gap-2">
+                <button id="btnApplyFilters" class="w-full py-2 bg-brand-500 hover:bg-brand-600 text-white text-xs font-bold rounded-xl shadow transition-all flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-filter"></i> Aplicar Filtros
+                </button>
+                <button id="btnResetFilters" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold rounded-xl border border-slate-200 transition-all">
+                    <i class="fa-solid fa-rotate"></i>
+                </button>
+            </div>
         </div>
-    </main>
 
-    <!-- INICIALIZACIÓN DE GRÁFICOS Y LÓGICA DE INTERACCIÓN -->
-    <script>
-        // Configuración de Chart.js
-        Chart.defaults.color = '#94a3b8';
-        Chart.defaults.font.family = 'Plus Jakarta Sans';
+        <!-- Metric KPI Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Agencias</p>
+                    <h3 id="kpiTotalAgencies" class="text-3xl font-extrabold text-slate-900 mt-1">0</h3>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-building"></i>
+                </div>
+            </div>
 
-        // Gráfico de Tendencia de Ingresos
-        const ctxRevenue = document.getElementById('revenueChart').getContext('2d');
-        const revenueChart = new Chart(ctxRevenue, {
-            type: 'line',
-            data: {
-                labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep'],
-                datasets: [
-                    {
-                        label: 'Ingresos Brutos ($)',
-                        data: [12000, 19000, 15000, 25000, 22000, 30000, 28000, 38000, 45280],
-                        borderColor: '#6366f1',
-                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
-                        fill: true,
-                        tension: 0.4,
-                        borderWidth: 3,
-                        pointRadius: 4,
-                        pointHoverRadius: 6
-                    },
-                    {
-                        label: 'Ingresos Netos ($)',
-                        data: [8000, 14000, 10000, 18000, 16000, 23000, 21000, 29000, 34000],
-                        borderColor: '#10b981',
-                        backgroundColor: 'transparent',
-                        borderDash: [5, 5],
-                        tension: 0.4,
-                        borderWidth: 2,
-                        pointRadius: 3
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                        labels: { boxWidth: 12, usePointStyle: true, font: { size: 11, weight: '600' } }
-                    }
-                },
-                scales: {
-                    x: { grid: { color: 'rgba(51, 65, 85, 0.3)' } },
-                    y: { grid: { color: 'rgba(51, 65, 85, 0.3)' } }
-                }
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Zonas Registradas</p>
+                    <h3 id="kpiTotalZones" class="text-3xl font-extrabold text-slate-900 mt-1">0</h3>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-map"></i>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Con Coordenadas</p>
+                    <h3 id="kpiGeolocated" class="text-3xl font-extrabold text-slate-900 mt-1">0%</h3>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-location-dot"></i>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Zona con Mayor Carga</p>
+                    <h3 id="kpiTopZone" class="text-lg font-bold text-slate-900 mt-1 truncate max-w-[120px]">-</h3>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-trophy"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <!-- Chart 1: Distribution by Zone -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wider mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-chart-column text-brand-500"></i> Agencias por Zona
+                </h3>
+                <div class="relative h-64">
+                    <canvas id="zoneChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Chart 2: Completeness / Geolocation Status -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wider mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-chart-pie text-emerald-500"></i> Calidad de Datos (Geolocalización)
+                </h3>
+                <div class="relative h-64 flex justify-center">
+                    <canvas id="completenessChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detailed Table -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <div class="px-6 py-4 border-b border-slate-200 bg-slate-50/50 flex items-center justify-between">
+                <h3 class="font-bold text-slate-800 text-sm uppercase tracking-wider">
+                    Detalle de Agencias Filtradas
+                </h3>
+                <span id="filteredCountBadge" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-brand-100 text-brand-700">0 Registros</span>
+            </div>
+
+            <div class="overflow-x-auto max-h-96">
+                <table class="w-full text-left text-xs border-collapse">
+                    <thead class="bg-slate-100/70 text-slate-500 font-semibold uppercase tracking-wider sticky top-0 border-b border-slate-200">
+                        <tr>
+                            <th class="py-3 px-4">#</th>
+                            <th class="py-3 px-4">ID Real</th>
+                            <th class="py-3 px-4">Zona</th>
+                            <th class="py-3 px-4">Dirección</th>
+                            <th class="py-3 px-4">Coordenadas (Lat, Lng)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reportTableBody" class="divide-y divide-slate-100 text-slate-700">
+                        <!-- Dynamic content -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Firebase Integration Logic -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { 
+            getFirestore, 
+            collection, 
+            getDocs 
+        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        // Firebase Config
+        const firebaseConfig = {
+    apiKey: "AIzaSyA9wJ-vgcwG-MJ6gqQz3byolJP6DwrjnVw",
+    authDomain: "agencias-v2.firebaseapp.com",
+    projectId: "agencias-v2",
+    storageBucket: "agencias-v2.firebasestorage.app",
+    messagingSenderId: "896099760213",
+    appId: "1:896099760213:web:969ffa8363d51c0a8bbcdc"
+};
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // State Data
+        let rawAgencies = [];
+        let filteredAgencies = [];
+        let zoneChartInstance = null;
+        let completenessChartInstance = null;
+
+        // Elements
+        const filterZona = document.getElementById("filterZona");
+        const searchQuery = document.getElementById("searchQuery");
+        const btnApplyFilters = document.getElementById("btnApplyFilters");
+        const btnResetFilters = document.getElementById("btnResetFilters");
+        const reportTableBody = document.getElementById("reportTableBody");
+        const btnExportExcel = document.getElementById("btnExportExcel");
+        const btnPrintReport = document.getElementById("btnPrintReport");
+
+        // Fetch Initial Data
+        async function loadReportData() {
+            try {
+                const snap = await getDocs(collection(db, "agencias"));
+                rawAgencies = [];
+                snap.forEach(docSnap => {
+                    rawAgencies.push({ id: docSnap.id, ...docSnap.data() });
+                });
+
+                populateZoneFilter();
+                applyFilters();
+
+            } catch (err) {
+                console.error("Error al cargar datos:", err);
+                Swal.fire("Error", "No se pudieron obtener los datos de Firestore.", "error");
             }
-        });
-
-        // Gráfico de Distribución por Canal
-        const ctxChannel = document.getElementById('channelChart').getContext('2d');
-        const channelChart = new Chart(ctxChannel, {
-            type: 'doughnut',
-            data: {
-                labels: ['Directo', 'Redes Sociales', 'Email', 'Referidos'],
-                datasets: [{
-                    data: [45, 30, 15, 10],
-                    backgroundColor: [
-                        '#6366f1',
-                        '#3b82f6',
-                        '#10b981',
-                        '#f59e0b'
-                    ],
-                    borderWidth: 0
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: { boxWidth: 10, font: { size: 10, weight: '600' } }
-                    }
-                },
-                cutout: '70%'
-            }
-        });
-
-        // Función de exportación
-        function exportReport() {
-            alert("Generando y descargando el reporte en PDF...");
         }
+
+        function populateZoneFilter() {
+            const zones = new Set();
+            rawAgencies.forEach(a => { if (a.zona) zones.add(a.zona); });
+            
+            filterZona.innerHTML = `<option value="ALL">Todas las Zonas</option>`;
+            Array.from(zones).sort().forEach(z => {
+                filterZona.innerHTML += `<option value="${z}">${z}</option>`;
+            });
+        }
+
+        function applyFilters() {
+            const selectedZone = filterZona.value;
+            const queryText = searchQuery.value.toLowerCase().trim();
+
+            filteredAgencies = rawAgencies.filter(agency => {
+                const matchZone = selectedZone === "ALL" || agency.zona === selectedZone;
+                const matchQuery = !queryText || 
+                    (agency.idReal && String(agency.idReal).toLowerCase().includes(queryText)) ||
+                    (agency.direccion && agency.direccion.toLowerCase().includes(queryText));
+
+                return matchZone && matchQuery;
+            });
+
+            updateKPIs();
+            renderCharts();
+            renderTable();
+        }
+
+        function updateKPIs() {
+            document.getElementById("kpiTotalAgencies").textContent = filteredAgencies.length;
+
+            const zonesMap = {};
+            let geolocatedCount = 0;
+
+            filteredAgencies.forEach(a => {
+                if (a.zona) zonesMap[a.zona] = (zonesMap[a.zona] || 0) + 1;
+                if (a.lat && a.lng && a.lat !== 0 && a.lng !== 0) geolocatedCount++;
+            });
+
+            const uniqueZones = Object.keys(zonesMap).length;
+            document.getElementById("kpiTotalZones").textContent = uniqueZones;
+
+            const geoPerc = filteredAgencies.length > 0 ? Math.round((geolocatedCount / filteredAgencies.length) * 100) : 0;
+            document.getElementById("kpiGeolocated").textContent = `${geoPerc}%`;
+
+            let topZoneName = "-";
+            let topZoneVal = 0;
+            Object.entries(zonesMap).forEach(([z, val]) => {
+                if (val > topZoneVal) {
+                    topZoneVal = val;
+                    topZoneName = z;
+                }
+            });
+
+            document.getElementById("kpiTopZone").textContent = topZoneName;
+            document.getElementById("filteredCountBadge").textContent = `${filteredAgencies.length} Registros`;
+        }
+
+        function renderCharts() {
+            // Zone Breakdown Map
+            const zonesMap = {};
+            let geolocated = 0;
+            let missingGeo = 0;
+
+            filteredAgencies.forEach(a => {
+                const z = a.zona || "Sin Zona";
+                zonesMap[z] = (zonesMap[z] || 0) + 1;
+
+                if (a.lat && a.lng && a.lat !== 0 && a.lng !== 0) geolocated++;
+                else missingGeo++;
+            });
+
+            // Destroy previous charts
+            if (zoneChartInstance) zoneChartInstance.destroy();
+            if (completenessChartInstance) completenessChartInstance.destroy();
+
+            // Render Zone Chart
+            const ctxZone = document.getElementById("zoneChart").getContext("2d");
+            zoneChartInstance = new Chart(ctxZone, {
+                type: "bar",
+                data: {
+                    labels: Object.keys(zonesMap),
+                    datasets: [{
+                        label: "Cantidad de Agencias",
+                        data: Object.values(zonesMap),
+                        backgroundColor: "#0284c7",
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            // Render Completeness Pie Chart
+            const ctxComp = document.getElementById("completenessChart").getContext("2d");
+            completenessChartInstance = new Chart(ctxComp, {
+                type: "doughnut",
+                data: {
+                    labels: ["Con Coordenadas", "Sin Coordenadas"],
+                    datasets: [{
+                        data: [geolocated, missingGeo],
+                        backgroundColor: ["#10b981", "#f59e0b"]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: "bottom" } }
+                }
+            });
+        }
+
+        function renderTable() {
+            reportTableBody.innerHTML = "";
+
+            if (filteredAgencies.length === 0) {
+                reportTableBody.innerHTML = `<tr><td colspan="5" class="text-center py-6 text-slate-400 font-medium">No se encontraron registros con los filtros seleccionados.</td></tr>`;
+                return;
+            }
+
+            filteredAgencies.forEach((item, index) => {
+                const tr = document.createElement("tr");
+                tr.className = "hover:bg-slate-50 transition-colors";
+                
+                const hasCoords = item.lat && item.lng && item.lat !== 0 && item.lng !== 0;
+                const coordsBadge = hasCoords 
+                    ? `<span class="px-2 py-0.5 bg-emerald-50 text-emerald-700 font-mono text-[11px] rounded">${item.lat}, ${item.lng}</span>`
+                    : `<span class="px-2 py-0.5 bg-amber-50 text-amber-700 text-[11px] rounded">Pendiente</span>`;
+
+                tr.innerHTML = `
+                    <td class="py-3 px-4 font-mono text-slate-400">${index + 1}</td>
+                    <td class="py-3 px-4"><span class="px-2 py-1 bg-sky-50 text-sky-700 font-mono font-bold rounded">${item.idReal || '-'}</span></td>
+                    <td class="py-3 px-4"><span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 font-medium">${item.zona || '-'}</span></td>
+                    <td class="py-3 px-4 font-medium">${item.direccion || '-'}</td>
+                    <td class="py-3 px-4">${coordsBadge}</td>
+                `;
+                reportTableBody.appendChild(tr);
+            });
+        }
+
+        // Event Listeners
+        btnApplyFilters.addEventListener("click", applyFilters);
+        btnResetFilters.addEventListener("click", () => {
+            filterZona.value = "ALL";
+            searchQuery.value = "";
+            applyFilters();
+        });
+
+        btnExportExcel.addEventListener("click", () => {
+            if (filteredAgencies.length === 0) {
+                Swal.fire("Atención", "No hay datos para exportar.", "warning");
+                return;
+            }
+
+            const exportData = filteredAgencies.map((a, index) => ({
+                "#": index + 1,
+                "ID Real": a.idReal || "",
+                "Zona": a.zona || "",
+                "Dirección": a.direccion || "",
+                "Latitud": a.lat || 0,
+                "Longitud": a.lng || 0
+            }));
+
+            const worksheet = XLSX.utils.json_to_sheet(exportData);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Reporte_Agencias");
+            XLSX.writeFile(workbook, `Reporte_Agencias_${new Date().toISOString().slice(0,10)}.xlsx`);
+        });
+
+        btnPrintReport.addEventListener("click", () => window.print());
+
+        // Initialize Page
+        loadReportData();
     </script>
 </body>
-
 </html>
