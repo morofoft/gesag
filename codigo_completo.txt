@@ -1,0 +1,3646 @@
+=== RESUMEN DEL PROYECTO ===
+Ruta base: F:\Proyectos\Gestion de agencias v2.1\gesag
+
+================================================================================
+ARCHIVO: configuracion.html
+================================================================================
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuración - Carga de Agencias</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <!-- SweetAlert2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    <!-- Custom Config for Tailwind -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            500: '#0284c7',
+                            600: '#0369a1',
+                            700: '#075985',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-50 font-sans text-slate-800 antialiased min-h-screen">
+
+    <div class="max-w-6xl mx-auto px-4 py-8">
+        
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8 pb-4 border-b border-slate-200">
+            <div>
+                <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight flex items-center gap-3">
+                    <span class="p-2 bg-brand-500 text-white rounded-xl shadow-md">
+                        <i class="fa-solid fa-gear text-xl"></i>
+                    </span>
+                    Configuración de Agencias
+                </h1>
+                <p class="text-slate-500 mt-1 text-sm">Gestiona e importa tus agencias a la base de datos de Firestore.</p>
+            </div>
+            <div class="mt-4 md:mt-0 flex items-center gap-3">
+                <button id="btnOpenSingleModal" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md transition-all flex items-center gap-2">
+                    <i class="fa-solid fa-plus text-sm"></i> Agregar Individual
+                </button>
+                <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-slate-200 text-slate-700">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    Módulo de Administración
+                </span>
+            </div>
+        </div>
+
+        <!-- Main Card Container -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-8">
+            <div class="p-6 md:p-8">
+                
+                <h2 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-file-import text-brand-500"></i>
+                    Método de Entrada Masiva de Datos
+                </h2>
+
+                <!-- Tabs Header -->
+                <div class="flex border-b border-slate-200 mb-6" role="tablist">
+                    <button id="tabExcelBtn" onclick="switchTab('excel')" class="flex items-center gap-2 py-3 px-5 text-sm font-semibold border-b-2 border-brand-500 text-brand-600 transition-all">
+                        <i class="fa-solid fa-file-excel"></i> Subir Archivo Excel
+                    </button>
+                    <button id="tabTextareaBtn" onclick="switchTab('textarea')" class="flex items-center gap-2 py-3 px-5 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-700 transition-all">
+                        <i class="fa-solid fa-align-left"></i> Área de Texto Copiar/Pegar
+                    </button>
+                </div>
+
+                <!-- Tab Contents -->
+                <div class="mb-6">
+                    <!-- Excel Drop Zone -->
+                    <div id="tabExcel" class="block">
+                        <div id="dropZone" class="border-2 border-dashed border-brand-500/40 hover:border-brand-500 bg-brand-50/50 hover:bg-brand-50 transition-all duration-200 rounded-xl p-8 text-center cursor-pointer group">
+                            <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-3 shadow-sm group-hover:scale-110 transition-transform">
+                                <i class="fa-solid fa-cloud-arrow-up text-2xl text-brand-500"></i>
+                            </div>
+                            <p class="text-sm font-semibold text-slate-700">Arrastra y suelta tu archivo Excel aquí, o <span class="text-brand-600 underline">haz clic para examinar</span></p>
+                            <p class="text-xs text-slate-400 mt-1">Formatos soportados: .xlsx, .xls</p>
+                            <input type="file" id="excelFileInput" accept=".xlsx, .xls" class="hidden">
+                        </div>
+                        <div id="fileNameDisplay" class="mt-2 text-xs font-medium text-slate-600 hidden flex items-center gap-2">
+                            <i class="fa-solid fa-paperclip text-brand-500"></i>
+                            <span id="fileNameText"></span>
+                        </div>
+                    </div>
+
+                    <!-- Textarea Input -->
+                    <div id="tabTextarea" class="hidden">
+                        <label for="rawTextarea" class="block text-xs font-semibold text-slate-600 mb-2">Ingresa datos tabulados o separados por comas:</label>
+                        <textarea id="rawTextarea" rows="6" placeholder="Ejemplo por filas (idReal, direccion, latitud, longitud):&#10;8125840, Av. Independencia 123, 18.4861, -69.9312&#10;8125841, Calle Principal 45, 18.4875, -69.9320" class="w-full font-mono text-xs p-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all"></textarea>
+                        <p class="text-xs text-slate-400 mt-1">Puedes copiar directamente múltiples filas y columnas de un Excel y pegarlas aquí.</p>
+                    </div>
+                </div>
+
+                <!-- Parameters Box -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200 mb-6">
+                    <div>
+                        <label for="selectZona" class="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">
+                            <i class="fa-solid fa-map-location-dot me-1 text-brand-500"></i> Seleccionar Zona
+                        </label>
+                        <select id="selectZona" class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                            <option value="">-- Preservar zona especificada / Por defecto --</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="importStrategy" class="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">
+                            <i class="fa-solid fa-arrows-rotate me-1 text-brand-500"></i> Estrategia de Duplicados
+                        </label>
+                        <select id="importStrategy" class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                            <option value="skip">Omitir duplicados (mantiene existente)</option>
+                            <option value="upsert">Actualizar / Sobrescribir existentes</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Action Controls -->
+                <div class="flex flex-col sm:flex-row justify-end items-center gap-3">
+                    <button id="btnProcessData" class="w-full sm:w-auto px-5 py-2.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-sm font-semibold rounded-xl shadow-sm transition-all flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-magnifying-glass text-slate-400"></i> Procesar y Previsualizar
+                    </button>
+                    <button id="btnSaveAgencies" disabled class="w-full sm:w-auto px-6 py-2.5 bg-brand-500 hover:bg-brand-600 disabled:bg-slate-300 text-white text-sm font-semibold rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer disabled:cursor-not-allowed">
+                        <i class="fa-solid fa-cloud-arrow-up"></i> Guardar en Firestore
+                    </button>
+                </div>
+
+                <!-- Progress Bar Container -->
+                <div id="progressContainer" class="hidden mt-6">
+                    <div class="flex justify-between text-xs font-semibold text-slate-600 mb-1">
+                        <span>Procesando registros...</span>
+                        <span id="progressText">0%</span>
+                    </div>
+                    <div class="w-full bg-slate-200 rounded-full h-3 overflow-hidden">
+                        <div id="progressBar" class="bg-brand-500 h-3 rounded-full transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Preview Card Container -->
+        <div id="previewCard" class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden hidden">
+            <div class="px-6 py-4 border-b border-slate-200 bg-slate-50/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                <div class="flex items-center gap-2">
+                    <h3 class="font-bold text-slate-800 text-sm uppercase tracking-wider">
+                        Previsualización de Datos
+                    </h3>
+                    <span id="recordCountBadge" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-brand-100 text-brand-700">0 registros</span>
+                </div>
+                <span class="text-xs text-slate-400">Estructura Firestore: <b>ID Autogenerado</b></span>
+            </div>
+
+            <div class="overflow-x-auto max-h-96">
+                <table class="w-full text-left text-xs border-collapse">
+                    <thead class="bg-slate-100/70 text-slate-500 font-semibold uppercase tracking-wider sticky top-0 border-b border-slate-200">
+                        <tr>
+                            <th class="py-3 px-4">#</th>
+                            <th class="py-3 px-4">idReal (Atributo)</th>
+                            <th class="py-3 px-4">Zona</th>
+                            <th class="py-3 px-4">Dirección</th>
+                            <th class="py-3 px-4">Latitud</th>
+                            <th class="py-3 px-4">Longitud</th>
+                        </tr>
+                    </thead>
+                    <tbody id="previewTableBody" class="divide-y divide-slate-100 text-slate-700">
+                        <!-- Dynamic rows -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Modal para Agregar Agencia Individual -->
+    <div id="singleAgencyModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white rounded-2xl shadow-xl border border-slate-200 w-full max-w-lg overflow-hidden transform transition-all">
+            <div class="px-6 py-4 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
+                <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
+                    <i class="fa-solid fa-building-circle-check text-emerald-600"></i>
+                    Agregar Agencia Individual
+                </h3>
+                <button id="btnCloseModal" class="text-slate-400 hover:text-slate-600 transition-colors">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <form id="singleAgencyForm" class="p-6 space-y-4">
+                <div>
+                    <label for="singleIdReal" class="block text-xs font-bold text-slate-700 mb-1">ID Real *</label>
+                    <input type="text" id="singleIdReal" required placeholder="Ej: 8125840" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                </div>
+
+                <div>
+                    <label for="singleSelectZona" class="block text-xs font-bold text-slate-700 mb-1">Zona *</label>
+                    <select id="singleSelectZona" required class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        <option value="">-- Seleccionar Zona --</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="singleDireccion" class="block text-xs font-bold text-slate-700 mb-1">Dirección</label>
+                    <input type="text" id="singleDireccion" placeholder="Ej: Av. Independencia 123" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label for="singleLat" class="block text-xs font-bold text-slate-700 mb-1">Latitud</label>
+                        <input type="number" step="any" id="singleLat" placeholder="18.4861" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    </div>
+                    <div>
+                        <label for="singleLng" class="block text-xs font-bold text-slate-700 mb-1">Longitud</label>
+                        <input type="number" step="any" id="singleLng" placeholder="-69.9312" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    </div>
+                </div>
+
+                <div class="pt-4 flex justify-end gap-2 border-t border-slate-100">
+                    <button type="button" id="btnCancelModal" class="px-4 py-2 border border-slate-300 text-slate-600 text-xs font-bold rounded-lg hover:bg-slate-50 transition-all">
+                        Cancelar
+                    </button>
+                    <button type="submit" id="btnSaveSingle" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg shadow transition-all flex items-center gap-2">
+                        <i class="fa-solid fa-floppy-disk"></i> Guardar Agencia
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- SheetJS (Excel Parser) -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <!-- SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- App Logic Script -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { 
+            getFirestore, 
+            collection, 
+            doc, 
+            query, 
+            where, 
+            getDocs, 
+            addDoc,
+            writeBatch,
+            onAuthStateChanged
+        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        // Firebase Config
+        const firebaseConfig = {
+    apiKey: "AIzaSyA9wJ-vgcwG-MJ6gqQz3byolJP6DwrjnVw",
+    authDomain: "agencias-v2.firebaseapp.com",
+    projectId: "agencias-v2",
+    storageBucket: "agencias-v2.firebasestorage.app",
+    messagingSenderId: "896099760213",
+    appId: "1:896099760213:web:969ffa8363d51c0a8bbcdc"
+};
+
+// VERIFICACIÓN ESTRICTA DE ROL ADMIN
+onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = "login.html";
+                return;
+            }
+
+            try {
+                // Verificar en la colección 'users' el rol del UID actual
+                const userDocRef = doc(db, "users", user.uid);
+                const userSnap = await getDoc(userDocRef);
+
+                if (!userSnap.exists() || userSnap.data().role !== "admin") {
+                    alert("Acceso denegado: Solo los usuarios con rol de Administrador pueden acceder a esta sección.");
+                    window.location.href = "index.html"; // Redirigir a inicio
+                    return;
+                }
+
+                // Permiso concedido
+                userEmailSpan.innerText = user.email;
+                securityOverlay.classList.add("hidden"); // Ocultar overlay
+                loadZones();
+
+            } catch (error) {
+                console.error("Error al validar permisos:", error);
+                alert("Ocurrió un error al verificar tus credenciales.");
+                window.location.href = "index.html";
+            }
+        });
+
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // State Variables
+        let parsedAgencies = [];
+        let selectedFile = null;
+        let activeTab = "excel";
+        let existingZones = [];
+
+        // DOM Elements
+        const dropZone = document.getElementById("dropZone");
+        const excelFileInput = document.getElementById("excelFileInput");
+        const fileNameDisplay = document.getElementById("fileNameDisplay");
+        const fileNameText = document.getElementById("fileNameText");
+        const rawTextarea = document.getElementById("rawTextarea");
+        const selectZona = document.getElementById("selectZona");
+        const importStrategy = document.getElementById("importStrategy");
+        const btnProcessData = document.getElementById("btnProcessData");
+        const btnSaveAgencies = document.getElementById("btnSaveAgencies");
+        const previewCard = document.getElementById("previewCard");
+        const previewTableBody = document.getElementById("previewTableBody");
+        const recordCountBadge = document.getElementById("recordCountBadge");
+        const progressContainer = document.getElementById("progressContainer");
+        const progressBar = document.getElementById("progressBar");
+        const progressText = document.getElementById("progressText");
+
+        // Modal Elements
+        const btnOpenSingleModal = document.getElementById("btnOpenSingleModal");
+        const singleAgencyModal = document.getElementById("singleAgencyModal");
+        const btnCloseModal = document.getElementById("btnCloseModal");
+        const btnCancelModal = document.getElementById("btnCancelModal");
+        const singleAgencyForm = document.getElementById("singleAgencyForm");
+        const singleSelectZona = document.getElementById("singleSelectZona");
+
+        // Fetch Zones from DB
+        async function fetchZonesFromDB() {
+            try {
+                const zonesSet = new Set();
+                
+                // Fetch from "zonas" collection if it exists
+                const zonasSnap = await getDocs(collection(db, "zonas"));
+                zonasSnap.forEach(docSnap => {
+                    const data = docSnap.data();
+                    if (data.nombre) zonesSet.add(data.nombre);
+                    else if (typeof data === 'string') zonesSet.add(data);
+                });
+
+                // Fetch distinct zones from existing "agencias" collection
+                const agenciasSnap = await getDocs(collection(db, "agencias"));
+                agenciasSnap.forEach(docSnap => {
+                    const data = docSnap.data();
+                    if (data.zona) zonesSet.add(data.zona);
+                });
+
+                existingZones = Array.from(zonesSet).sort();
+                
+                // Fallback default zones if DB has none yet
+                if (existingZones.length === 0) {
+                    existingZones = ["Zona Norte", "Zona Sur", "Zona Este", "Zona Oeste", "Zona Metropolitana"];
+                }
+
+                populateZoneDropdowns(existingZones);
+
+            } catch (error) {
+                console.error("Error al cargar zonas:", error);
+                // Fallback on error
+                existingZones = ["Zona Norte", "Zona Sur", "Zona Este", "Zona Oeste", "Zona Metropolitana"];
+                populateZoneDropdowns(existingZones);
+            }
+        }
+
+        function populateZoneDropdowns(zones) {
+            // Populate Bulk Select
+            selectZona.innerHTML = `<option value="">-- Preservar zona especificada / Por defecto --</option>`;
+            zones.forEach(z => {
+                selectZona.innerHTML += `<option value="${z}">${z}</option>`;
+            });
+
+            // Populate Single Modal Select
+            singleSelectZona.innerHTML = `<option value="">-- Seleccionar Zona --</option>`;
+            zones.forEach(z => {
+                singleSelectZona.innerHTML += `<option value="${z}">${z}</option>`;
+            });
+        }
+
+        // Initialize DB data
+        fetchZonesFromDB();
+
+        // Modal Open / Close Handlers
+        btnOpenSingleModal.addEventListener("click", () => {
+            singleAgencyForm.reset();
+            singleAgencyModal.classList.remove("hidden");
+        });
+
+        const closeModal = () => singleAgencyModal.classList.add("hidden");
+        btnCloseModal.addEventListener("click", closeModal);
+        btnCancelModal.addEventListener("click", closeModal);
+
+        // Save Single Agency Handler
+        singleAgencyForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            
+            const idReal = document.getElementById("singleIdReal").value.trim();
+            const zona = singleSelectZona.value;
+            const direccion = document.getElementById("singleDireccion").value.trim();
+            const lat = parseFloat(document.getElementById("singleLat").value) || 0;
+            const lng = parseFloat(document.getElementById("singleLng").value) || 0;
+
+            if (!idReal || !zona) {
+                Swal.fire("Atención", "Por favor completa el ID Real y la Zona.", "warning");
+                return;
+            }
+
+            const btnSaveSingle = document.getElementById("btnSaveSingle");
+            btnSaveSingle.disabled = true;
+            btnSaveSingle.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Guardando...`;
+
+            try {
+                // Check if agency with same idReal exists
+                const q = query(collection(db, "agencias"), where("idReal", "==", idReal));
+                const snap = await getDocs(q);
+
+                if (!snap.empty) {
+                    const updateConfirm = await Swal.fire({
+                        title: "Agencia existente",
+                        text: `Ya existe una agencia con idReal ${idReal}. ¿Deseas actualizarla?`,
+                        icon: "warning",
+                        showCancelButton: true,
+                        confirmButtonText: "Sí, actualizar",
+                        cancelButtonText: "Cancelar"
+                    });
+
+                    if (updateConfirm.isConfirmed) {
+                        const existingDocId = snap.docs[0].id;
+                        await writeBatch(db).update(doc(db, "agencias", existingDocId), {
+                            zona,
+                            direccion,
+                            lat,
+                            lng,
+                            updatedAt: new Date()
+                        }).commit();
+
+                        Swal.fire("Actualizado", "La agencia ha sido actualizada correctamente.", "success");
+                        closeModal();
+                    }
+                } else {
+                    // Create new agency
+                    await addDoc(collection(db, "agencias"), {
+                        idReal,
+                        zona,
+                        direccion,
+                        lat,
+                        lng,
+                        createdAt: new Date()
+                    });
+
+                    Swal.fire("¡Guardado!", "La agencia ha sido registrada con éxito.", "success");
+                    closeModal();
+                }
+
+                // Refresh zones list in case a new zone was added
+                fetchZonesFromDB();
+
+            } catch (err) {
+                console.error("Error guardando agencia individual:", err);
+                Swal.fire("Error", "Ocurrió un error al guardar: " + err.message, "error");
+            } finally {
+                btnSaveSingle.disabled = false;
+                btnSaveSingle.innerHTML = `<i class="fa-solid fa-floppy-disk"></i> Guardar Agencia`;
+            }
+        });
+
+        // Global function for tab switching
+        window.switchTab = function(type) {
+            activeTab = type;
+            const tabExcelBtn = document.getElementById("tabExcelBtn");
+            const tabTextareaBtn = document.getElementById("tabTextareaBtn");
+            const tabExcel = document.getElementById("tabExcel");
+            const tabTextarea = document.getElementById("tabTextarea");
+
+            if (type === "excel") {
+                tabExcel.classList.remove("hidden");
+                tabTextarea.classList.add("hidden");
+                tabExcelBtn.className = "flex items-center gap-2 py-3 px-5 text-sm font-semibold border-b-2 border-brand-500 text-brand-600 transition-all";
+                tabTextareaBtn.className = "flex items-center gap-2 py-3 px-5 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-700 transition-all";
+            } else {
+                tabTextarea.classList.remove("hidden");
+                tabExcel.classList.add("hidden");
+                tabTextareaBtn.className = "flex items-center gap-2 py-3 px-5 text-sm font-semibold border-b-2 border-brand-500 text-brand-600 transition-all";
+                tabExcelBtn.className = "flex items-center gap-2 py-3 px-5 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-700 transition-all";
+            }
+        };
+
+        // Drag & Drop Handling
+        dropZone.addEventListener("click", () => excelFileInput.click());
+        dropZone.addEventListener("dragover", (e) => { e.preventDefault(); dropZone.classList.add("border-brand-500", "bg-brand-50"); });
+        ["dragleave", "dragend"].forEach(t => dropZone.addEventListener(t, () => dropZone.classList.remove("border-brand-500", "bg-brand-50")));
+        dropZone.addEventListener("drop", (e) => {
+            e.preventDefault();
+            dropZone.classList.remove("border-brand-500", "bg-brand-50");
+            if (e.dataTransfer.files.length > 0) handleFileSelection(e.dataTransfer.files[0]);
+        });
+        excelFileInput.addEventListener("change", (e) => { if (e.target.files.length > 0) handleFileSelection(e.target.files[0]); });
+
+        function handleFileSelection(file) {
+            if (!file.name.endsWith(".xlsx") && !file.name.endsWith(".xls")) {
+                Swal.fire("Archivo Inválido", "Por favor selecciona un archivo con extensión .xlsx o .xls", "error");
+                return;
+            }
+            selectedFile = file;
+            fileNameText.textContent = file.name;
+            fileNameDisplay.classList.remove("hidden");
+        }
+
+        // Process Data Trigger
+        btnProcessData.addEventListener("click", () => {
+            const selectedZone = selectZona.value;
+
+            if (activeTab === "excel") {
+                if (!selectedFile) {
+                    Swal.fire("Atención", "Por favor selecciona un archivo Excel primero.", "warning");
+                    return;
+                }
+                processExcelFile(selectedFile, selectedZone);
+            } else {
+                const rawText = rawTextarea.value.trim();
+                if (!rawText) {
+                    Swal.fire("Atención", "Escribe o pega los datos en el área de texto.", "warning");
+                    return;
+                }
+                processTextareaContent(rawText, selectedZone);
+            }
+        });
+
+        function processExcelFile(file, globalZone) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: "array" });
+                const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+                const rawData = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
+
+                parsedAgencies = rawData.map((row) => ({
+                    idReal: String(row["idReal"] || row["ID Real"] || row["ID"] || "").trim(),
+                    zona: globalZone || String(row["zona"] || row["Zona"] || "").trim() || "General",
+                    direccion: String(row["direccion"] || row["Direccion"] || row["Dirección"] || "").trim(),
+                    lat: parseFloat(row["lat"] || row["Latitud"] || 0),
+                    lng: parseFloat(row["lng"] || row["Longitud"] || 0)
+                })).filter(a => a.idReal !== "");
+
+                validateAndShowPreview();
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function processTextareaContent(text, globalZone) {
+            const lines = text.split("\n");
+            parsedAgencies = [];
+
+            lines.forEach(line => {
+                if (!line.trim()) return;
+                const delimiter = line.includes("\t") ? "\t" : ",";
+                const parts = line.split(delimiter).map(p => p.trim());
+
+                if (parts.length > 0 && parts[0] !== "") {
+                    if (parts[0].toLowerCase() === "idreal" || parts[0].toLowerCase() === "id") return;
+
+                    parsedAgencies.push({
+                        idReal: String(parts[0] || "").trim(),
+                        zona: globalZone || String(parts[1] && isNaN(parts[1]) ? parts[1] : "General").trim(),
+                        direccion: parts.length >= 4 ? String(parts[1] || "") : String(parts[1] || ""),
+                        lat: parseFloat(parts[2] || 0),
+                        lng: parseFloat(parts[3] || 0)
+                    });
+                }
+            });
+
+            validateAndShowPreview();
+        }
+
+        function validateAndShowPreview() {
+            if (parsedAgencies.length === 0) {
+                Swal.fire("Sin Registros", "No se encontraron filas válidas con la columna 'idReal'.", "error");
+                btnSaveAgencies.disabled = true;
+                previewCard.classList.add("hidden");
+                return;
+            }
+
+            renderPreviewTable(parsedAgencies);
+            btnSaveAgencies.disabled = false;
+            
+            Swal.fire({
+                title: "Previsualización Lista",
+                text: `Se cargaron ${parsedAgencies.length} registros correctamente.`,
+                icon: "success",
+                timer: 2000,
+                showConfirmButton: false
+            });
+        }
+
+        function renderPreviewTable(data) {
+            previewTableBody.innerHTML = "";
+            recordCountBadge.textContent = `${data.length} registros`;
+
+            data.forEach((item, index) => {
+                const tr = document.createElement("tr");
+                tr.className = "hover:bg-slate-50 transition-colors";
+                tr.innerHTML = `
+                    <td class="py-3 px-4 font-mono text-slate-400">${index + 1}</td>
+                    <td class="py-3 px-4"><span class="px-2 py-1 rounded bg-sky-50 text-sky-700 font-mono font-bold">${item.idReal}</span></td>
+                    <td class="py-3 px-4"><span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 font-medium">${item.zona}</span></td>
+                    <td class="py-3 px-4 font-medium">${item.direccion || '-'}</td>
+                    <td class="py-3 px-4 font-mono text-slate-500">${item.lat || 0}</td>
+                    <td class="py-3 px-4 font-mono text-slate-500">${item.lng || 0}</td>
+                `;
+                previewTableBody.appendChild(tr);
+            });
+
+            previewCard.classList.remove("hidden");
+        }
+
+        // Save Data to Firestore with Auto-generated ID
+        btnSaveAgencies.addEventListener("click", async () => {
+            if (parsedAgencies.length === 0) return;
+
+            const confirmResult = await Swal.fire({
+                title: "¿Guardar Agencias?",
+                text: `Se procesarán ${parsedAgencies.length} registros en Firestore.`,
+                icon: "question",
+                showCancelButton: true,
+                confirmButtonColor: "#0284c7",
+                cancelButtonColor: "#64748b",
+                confirmButtonText: "Sí, guardar ahora",
+                cancelButtonText: "Cancelar"
+            });
+
+            if (!confirmResult.isConfirmed) return;
+
+            btnSaveAgencies.disabled = true;
+            btnProcessData.disabled = true;
+            progressContainer.classList.remove("hidden");
+            updateProgress(0);
+
+            const strategy = importStrategy.value;
+            const agenciasRef = collection(db, "agencias");
+            
+            let processedCount = 0;
+            let batch = writeBatch(db);
+            let operationCount = 0;
+
+            try {
+                for (let i = 0; i < parsedAgencies.length; i++) {
+                    const agency = parsedAgencies[i];
+
+                    // Check if document exists by idReal field
+                    const q = query(agenciasRef, where("idReal", "==", agency.idReal));
+                    const querySnapshot = await getDocs(q);
+
+                    if (!querySnapshot.empty) {
+                        if (strategy === "skip") {
+                            processedCount++;
+                            updateProgress(Math.round((processedCount / parsedAgencies.length) * 100));
+                            continue;
+                        } else if (strategy === "upsert") {
+                            const existingDocId = querySnapshot.docs[0].id;
+                            const existingDocRef = doc(db, "agencias", existingDocId);
+
+                            batch.update(existingDocRef, {
+                                zona: agency.zona,
+                                direccion: agency.direccion,
+                                lat: agency.lat,
+                                lng: agency.lng,
+                                updatedAt: new Date()
+                            });
+                            operationCount++;
+                        }
+                    } else {
+                        // Create NEW Document with AUTO-GENERATED ID
+                        const newDocRef = doc(agenciasRef);
+
+                        batch.set(newDocRef, {
+                            idReal: agency.idReal,
+                            zona: agency.zona,
+                            direccion: agency.direccion,
+                            lat: agency.lat,
+                            lng: agency.lng,
+                            createdAt: new Date()
+                        });
+                        operationCount++;
+                    }
+
+                    processedCount++;
+                    updateProgress(Math.round((processedCount / parsedAgencies.length) * 100));
+
+                    if (operationCount === 450) {
+                        await batch.commit();
+                        batch = writeBatch(db);
+                        operationCount = 0;
+                    }
+                }
+
+                if (operationCount > 0) {
+                    await batch.commit();
+                }
+
+                Swal.fire({
+                    title: "¡Éxito!",
+                    text: "Las agencias se guardaron correctamente en Firestore con IDs autogenerados.",
+                    icon: "success",
+                    confirmButtonColor: "#0284c7"
+                });
+
+                // Refresh zones list
+                fetchZonesFromDB();
+
+            } catch (error) {
+                console.error("Firestore Error:", error);
+                Swal.fire("Error", "Error al procesar la carga: " + error.message, "error");
+            } finally {
+                btnSaveAgencies.disabled = false;
+                btnProcessData.disabled = false;
+            }
+        });
+
+        function updateProgress(percentage) {
+            progressBar.style.width = `${percentage}%`;
+            progressText.textContent = `${percentage}%`;
+        }
+    </script>
+</body>
+</html>
+
+================================================================================
+ARCHIVO: contruccion.html
+================================================================================
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sitio en construcción</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&family=JetBrains+Mono:wght@500&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .font-mono-code { font-family: 'JetBrains Mono', monospace; }
+
+        /* Movimiento de la posición del degradado */
+        @keyframes gradient-shift {
+            0% { stop-color: #ff007f; }
+            20% { stop-color: #7f00ff; }
+            40% { stop-color: #00d4ff; }
+            60% { stop-color: #00ff88; }
+            80% { stop-color: #ffea00; }
+            100% { stop-color: #ff007f; }
+        }
+
+        @keyframes gradient-shift-2 {
+            0% { stop-color: #00d4ff; }
+            20% { stop-color: #00ff88; }
+            40% { stop-color: #ffea00; }
+            60% { stop-color: #ff007f; }
+            80% { stop-color: #7f00ff; }
+            100% { stop-color: #00d4ff; }
+        }
+
+        .stop-1 { animation: gradient-shift 4s ease-in-out infinite; }
+        .stop-2 { animation: gradient-shift-2 4s ease-in-out infinite; }
+
+        /* Resplandor neón pulsante */
+        @keyframes neon-pulse {
+            0%, 100% {
+                filter: drop-shadow(0 0 12px rgba(0, 212, 255, 0.6)) 
+                        drop-shadow(0 0 25px rgba(255, 0, 127, 0.4));
+            }
+            50% {
+                filter: drop-shadow(0 0 20px rgba(0, 255, 136, 0.8)) 
+                        drop-shadow(0 0 40px rgba(127, 0, 255, 0.6));
+            }
+        }
+
+        .neon-logo {
+            animation: neon-pulse 3s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body class="bg-slate-950 min-h-screen flex flex-col items-center justify-center p-6 text-center select-none overflow-hidden relative">
+
+    <!-- Luz de fondo decorativa -->
+    <div class="absolute w-96 h-96 bg-indigo-600/10 rounded-full blur-[120px] pointer-events-none"></div>
+
+    <main class="flex flex-col items-center gap-6 relative z-10 max-w-md w-full">
+        
+        <!-- Monograma SVG estilo Neón -->
+        <svg class="w-28 h-36 neon-logo" viewBox="0 0 100 130" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <linearGradient id="neonGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop class="stop-1" offset="0%" />
+                    <stop class="stop-2" offset="100%" />
+                </linearGradient>
+            </defs>
+
+            <!-- P & G -->
+            <g fill="url(#neonGradient)">
+                <!-- P -->
+                <rect x="0" y="0" width="18" height="130" rx="4" />
+                <rect x="26" y="0" width="18" height="70" rx="4" />
+                
+                <!-- G -->
+                <rect x="52" y="0" width="18" height="130" rx="4" />
+                <rect x="78" y="0" width="18" height="38" rx="4" />
+                <rect x="78" y="68" width="18" height="62" rx="4" />
+            </g>
+        </svg>
+
+        <!-- Texto de estado -->
+        <div class="space-y-2">
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-100 tracking-tight">
+                Sitio en construcción
+            </h1>
+            <h6 class="font-mono-code text-xs text-slate-400 bg-slate-900/80 px-3 py-1 rounded-full border border-slate-800 inline-block">
+                Dev. Pedro Garcia Ramirez V2.1
+            </h6>
+        </div>
+
+        <!-- Botón Grande de Ir a Inicio -->
+        <a href="index.html" 
+           class="w-full sm:w-auto px-8 py-4 mt-2 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-lg rounded-2xl transition-all shadow-lg shadow-emerald-600/30 hover:shadow-emerald-500/50 active:scale-95 flex items-center justify-center gap-3 border border-emerald-400/30">
+            <i class="fa-solid fa-house text-xl"></i>
+            <span>Ir al Inicio</span>
+        </a>
+
+    </main>
+
+</body>
+</html>
+
+================================================================================
+ARCHIVO: index.html
+================================================================================
+
+<!DOCTYPE html>
+<html lang="es" class="h-full bg-slate-900">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dev Pedro Garcia V2.1 | Dashboard</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            800: '#3730a3',
+                            900: '#312e81',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- FontAwesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        
+        .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 8px; }
+        .custom-scroll::-webkit-scrollbar-thumb:hover { background: #475569; }
+    </style>
+</head>
+
+<body class="h-full bg-slate-950 text-slate-100 flex overflow-hidden antialiased">
+
+    <!-- BACKDROP MOBILE -->
+    <div id="mobileBackdrop" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-40 hidden lg:hidden transition-opacity"></div>
+
+    <!-- SIDEBAR LATERAL (ADMINLTE STYLE MODERNO) -->
+    <aside id="sidebar" class="fixed lg:static inset-y-0 left-0 z-50 w-72 bg-slate-900/90 border-r border-slate-800/80 flex flex-col justify-between -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out backdrop-blur-xl">
+        <div>
+            <!-- LOGO / BRANDING -->
+            <div class="h-16 px-6 flex items-center justify-between border-b border-slate-800/80">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-500 flex items-center justify-center text-white font-black text-lg shadow-lg shadow-brand-500/20">
+                        A
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-sm tracking-wide text-white">AGENCY<span class="text-brand-500">PRO</span></h1>
+                        <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Dev P. Garcia 2026</p>
+                    </div>
+                </div>
+                <button id="closeSidebarMobile" class="lg:hidden text-slate-400 hover:text-white text-lg">
+                    <i class="fa fa-xmark"></i>
+                </button>
+            </div>
+    
+            <!-- NAVEGACIÓN PRINCIPAL -->
+            <nav class="p-4 space-y-1.5 custom-scroll overflow-y-auto max-h-[calc(100vh-140px)]">
+                <p class="px-3 pt-2 pb-1 text-[10px] font-bold uppercase tracking-widest text-slate-500">Menú Principal</p>
+                
+                <a href="index.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl bg-brand-600/10 text-brand-400 font-semibold text-xs border border-brand-500/20 shadow-sm transition-all">
+                    <i class="fa fa-house w-4 text-center text-sm"></i>
+                    <span>Inicio</span>
+                </a>
+    
+                <a href="mapa.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 text-xs font-medium transition-all group">
+                    <i class="fa fa-map-location-dot w-4 text-center text-sm text-slate-500 group-hover:text-brand-400"></i>
+                    <span>Mapa interactivo</span>
+                </a>
+    
+                <a href="zonas.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 text-xs font-medium transition-all group">
+                    <i class="fa fa-layer-group w-4 text-center text-sm text-slate-500 group-hover:text-brand-400"></i>
+                    <span>Gestión de Zonas</span>
+                </a>
+    
+                <p class="px-3 pt-4 pb-1 text-[10px] font-bold uppercase tracking-widest text-slate-500">Administración</p>
+    
+                <a href="users.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 text-xs font-medium transition-all group">
+                    <i class="fa fa-users-gear w-4 text-center text-sm text-slate-500 group-hover:text-brand-400"></i>
+                    <span>Usuarios y Permisos</span>
+                </a>
+    
+                <a href="reportes.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 text-xs font-medium transition-all group">
+                    <i class="fa fa-chart-pie w-4 text-center text-sm text-slate-500 group-hover:text-brand-400"></i>
+                    <span>Reportes y Métricas</span>
+                </a>
+    
+                <a href="sugerencias.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 text-xs font-medium transition-all group">
+                    <i class="fa fa-lightbulb w-4 text-center text-sm text-slate-500 group-hover:text-brand-400"></i>
+                    <span>Sugerencias</span>
+                </a>
+    
+                <a href="configuracion.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 text-xs font-medium transition-all group">
+                    <i class="fa fa-sliders w-4 text-center text-sm text-slate-500 group-hover:text-brand-400"></i>
+                    <span>Configuración</span>
+                </a>
+    
+                <a href="contruccion.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 text-xs font-medium transition-all group">
+                    <i class="fa fa-helmet-safety w-4 text-center text-sm text-slate-500 group-hover:text-brand-400"></i>
+                    <span>En Construcción</span>
+                </a>
+            </nav>
+        </div>
+    
+        <!-- FOOTER SIDEBAR (USUARIO PERFIL) -->
+        <div class="p-4 border-t border-slate-800/80 bg-slate-900/50">
+            <div class="flex items-center justify-between gap-2">
+                <div class="flex items-center gap-2.5 min-w-0">
+                    <div class="w-8 h-8 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center text-brand-400 font-bold text-xs shrink-0">
+                        <i class="fa fa-user"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <p id="userEmail" class="text-xs font-semibold text-slate-200 truncate">Cargando...</p>
+                        <p class="text-[10px] text-slate-500">Sesión Activa</p>
+                    </div>
+                </div>
+                <button id="btnLogout" class="text-slate-400 hover:text-rose-400 p-2 rounded-lg hover:bg-rose-500/10 transition-colors" title="Cerrar Sesión">
+                    <i class="fa fa-arrow-right-from-bracket"></i>
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- ÁREA DE CONTENIDO PRINCIPAL -->
+    <div class="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
+
+        <!-- HEADER NAVBAR TOP -->
+        <header class="h-16 bg-slate-900/80 border-b border-slate-800/80 px-6 flex items-center justify-between gap-4 shrink-0 backdrop-blur-md">
+            <div class="flex items-center gap-4">
+                <button id="openSidebarMobile" class="lg:hidden text-slate-400 hover:text-white p-2 text-base">
+                    <i class="fa fa-bars"></i>
+                </button>
+                <div class="hidden sm:block">
+                    <h2 class="text-base font-bold text-slate-100">Directorio General de Agencias</h2>
+                    <p class="text-[11px] text-slate-400">Monitoreo y administración global de sucursales</p>
+                </div>
+            </div>
+
+            <!-- BUSCADOR SUPERIOR MODERNO -->
+            <div class="flex-1 max-w-md">
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500 text-xs">
+                        <i class="fa fa-magnifying-glass"></i>
+                    </span>
+                    <input id="searchInput" type="text" 
+                        placeholder="Buscar por código, zona o dirección..."
+                        class="w-full bg-slate-950/60 border border-slate-800 rounded-xl pl-9 pr-4 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all shadow-inner" />
+                </div>
+            </div>
+        </header>
+
+        <!-- MAIN SCROLLABLE CONTENT -->
+        <main class="flex-1 overflow-y-auto px-6 py-6 custom-scroll bg-slate-950">
+
+            <!-- KPIs Y MÉTRICAS RÁPIDAS -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+                <div class="bg-slate-900/60 border border-slate-800/80 p-4 rounded-2xl flex items-center justify-between">
+                    <div>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Agencias</p>
+                        <h3 class="text-2xl font-black text-slate-100 mt-0.5" id="totalBadge">0</h3>
+                    </div>
+                    <div class="w-10 h-10 rounded-xl bg-brand-500/10 text-brand-400 border border-brand-500/20 flex items-center justify-center">
+                        <i class="fa fa-store text-base"></i>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900/60 border border-slate-800/80 p-4 rounded-2xl flex items-center justify-between">
+                    <div>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Agencias Activas</p>
+                        <h3 class="text-2xl font-black text-emerald-400 mt-0.5" id="activeBadge">0</h3>
+                    </div>
+                    <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center">
+                        <i class="fa fa-circle-check text-base"></i>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900/60 border border-slate-800/80 p-4 rounded-2xl flex items-center justify-between">
+                    <div>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Agencias Inactivas</p>
+                        <h3 class="text-2xl font-black text-rose-400 mt-0.5" id="inactiveBadge">0</h3>
+                    </div>
+                    <div class="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-400 border border-rose-500/20 flex items-center justify-center">
+                        <i class="fa fa-circle-xmark text-base"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CONTENEDOR TITULO Y BOTÓN ACCIÓN -->
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Listado Registrado</h3>
+                <button class="bg-brand-600 hover:bg-brand-500 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition-all shadow-md active:scale-95 flex items-center gap-2">
+                    <i class="fa fa-plus text-xs"></i>
+                    <span>Nueva Agencia</span>
+                </button>
+            </div>
+
+            <!-- INDICADOR DE CARGA -->
+            <div id="loading" class="text-center py-16">
+                <i class="fa fa-circle-notch animate-spin text-3xl text-brand-500 mb-3"></i>
+                <p class="text-slate-400 text-xs font-semibold uppercase tracking-wider">Cargando base de datos Firestore...</p>
+            </div>
+
+            <!-- GRID DE AGENCIAS -->
+            <div id="agenciesList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 pb-12"></div>
+
+        </main>
+    </div>
+
+    <!-- PROTECCIÓN DE RUTA -->
+    <script type="module">
+        import { requireAuth } from "./js/auth.guard.js";
+        requireAuth();
+    </script>
+
+    <!-- LOGICA JS DE SIDEBAR Y FIRESTORE -->
+    <script type="module">
+        import { db, auth } from "./js/firebase/firebase.init.js";
+        import { collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+        // Elementos DOM
+        const agenciesList = document.getElementById("agenciesList");
+        const searchInput = document.getElementById("searchInput");
+        const totalBadge = document.getElementById("totalBadge");
+        const activeBadge = document.getElementById("activeBadge");
+        const inactiveBadge = document.getElementById("inactiveBadge");
+        const loading = document.getElementById("loading");
+        const btnLogout = document.getElementById("btnLogout");
+        const userEmailSpan = document.getElementById("userEmail");
+
+        // Controles de Sidebar Mobile
+        const sidebar = document.getElementById("sidebar");
+        const openSidebarMobile = document.getElementById("openSidebarMobile");
+        const closeSidebarMobile = document.getElementById("closeSidebarMobile");
+        const mobileBackdrop = document.getElementById("mobileBackdrop");
+
+        function toggleSidebar() {
+            sidebar.classList.toggle("-translate-x-full");
+            mobileBackdrop.classList.toggle("hidden");
+        }
+
+        openSidebarMobile.addEventListener("click", toggleSidebar);
+        closeSidebarMobile.addEventListener("click", toggleSidebar);
+        mobileBackdrop.addEventListener("click", toggleSidebar);
+
+        let allAgencies = [];
+
+        onAuthStateChanged(auth, (user) => {
+            if (user && userEmailSpan) {
+                userEmailSpan.innerText = user.email;
+            }
+        });
+
+        btnLogout.addEventListener("click", async () => {
+            await signOut(auth);
+            window.location.href = "login.html";
+        });
+
+        async function loadAgencies() {
+            try {
+                loading.style.display = "block";
+                agenciesList.innerHTML = "";
+
+                const snapshot = await getDocs(collection(db, "agencias"));
+                allAgencies = [];
+
+                snapshot.forEach((docSnap) => {
+                    allAgencies.push({
+                        id: docSnap.id,
+                        ...docSnap.data()
+                    });
+                });
+
+                renderAgencies(allAgencies);
+            } catch (error) {
+                console.error("Error Firestore:", error);
+                agenciesList.innerHTML = `
+                    <div class="col-span-full text-center py-12 bg-rose-500/5 rounded-2xl border border-rose-500/20 text-rose-400">
+                        <i class="fa fa-triangle-exclamation text-3xl mb-2"></i>
+                        <p class="font-bold text-sm">Error de conexión con la base de datos.</p>
+                    </div>
+                `;
+            } finally {
+                loading.style.display = "none";
+            }
+        }
+
+        function renderAgencies(agencies) {
+            agenciesList.innerHTML = "";
+            
+            // Métricas
+            const activeCount = agencies.filter(a => a.enabled !== false).length;
+            const inactiveCount = agencies.length - activeCount;
+
+            totalBadge.innerText = agencies.length;
+            activeBadge.innerText = activeCount;
+            inactiveBadge.innerText = inactiveCount;
+
+            if (agencies.length === 0) {
+                agenciesList.innerHTML = `
+                    <div class="col-span-full text-center py-16 bg-slate-900/40 rounded-2xl border border-dashed border-slate-800">
+                        <i class="fa fa-store-slash text-3xl text-slate-600 mb-3"></i>
+                        <p class="text-slate-300 font-bold text-sm">No se encontraron agencias</p>
+                        <p class="text-slate-500 text-xs mt-1">Intenta con otro término de búsqueda.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            agencies.forEach((agency) => {
+                const isEnabled = agency.enabled !== false;
+                const name = agency.idReal || agency.name || "Sin Nombre";
+                const zone = agency.zona || "Sin Zona";
+                const initial = zone.length >= 2 ? zone.substring(0, 2).toUpperCase() : "AG";
+
+                const lat = agency.lat || agency.latitud;
+                const lng = agency.lng || agency.longitud;
+                const address = agency.direccion || agency.address;
+
+                let mapUrl = null;
+                if (lat && lng) {
+                    mapUrl = `https://www.google.com/maps?q=${lat},${lng}`;
+                } else if (address) {
+                    mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address + " " + name)}`;
+                }
+
+                const card = document.createElement("div");
+                card.className = `group relative p-4 rounded-2xl border transition-all duration-300 flex flex-col justify-between gap-3 ${
+                    !isEnabled 
+                        ? 'bg-slate-900/30 border-slate-800/50 opacity-60' 
+                        : 'bg-slate-900/70 border-slate-800/80 hover:border-brand-500/40 hover:shadow-xl hover:shadow-brand-500/5 hover:-translate-y-1'
+                }`;
+
+                card.innerHTML = `
+                    <div>
+                        <!-- HEAD CARD -->
+                        <div class="flex items-start justify-between gap-2 mb-3">
+                            <div class="flex items-center gap-3 min-w-0">
+                                <div class="w-10 h-10 rounded-xl flex items-center justify-center font-black text-xs tracking-wider shrink-0 ${
+                                    isEnabled 
+                                        ? 'bg-gradient-to-br from-brand-600 to-indigo-600 text-white shadow-md shadow-brand-500/20' 
+                                        : 'bg-slate-800 text-slate-500'
+                                }">
+                                    ${initial}
+                                </div>
+                                <div class="min-w-0">
+                                    <h4 class="font-bold text-sm text-slate-100 truncate group-hover:text-brand-400 transition-colors">
+                                        ${name}
+                                    </h4>
+                                    <span class="inline-block text-[10px] font-mono text-slate-400 bg-slate-800/80 px-2 py-0.5 rounded-md border border-slate-700/50 mt-0.5">
+                                        ${zone}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase tracking-wider shrink-0 ${
+                                isEnabled 
+                                    ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' 
+                                    : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
+                            }">
+                                <span class="w-1.5 h-1.5 rounded-full ${isEnabled ? 'bg-emerald-400 animate-pulse' : 'bg-rose-400'}"></span>
+                                ${isEnabled ? 'Activa' : 'Inactiva'}
+                            </span>
+                        </div>
+
+                        <!-- DETALLES -->
+                        ${address || agency.telefono ? `
+                            <div class="space-y-1.5 pt-2.5 border-t border-slate-800/60 text-xs text-slate-400">
+                                ${address ? `
+                                    <p class="flex items-center gap-2 truncate text-[11px]">
+                                        <i class="fa fa-location-dot text-brand-400 w-3.5 text-center shrink-0"></i>
+                                        <span class="truncate">${address}</span>
+                                    </p>
+                                ` : ''}
+                                ${agency.telefono ? `
+                                    <p class="flex items-center gap-2 text-[11px]">
+                                        <i class="fa fa-phone text-brand-400 w-3.5 text-center shrink-0"></i>
+                                        <span>${agency.telefono}</span>
+                                    </p>
+                                ` : ''}
+                            </div>
+                        ` : ''}
+                    </div>
+
+                    <!-- FOOTER ACTIONS -->
+                    <div class="flex items-center justify-between gap-2 pt-2.5 border-t border-slate-800/60">
+                        <span class="text-[9px] font-mono text-slate-500 truncate">
+                            ID: ${agency.id}
+                        </span>
+
+                        <div class="flex items-center gap-1 shrink-0">
+                            ${mapUrl ? `
+                                <a href="${mapUrl}" target="_blank" class="w-7 h-7 rounded-lg bg-slate-800 text-slate-300 hover:bg-brand-600 hover:text-white flex items-center justify-center transition-all text-xs" title="Ver en Mapa">
+                                    <i class="fa fa-map-location-dot"></i>
+                                </a>
+                            ` : ''}
+
+                            <button data-id="${agency.id}" class="edit-btn w-7 h-7 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 flex items-center justify-center transition-all text-xs" title="Editar">
+                                <i class="fa fa-pen"></i>
+                            </button>
+
+                            <button data-id="${agency.id}" data-enabled="${isEnabled}" class="toggle-btn w-7 h-7 rounded-lg flex items-center justify-center transition-all text-xs ${
+                                isEnabled ? 'bg-slate-800 text-amber-400 hover:bg-amber-500/20' : 'bg-slate-800 text-emerald-400 hover:bg-emerald-500/20'
+                            }" title="${isEnabled ? 'Inhabilitar' : 'Habilitar'}">
+                                <i class="fa ${isEnabled ? 'fa-ban' : 'fa-check'}"></i>
+                            </button>
+
+                            <button data-id="${agency.id}" class="delete-btn w-7 h-7 rounded-lg bg-slate-800 text-slate-400 hover:bg-rose-500/20 hover:text-rose-400 flex items-center justify-center transition-all text-xs" title="Eliminar">
+                                <i class="fa fa-trash-can"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                agenciesList.appendChild(card);
+            });
+        }
+
+        // Evento Búsqueda
+        searchInput.addEventListener("input", () => {
+            const query = searchInput.value.toLowerCase().trim();
+
+            const filtered = allAgencies.filter((agency) => {
+                const code = String(agency.idReal || agency.id || "").toLowerCase();
+                const address = String(agency.direccion || agency.address || "").toLowerCase();
+                const zone = String(agency.zona || "").toLowerCase();
+
+                return code.includes(query) || address.includes(query) || zone.includes(query);
+            });
+
+            renderAgencies(filtered);
+        });
+
+        loadAgencies();
+    </script>
+</body>
+</html>
+
+================================================================================
+ARCHIVO: login.html
+================================================================================
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión - Consulta de Agencias</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+</head>
+
+<body class="bg-slate-950 min-h-screen flex items-center justify-center p-4 text-slate-100 selection:bg-indigo-500 selection:text-white">
+
+    <!-- CONTENEDOR PRINCIPAL -->
+    <div class="bg-slate-900/80 border border-slate-800/90 w-full max-w-md p-8 rounded-3xl shadow-2xl backdrop-blur-xl relative overflow-hidden">
+        
+        <!-- ELEMENTOS DECORATIVOS DE FONDO -->
+        <div class="absolute -top-16 -right-16 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl pointer-events-none"></div>
+        <div class="absolute -bottom-16 -left-16 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl pointer-events-none"></div>
+
+        <!-- ENCABEZADO CON LOGO Y TÍTULO -->
+        <div class="text-center mb-8 relative">
+            <div class="w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-4 p-3 shadow-inner group transition-transform hover:scale-105">
+                <!-- Monograma SVG estilo limpio / plano -->
+                <svg class="w-36 h-48 text-white fill-current" viewBox="0 0 100 130" xmlns="http://www.w3.org/2000/svg">
+                    <!-- P & G -->
+                    <g>
+                        <!-- P -->
+                        <rect x="0" y="0" width="18" height="130" rx="4" />
+                        <rect x="26" y="0" width="18" height="70" rx="4" />
+                        
+                        <!-- G -->
+                        <rect x="52" y="0" width="18" height="130" rx="4" />
+                        <rect x="78" y="0" width="18" height="38" rx="4" />
+                        <rect x="78" y="68" width="18" height="62" rx="4" />
+                    </g>
+                </svg>
+            </div>
+            
+            <h1 class="text-2xl font-black text-white tracking-tight">Bienvenido</h1>
+            <p class="text-xs font-medium text-slate-400 mt-1">Dev. Pedro E. Garcia R. V2.1 2026</p>
+        </div>
+
+        <!-- FORMULARIO DE INICIO DE SESIÓN -->
+        <form id="loginForm" class="space-y-4 relative">
+            <div>
+                <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Correo Electrónico</label>
+                <div class="relative">
+                    <i class="fa fa-envelope absolute left-3.5 top-3.5 text-slate-500 text-xs"></i>
+                    <input type="email" id="email" required placeholder="usuario@app.com"
+                        class="w-full bg-slate-800/60 border border-slate-700/70 text-white pl-9 pr-4 py-3 rounded-xl text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all placeholder:text-slate-600">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Contraseña</label>
+                <div class="relative">
+                    <i class="fa fa-key absolute left-3.5 top-3.5 text-slate-500 text-xs"></i>
+                    <input type="password" id="password" required placeholder="••••••••"
+                        class="w-full bg-slate-800/60 border border-slate-700/70 text-white pl-9 pr-10 py-3 rounded-xl text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all placeholder:text-slate-600">
+                    <button type="button" id="togglePassword" class="absolute right-3.5 top-3.5 text-slate-500 hover:text-slate-300 transition-colors focus:outline-none">
+                        <i class="fa fa-eye text-xs"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- MENSAJE DE ERROR O ALERTA -->
+            <div id="errorMsg" class="hidden p-3 rounded-xl text-xs font-bold text-center border transition-all"></div>
+
+            <!-- BOTÓN DE SUBMIT -->
+            <button type="submit" id="btnLogin"
+                class="w-full bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white font-bold py-3.5 rounded-xl text-sm transition-all shadow-lg shadow-indigo-600/25 active:scale-95 flex items-center justify-center gap-2">
+                <span id="btnText">Iniciar Sesión</span>
+                <i id="btnIcon" class="fa fa-arrow-right text-xs"></i>
+            </button>
+        </form>
+    </div>
+
+    <!-- SCRIPT DE AUTENTICACIÓN FIREBASE -->
+    <script type="module">
+        import { db, auth } from "./js/firebase/firebase.init.js";
+        import { signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        const form = document.getElementById("loginForm");
+        const errorMsg = document.getElementById("errorMsg");
+        const passwordInput = document.getElementById("password");
+        const togglePassword = document.getElementById("togglePassword");
+        const btnLogin = document.getElementById("btnLogin");
+        const btnText = document.getElementById("btnText");
+        const btnIcon = document.getElementById("btnIcon");
+
+        // Alternar visibilidad de la contraseña
+        togglePassword.addEventListener("click", () => {
+            const isPassword = passwordInput.type === "password";
+            passwordInput.type = isPassword ? "text" : "password";
+            togglePassword.innerHTML = `<i class="fa fa-${isPassword ? 'eye-slash' : 'eye'} text-xs"></i>`;
+        });
+
+        // Manejo del Login
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            showError("", false);
+            setLoading(true);
+
+            const email = document.getElementById("email").value.trim();
+            const password = passwordInput.value;
+
+            try {
+                // 1. Iniciar sesión en Auth
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const uid = userCredential.user.uid;
+
+                // 2. Verificar estado en la colección "users"
+                const userDocRef = doc(db, "users", uid);
+                const userDocSnap = await getDoc(userDocRef);
+
+                if (userDocSnap.exists()) {
+                    const userData = userDocSnap.data();
+
+                    // Verificar si el usuario está inhabilitado
+                    if (userData.enabled === false) {
+                        await signOut(auth); // Cerrar sesión automáticamente
+                        showError("Tu usuario ha sido inhabilitado. Contacta al administrador.", true, "bg-amber-500/10 text-amber-400 border-amber-500/20");
+                        setLoading(false);
+                        return;
+                    }
+                }
+
+                // 3. Redirigir si está activo
+                window.location.href = "index.html";
+
+            } catch (error) {
+                console.error("Error en login:", error);
+                setLoading(false);
+                showError("Credenciales inválidas o problema de conexión.", true, "bg-rose-500/10 text-rose-400 border-rose-500/20");
+            }
+        });
+
+        function showError(msg, visible, classes = "") {
+            errorMsg.innerText = msg;
+            errorMsg.className = `p-3 rounded-xl text-xs font-bold text-center border ${classes}`;
+            if (visible) errorMsg.classList.remove("hidden");
+            else errorMsg.classList.add("hidden");
+        }
+
+        function setLoading(isLoading) {
+            if (isLoading) {
+                btnLogin.disabled = true;
+                btnText.innerText = "Verificando...";
+                btnIcon.className = "fa fa-circle-notch animate-spin text-xs";
+            } else {
+                btnLogin.disabled = false;
+                btnText.innerText = "Iniciar Sesión";
+                btnIcon.className = "fa fa-arrow-right text-xs";
+            }
+        }
+    </script>
+</body>
+</html>
+
+================================================================================
+ARCHIVO: mapa.html
+================================================================================
+
+<!DOCTYPE html>
+<html lang="es" class="h-full bg-slate-950">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AGENCYPRO | Mapa Interactivo y Edición</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            800: '#3730a3',
+                            900: '#312e81',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- FontAwesome 6 & Toastify -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 8px; }
+        
+        /* Estilos Leaflet Modo Oscuro */
+        .leaflet-layer,
+        .leaflet-control-zoom-in,
+        .leaflet-control-zoom-out {
+            filter: brightness(0.7) invert(1) contrast(1.2) hue-rotate(200deg);
+        }
+        .leaflet-popup-content-wrapper, .leaflet-popup-tip {
+            background-color: #0f172a !important;
+            color: #f8fafc !important;
+            border: 1px solid #334155;
+            border-radius: 12px;
+        }
+    </style>
+</head>
+
+<body class="h-full bg-slate-950 text-slate-100 flex overflow-hidden antialiased">
+
+    <!-- OVERLAY CARGANDO -->
+    <div id="loadingOverlay" class="fixed inset-0 bg-slate-950 z-50 flex flex-col items-center justify-center space-y-3">
+        <div class="w-10 h-10 border-4 border-brand-500 border-t-transparent rounded-full animate-spin"></div>
+        <p class="text-xs font-bold text-slate-400 tracking-wider uppercase">Cargando Agencias y Mapa...</p>
+    </div>
+
+    <!-- BACKDROP MOBILE -->
+    <div id="mobileBackdrop" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-40 hidden lg:hidden"></div>
+
+    <!-- SIDEBAR ACTUALIZADO -->
+    <aside id="sidebar" class="fixed lg:static inset-y-0 left-0 z-50 w-72 bg-slate-900/90 border-r border-slate-800/80 flex flex-col justify-between -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out backdrop-blur-xl shrink-0">
+        <div>
+            <!-- LOGO / BRANDING -->
+            <div class="h-16 px-6 flex items-center justify-between border-b border-slate-800/80">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-500 flex items-center justify-center text-white font-black text-lg shadow-lg shadow-brand-500/20">
+                        A
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-sm tracking-wide text-white">AGENCY<span class="text-brand-500">PRO</span></h1>
+                        <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Dev P. Garcia 2026</p>
+                    </div>
+                </div>
+                <button id="closeSidebarMobile" class="lg:hidden text-slate-400 hover:text-white text-lg">
+                    <i class="fa fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- NAVEGACIÓN PRINCIPAL -->
+            <nav class="p-4 space-y-1.5 custom-scroll overflow-y-auto max-h-[calc(100vh-140px)]">
+                <p class="px-3 pt-2 pb-1 text-[10px] font-bold uppercase tracking-widest text-slate-500">Menú Principal</p>
+                
+                <a href="index.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 text-xs font-medium transition-all">
+                    <i class="fa fa-house w-4 text-center text-sm"></i>
+                    <span>Inicio</span>
+                </a>
+                <a href="mapa.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl bg-brand-600/10 text-brand-400 font-semibold text-xs border border-brand-500/20 shadow-sm transition-all">
+                    <i class="fa fa-map-location-dot w-4 text-center text-sm"></i>
+                    <span>Mapa de Agencias</span>
+                </a>
+                <a href="zonas.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 text-xs font-medium transition-all">
+                    <i class="fa fa-layer-group w-4 text-center text-sm"></i>
+                    <span>Gestión de Zonas</span>
+                </a>
+                
+                <p class="px-3 pt-4 pb-1 text-[10px] font-bold uppercase tracking-widest text-slate-500">Administración</p>
+                <a href="users.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 text-xs font-medium transition-all">
+                    <i class="fa fa-users-gear w-4 text-center text-sm"></i>
+                    <span>Usuarios y Permisos</span>
+                </a>
+            </nav>
+        </div>
+
+        <div class="p-4 border-t border-slate-800/80 bg-slate-900/50">
+            <div class="flex items-center justify-between gap-2">
+                <div class="flex items-center gap-2.5 min-w-0">
+                    <div class="w-8 h-8 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center text-brand-400 font-bold text-xs shrink-0">
+                        <i class="fa fa-user"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <p id="userEmail" class="text-xs font-semibold text-slate-200 truncate">Cargando...</p>
+                    </div>
+                </div>
+                <button id="btnLogout" class="text-slate-400 hover:text-rose-400 p-2 rounded-lg hover:bg-rose-500/10 transition-colors">
+                    <i class="fa fa-arrow-right-from-bracket"></i>
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- ÁREA PRINCIPAL -->
+    <div class="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
+        <header class="h-16 bg-slate-900/80 border-b border-slate-800/80 px-6 flex items-center justify-between gap-4 shrink-0 backdrop-blur-md z-10">
+            <div class="flex items-center gap-4">
+                <button id="openSidebarMobile" class="lg:hidden text-slate-400 hover:text-white p-2">
+                    <i class="fa fa-bars"></i>
+                </button>
+                <h2 class="text-base font-bold text-slate-100 hidden sm:block">Visor Geoespacial</h2>
+            </div>
+
+            <!-- FILTROS -->
+            <div class="flex items-center gap-3 flex-1 max-w-2xl justify-end">
+                <div class="relative w-48 sm:w-64">
+                    <i class="fa fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+                    <input type="text" id="mapSearchInput" placeholder="Buscar agencia..." 
+                           class="w-full bg-slate-950 border border-slate-800 text-xs text-slate-200 pl-8 pr-3 py-2 rounded-xl focus:outline-none focus:border-brand-500">
+                </div>
+
+                <select id="zoneFilter" class="bg-slate-950 border border-slate-800 text-xs text-slate-200 px-3 py-2 rounded-xl focus:outline-none focus:border-brand-500 font-semibold">
+                    <option value="ALL">Todas las Zonas</option>
+                </select>
+            </div>
+        </header>
+
+        <!-- CONTENEDOR DEL MAPA Y PANEL LATERAL -->
+        <div class="flex-1 flex relative overflow-hidden">
+            
+            <!-- PANEL FLOTANTE DE AGENCIAS -->
+            <div id="agencyListPanel" class="w-80 bg-slate-900/90 border-r border-slate-800/80 flex flex-col z-10 backdrop-blur-md hidden md:flex">
+                <div class="p-4 border-b border-slate-800 flex justify-between items-center">
+                    <span class="text-xs font-bold text-slate-300 uppercase tracking-wider">Agencias (<span id="agencyCount">0</span>)</span>
+                    <span class="text-[10px] bg-brand-500/10 text-brand-400 border border-brand-500/20 px-2 py-0.5 rounded font-bold">GPS</span>
+                </div>
+                <div id="agencyListContainer" class="flex-1 overflow-y-auto p-3 space-y-2 custom-scroll">
+                    <!-- Tarjetas de agencias -->
+                </div>
+            </div>
+
+            <!-- MAPA LEAFLET -->
+            <div id="map" class="flex-1 h-full w-full bg-slate-950"></div>
+        </div>
+    </div>
+
+    <!-- MODAL EDITAR AGENCIA -->
+    <div id="editAgencyModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[9998] flex items-center justify-center hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 w-full max-w-lg space-y-4 shadow-2xl">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                <h3 class="text-sm font-bold text-slate-100 flex items-center gap-2">
+                    <i class="fa fa-pen-to-square text-brand-400"></i>
+                    Editar Agencia
+                </h3>
+                <button id="btnCloseModal" class="text-slate-400 hover:text-white"><i class="fa fa-xmark"></i></button>
+            </div>
+
+            <form id="editAgencyForm" class="space-y-3 text-xs">
+                <input type="hidden" id="editDocId">
+
+                <div>
+                    <label class="block font-bold text-slate-400 mb-1 uppercase">Nombre de la Agencia</label>
+                    <input type="text" id="editNombre" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-slate-200 focus:outline-none focus:border-brand-500" required>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-bold text-slate-400 mb-1 uppercase">Zona</label>
+                        <select id="editZona" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-slate-200 focus:outline-none focus:border-brand-500 font-bold" required>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-400 mb-1 uppercase">Estado</label>
+                        <select id="editEstado" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-slate-200 focus:outline-none focus:border-brand-500">
+                            <option value="Activa">Activa</option>
+                            <option value="Inactiva">Inactiva</option>
+                            <option value="Mantenimiento">Mantenimiento</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-bold text-slate-400 mb-1 uppercase">Latitud</label>
+                        <input type="number" step="any" id="editLat" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-slate-200 focus:outline-none focus:border-brand-500" required>
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-400 mb-1 uppercase">Longitud</label>
+                        <input type="number" step="any" id="editLng" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-slate-200 focus:outline-none focus:border-brand-500" required>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-400 mb-1 uppercase">Dirección</label>
+                    <textarea id="editDireccion" rows="2" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-slate-200 focus:outline-none focus:border-brand-500"></textarea>
+                </div>
+
+                <div class="flex justify-end gap-2 pt-2 border-t border-slate-800">
+                    <button type="button" id="btnCancelAgencyEdit" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold rounded-xl">Cancelar</button>
+                    <button type="submit" id="btnTriggerAuth" class="px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white font-bold rounded-xl flex items-center gap-2">
+                        <i class="fa fa-shield-halved"></i> Validar Administrador
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL DE CONFIRMACIÓN CON CREDENCIALES DE ADMIN -->
+    <div id="adminAuthModal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-[9999] flex items-center justify-center hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 w-full max-w-md space-y-4 shadow-2xl">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                <h3 class="text-sm font-bold text-rose-400 flex items-center gap-2">
+                    <i class="fa fa-lock"></i>
+                    Confirmación de Admin Requerida
+                </h3>
+                <button id="btnCloseAuthModal" class="text-slate-400 hover:text-white"><i class="fa fa-xmark"></i></button>
+            </div>
+            
+            <p class="text-xs text-slate-400">
+                Para aplicar los cambios sobre esta agencia, ingresa las credenciales de un usuario administrador.
+            </p>
+
+            <form id="adminAuthForm" class="space-y-3 text-xs">
+                <div>
+                    <label class="block font-bold text-slate-400 mb-1 uppercase">Correo Administrador</label>
+                    <input type="email" id="adminEmail" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-slate-200 focus:outline-none focus:border-rose-500" placeholder="admin@empresa.com" required>
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-400 mb-1 uppercase">Contraseña Administrador</label>
+                    <input type="password" id="adminPassword" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-slate-200 focus:outline-none focus:border-rose-500" placeholder="••••••••" required>
+                </div>
+
+                <div class="flex justify-end gap-2 pt-2 border-t border-slate-800">
+                    <button type="button" id="btnCancelAuth" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold rounded-xl">Cancelar</button>
+                    <button type="submit" id="btnConfirmAuthAndSave" class="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white font-bold rounded-xl flex items-center gap-2">
+                        <i class="fa fa-check"></i> Autorizar y Guardar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- LEAFLET JS & TOASTIFY -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
+    <!-- FIREBASE LOGIC -->
+    <script type="module">
+        import { db, auth } from "./js/firebase/firebase.init.js";
+        import { collection, getDocs, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { onAuthStateChanged, signOut, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+        let map;
+        let markersGroup;
+        let allAgencies = [];
+        let zoneColorMap = {};
+
+        const ZONE_COLORS = [
+            '#6366f1', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', 
+            '#06b6d4', '#f97316', '#14b8a6', '#e11d48', '#84cc16'
+        ];
+
+        const loadingOverlay = document.getElementById("loadingOverlay");
+        const zoneFilter = document.getElementById("zoneFilter");
+        const mapSearchInput = document.getElementById("mapSearchInput");
+        const agencyListContainer = document.getElementById("agencyListContainer");
+        const agencyCount = document.getElementById("agencyCount");
+
+        // Elementos del Modal Editar
+        const editAgencyModal = document.getElementById("editAgencyModal");
+        const editAgencyForm = document.getElementById("editAgencyForm");
+        const editDocId = document.getElementById("editDocId");
+        const editNombre = document.getElementById("editNombre");
+        const editZona = document.getElementById("editZona");
+        const editEstado = document.getElementById("editEstado");
+        const editLat = document.getElementById("editLat");
+        const editLng = document.getElementById("editLng");
+        const editDireccion = document.getElementById("editDireccion");
+
+        // Elementos del Modal Re-Autenticación
+        const adminAuthModal = document.getElementById("adminAuthModal");
+        const adminAuthForm = document.getElementById("adminAuthForm");
+        const adminEmail = document.getElementById("adminEmail");
+        const adminPassword = document.getElementById("adminPassword");
+
+        // Controles Mobile Sidebar
+        const sidebar = document.getElementById("sidebar");
+        const openSidebarMobile = document.getElementById("openSidebarMobile");
+        const closeSidebarMobile = document.getElementById("closeSidebarMobile");
+        const mobileBackdrop = document.getElementById("mobileBackdrop");
+
+        openSidebarMobile?.addEventListener("click", () => {
+            sidebar.classList.remove("-translate-x-full");
+            mobileBackdrop.classList.remove("hidden");
+        });
+
+        const closeSidebar = () => {
+            sidebar.classList.add("-translate-x-full");
+            mobileBackdrop.classList.add("hidden");
+        };
+
+        closeSidebarMobile?.addEventListener("click", closeSidebar);
+        mobileBackdrop?.addEventListener("click", closeSidebar);
+
+        function initMap() {
+            map = L.map('map').setView([18.7357, -70.1627], 8);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; OpenStreetMap'
+            }).addTo(map);
+
+            markersGroup = L.layerGroup().addTo(map);
+        }
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = "login.html";
+                return;
+            }
+            document.getElementById("userEmail").innerText = user.email;
+            initMap();
+            await loadData();
+            loadingOverlay.classList.add("hidden");
+        });
+
+        async function loadData() {
+            try {
+                const [zonesSnap, agenciasSnap] = await Promise.all([
+                    getDocs(collection(db, "zonas")),
+                    getDocs(collection(db, "agencias"))
+                ]);
+
+                const zonesSet = new Set();
+
+                zonesSnap.forEach(d => {
+                    const z = d.id.toUpperCase().trim();
+                    if (z) zonesSet.add(z);
+                });
+
+                allAgencies = [];
+                agenciasSnap.forEach(docSnap => {
+                    const data = docSnap.data();
+                    const agencyZone = data.zona ? data.zona.toUpperCase().trim() : 'SIN ZONA';
+                    if (agencyZone) zonesSet.add(agencyZone);
+
+                    // Solo asigna ID real si existe explícitamente en el documento
+                    const realId = data.idReal || data.idreal || data.codigo || null;
+
+                    allAgencies.push({
+                        docId: docSnap.id,
+                        idreal: realId,
+                        nombre: data.nombre || (realId ? realId : 'Agencia sin nombre'),
+                        zona: agencyZone,
+                        lat: data.latitud || data.lat || null,
+                        lng: data.longitud || data.lng || null,
+                        estado: data.estado || 'Activa',
+                        direccion: data.direccion || ''
+                    });
+                });
+
+                const sortedZones = Array.from(zonesSet).sort();
+                zoneFilter.innerHTML = `<option value="ALL">Todas las Zonas (${sortedZones.length})</option>`;
+                editZona.innerHTML = "";
+
+                zoneColorMap = {};
+                sortedZones.forEach((zName, index) => {
+                    zoneColorMap[zName] = ZONE_COLORS[index % ZONE_COLORS.length];
+
+                    const opt = document.createElement("option");
+                    opt.value = zName;
+                    opt.textContent = zName;
+                    zoneFilter.appendChild(opt);
+
+                    const optEdit = document.createElement("option");
+                    optEdit.value = zName;
+                    optEdit.textContent = zName;
+                    editZona.appendChild(optEdit);
+                });
+
+                renderAgenciesOnMap(allAgencies);
+
+            } catch (err) {
+                console.error("Error al cargar datos:", err);
+                Toastify({ text: "Error al sincronizar con Firestore", style: { background: "#f43f5e" } }).showToast();
+            }
+        }
+
+        function renderAgenciesOnMap(agencies) {
+            markersGroup.clearLayers();
+            agencyListContainer.innerHTML = "";
+
+            const validAgencies = agencies.filter(a => a.lat && a.lng);
+            agencyCount.innerText = validAgencies.length;
+
+            const bounds = [];
+
+            validAgencies.forEach(agency => {
+                const lat = parseFloat(agency.lat);
+                const lng = parseFloat(agency.lng);
+
+                if (isNaN(lat) || isNaN(lng)) return;
+
+                bounds.push([lat, lng]);
+
+                const color = zoneColorMap[agency.zona] || '#6366f1';
+
+                const marker = L.circleMarker([lat, lng], {
+                    radius: 8,
+                    fillColor: color,
+                    color: '#ffffff',
+                    weight: 2,
+                    opacity: 1,
+                    fillOpacity: 0.95
+                });
+
+                const displayIdPopup = agency.idreal ? `<span class="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-slate-800 text-brand-400 uppercase">ID: ${agency.idreal}</span>` : "";
+
+                const popupContent = document.createElement("div");
+                popupContent.className = "p-2 space-y-2 text-xs";
+                popupContent.innerHTML = `
+                    <div>
+                        ${displayIdPopup}
+                        <strong class="text-sm font-bold block text-white mt-1">${agency.nombre}</strong>
+                        <p class="text-slate-400"><i class="fa fa-location-dot text-xs mr-1" style="color:${color}"></i>${agency.direccion || 'Sin dirección'}</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="px-2 py-0.5 rounded text-[10px] font-bold text-white uppercase" style="background-color: ${color}">
+                            ${agency.zona}
+                        </span>
+                        <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-slate-300 uppercase">
+                            ${agency.estado}
+                        </span>
+                    </div>
+                    <button id="btnEdit-${agency.docId}" class="w-full mt-2 bg-brand-600 hover:bg-brand-500 text-white font-bold py-1.5 px-2 rounded-lg text-[11px] flex items-center justify-center gap-1.5 cursor-pointer">
+                        <i class="fa fa-pen-to-square"></i> Editar Agencia
+                    </button>
+                `;
+
+                marker.bindPopup(popupContent);
+
+                marker.on('popupopen', () => {
+                    const btnEdit = document.getElementById(`btnEdit-${agency.docId}`);
+                    if (btnEdit) {
+                        btnEdit.addEventListener('click', () => {
+                            openEditModal(agency);
+                        });
+                    }
+                });
+
+                markersGroup.addLayer(marker);
+
+                // Tarjeta Lateral
+                const displayIdCard = agency.idreal ? `<p class="text-[10px] font-mono text-slate-500">ID: ${agency.idreal}</p>` : "";
+
+                const card = document.createElement("div");
+                card.className = "p-3 bg-slate-950/60 border border-slate-800 hover:border-brand-500/50 rounded-xl cursor-pointer transition-all space-y-1";
+                card.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <h4 class="text-xs font-bold text-slate-200 truncate">${agency.nombre}</h4>
+                        <span class="w-2.5 h-2.5 rounded-full shrink-0" style="background-color: ${color}"></span>
+                    </div>
+                    ${displayIdCard}
+                    <p class="text-[10px] font-bold uppercase tracking-wider" style="color: ${color}">${agency.zona}</p>
+                    <p class="text-[11px] text-slate-400 truncate">${agency.direccion || 'Sin dirección'}</p>
+                `;
+
+                card.addEventListener("click", () => {
+                    map.flyTo([lat, lng], 16, { duration: 1.2 });
+                    marker.openPopup();
+                });
+
+                agencyListContainer.appendChild(card);
+            });
+
+            if (bounds.length > 0) {
+                map.fitBounds(bounds, { padding: [50, 50] });
+            }
+        }
+
+        function openEditModal(agency) {
+            editDocId.value = agency.docId;
+            editNombre.value = agency.nombre;
+            editZona.value = agency.zona;
+            editEstado.value = agency.estado;
+            editLat.value = agency.lat;
+            editLng.value = agency.lng;
+            editDireccion.value = agency.direccion;
+
+            editAgencyModal.classList.remove("hidden");
+        }
+
+        editAgencyForm.addEventListener("submit", (e) => {
+            e.preventDefault();
+            adminEmail.value = auth.currentUser ? auth.currentUser.email : "";
+            adminPassword.value = "";
+            adminAuthModal.classList.remove("hidden");
+        });
+
+        adminAuthForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const email = adminEmail.value.trim();
+            const pass = adminPassword.value;
+            const btnAuth = document.getElementById("btnConfirmAuthAndSave");
+
+            btnAuth.disabled = true;
+            btnAuth.innerHTML = `<i class="fa fa-spinner fa-spin"></i> Verificando...`;
+
+            try {
+                await signInWithEmailAndPassword(auth, email, pass);
+
+                btnAuth.innerHTML = `<i class="fa fa-spinner fa-spin"></i> Guardando cambios...`;
+                
+                const docId = editDocId.value;
+                const newNombre = editNombre.value.trim();
+                const newZona = editZona.value;
+                const newEstado = editEstado.value;
+                const newLat = parseFloat(editLat.value);
+                const newLng = parseFloat(editLng.value);
+                const newDireccion = editDireccion.value.trim();
+
+                const agencyRef = doc(db, "agencias", docId);
+                await updateDoc(agencyRef, {
+                    nombre: newNombre,
+                    zona: newZona,
+                    estado: newEstado,
+                    latitud: newLat,
+                    longitud: newLng,
+                    direccion: newDireccion,
+                    updated_at: Date.now(),
+                    searchable: `${newNombre} ${newZona} ${newDireccion}`.toLowerCase()
+                });
+
+                Toastify({ text: "Agencia actualizada correctamente con permisos de Admin", style: { background: "#10b981" } }).showToast();
+
+                adminAuthModal.classList.add("hidden");
+                editAgencyModal.classList.add("hidden");
+
+                await loadData();
+
+            } catch (err) {
+                console.error("Error en re-autenticación o guardado:", err);
+                Toastify({ text: "Credenciales inválidas o permisos insuficientes", style: { background: "#f43f5e" } }).showToast();
+            } finally {
+                btnAuth.disabled = false;
+                btnAuth.innerHTML = `<i class="fa fa-check"></i> Autorizar y Guardar`;
+            }
+        });
+
+        function applyFilters() {
+            const selectedZone = zoneFilter.value;
+            const searchText = mapSearchInput.value.toLowerCase().trim();
+
+            const filtered = allAgencies.filter(agency => {
+                const matchesZone = selectedZone === "ALL" || agency.zona === selectedZone;
+                const matchesSearch = agency.nombre.toLowerCase().includes(searchText) || 
+                                      (agency.idreal && agency.idreal.toLowerCase().includes(searchText)) ||
+                                      agency.direccion.toLowerCase().includes(searchText);
+
+                return matchesZone && matchesSearch;
+            });
+
+            renderAgenciesOnMap(filtered);
+        }
+
+        zoneFilter.addEventListener("change", applyFilters);
+        mapSearchInput.addEventListener("input", applyFilters);
+
+        document.getElementById("btnCloseModal").addEventListener("click", () => editAgencyModal.classList.add("hidden"));
+        document.getElementById("btnCancelAgencyEdit").addEventListener("click", () => editAgencyModal.classList.add("hidden"));
+        document.getElementById("btnCloseAuthModal").addEventListener("click", () => adminAuthModal.classList.add("hidden"));
+        document.getElementById("btnCancelAuth").addEventListener("click", () => adminAuthModal.classList.add("hidden"));
+
+        document.getElementById("btnLogout").addEventListener("click", async () => {
+            await signOut(auth);
+            window.location.href = "login.html";
+        });
+    </script>
+</body>
+</html>
+
+================================================================================
+ARCHIVO: reportes.html
+================================================================================
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reportes y Analítica - Agencias</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- SheetJS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <!-- SweetAlert2 CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            500: '#0284c7',
+                            600: '#0369a1',
+                            700: '#075985',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-50 font-sans text-slate-800 antialiased min-h-screen">
+
+    <div class="max-w-7xl mx-auto px-4 py-8">
+        
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8 pb-4 border-b border-slate-200">
+            <div>
+                <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight flex items-center gap-3">
+                    <span class="p-2 bg-brand-500 text-white rounded-xl shadow-md">
+                        <i class="fa-solid fa-chart-pie text-xl"></i>
+                    </span>
+                    Reportes y Analítica de Agencias
+                </h1>
+                <p class="text-slate-500 mt-1 text-sm">Visualiza métricas clave, distribución por zona y exporta reportes detallados.</p>
+            </div>
+            <div class="mt-4 md:mt-0 flex items-center gap-3">
+                <button id="btnExportExcel" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md transition-all flex items-center gap-2">
+                    <i class="fa-solid fa-file-excel"></i> Exportar Excel
+                </button>
+                <button id="btnPrintReport" class="px-4 py-2 bg-slate-700 hover:bg-slate-800 text-white text-xs font-bold rounded-xl shadow-md transition-all flex items-center gap-2">
+                    <i class="fa-solid fa-print"></i> Imprimir / PDF
+                </button>
+            </div>
+        </div>
+
+        <!-- Filters Bar -->
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 mb-8 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+                <label for="filterZona" class="block text-xs font-bold text-slate-600 mb-1.5 uppercase">Filtrar por Zona</label>
+                <select id="filterZona" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                    <option value="ALL">Todas las Zonas</option>
+                </select>
+            </div>
+            <div>
+                <label for="searchQuery" class="block text-xs font-bold text-slate-600 mb-1.5 uppercase">Buscar Agencia / ID / Dirección</label>
+                <div class="relative">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-400 text-xs"></i>
+                    <input type="text" id="searchQuery" placeholder="Ej. 8125840 o Calle Principal..." class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                </div>
+            </div>
+            <div class="flex items-end gap-2">
+                <button id="btnApplyFilters" class="w-full py-2 bg-brand-500 hover:bg-brand-600 text-white text-xs font-bold rounded-xl shadow transition-all flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-filter"></i> Aplicar Filtros
+                </button>
+                <button id="btnResetFilters" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold rounded-xl border border-slate-200 transition-all">
+                    <i class="fa-solid fa-rotate"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Metric KPI Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Agencias</p>
+                    <h3 id="kpiTotalAgencies" class="text-3xl font-extrabold text-slate-900 mt-1">0</h3>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-building"></i>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Zonas Registradas</p>
+                    <h3 id="kpiTotalZones" class="text-3xl font-extrabold text-slate-900 mt-1">0</h3>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-map"></i>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Con Coordenadas</p>
+                    <h3 id="kpiGeolocated" class="text-3xl font-extrabold text-slate-900 mt-1">0%</h3>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-location-dot"></i>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Zona con Mayor Carga</p>
+                    <h3 id="kpiTopZone" class="text-lg font-bold text-slate-900 mt-1 truncate max-w-[120px]">-</h3>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-trophy"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <!-- Chart 1: Distribution by Zone -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wider mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-chart-column text-brand-500"></i> Agencias por Zona
+                </h3>
+                <div class="relative h-64">
+                    <canvas id="zoneChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Chart 2: Completeness / Geolocation Status -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wider mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-chart-pie text-emerald-500"></i> Calidad de Datos (Geolocalización)
+                </h3>
+                <div class="relative h-64 flex justify-center">
+                    <canvas id="completenessChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detailed Table -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <div class="px-6 py-4 border-b border-slate-200 bg-slate-50/50 flex items-center justify-between">
+                <h3 class="font-bold text-slate-800 text-sm uppercase tracking-wider">
+                    Detalle de Agencias Filtradas
+                </h3>
+                <span id="filteredCountBadge" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-brand-100 text-brand-700">0 Registros</span>
+            </div>
+
+            <div class="overflow-x-auto max-h-96">
+                <table class="w-full text-left text-xs border-collapse">
+                    <thead class="bg-slate-100/70 text-slate-500 font-semibold uppercase tracking-wider sticky top-0 border-b border-slate-200">
+                        <tr>
+                            <th class="py-3 px-4">#</th>
+                            <th class="py-3 px-4">ID Real</th>
+                            <th class="py-3 px-4">Zona</th>
+                            <th class="py-3 px-4">Dirección</th>
+                            <th class="py-3 px-4">Coordenadas (Lat, Lng)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reportTableBody" class="divide-y divide-slate-100 text-slate-700">
+                        <!-- Dynamic content -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Firebase Integration Logic -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { 
+            getFirestore, 
+            collection, 
+            getDocs 
+        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        // Firebase Config
+        const firebaseConfig = {
+    apiKey: "AIzaSyA9wJ-vgcwG-MJ6gqQz3byolJP6DwrjnVw",
+    authDomain: "agencias-v2.firebaseapp.com",
+    projectId: "agencias-v2",
+    storageBucket: "agencias-v2.firebasestorage.app",
+    messagingSenderId: "896099760213",
+    appId: "1:896099760213:web:969ffa8363d51c0a8bbcdc"
+};
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // State Data
+        let rawAgencies = [];
+        let filteredAgencies = [];
+        let zoneChartInstance = null;
+        let completenessChartInstance = null;
+
+        // Elements
+        const filterZona = document.getElementById("filterZona");
+        const searchQuery = document.getElementById("searchQuery");
+        const btnApplyFilters = document.getElementById("btnApplyFilters");
+        const btnResetFilters = document.getElementById("btnResetFilters");
+        const reportTableBody = document.getElementById("reportTableBody");
+        const btnExportExcel = document.getElementById("btnExportExcel");
+        const btnPrintReport = document.getElementById("btnPrintReport");
+
+        // Fetch Initial Data
+        async function loadReportData() {
+            try {
+                const snap = await getDocs(collection(db, "agencias"));
+                rawAgencies = [];
+                snap.forEach(docSnap => {
+                    rawAgencies.push({ id: docSnap.id, ...docSnap.data() });
+                });
+
+                populateZoneFilter();
+                applyFilters();
+
+            } catch (err) {
+                console.error("Error al cargar datos:", err);
+                Swal.fire("Error", "No se pudieron obtener los datos de Firestore.", "error");
+            }
+        }
+
+        function populateZoneFilter() {
+            const zones = new Set();
+            rawAgencies.forEach(a => { if (a.zona) zones.add(a.zona); });
+            
+            filterZona.innerHTML = `<option value="ALL">Todas las Zonas</option>`;
+            Array.from(zones).sort().forEach(z => {
+                filterZona.innerHTML += `<option value="${z}">${z}</option>`;
+            });
+        }
+
+        function applyFilters() {
+            const selectedZone = filterZona.value;
+            const queryText = searchQuery.value.toLowerCase().trim();
+
+            filteredAgencies = rawAgencies.filter(agency => {
+                const matchZone = selectedZone === "ALL" || agency.zona === selectedZone;
+                const matchQuery = !queryText || 
+                    (agency.idReal && String(agency.idReal).toLowerCase().includes(queryText)) ||
+                    (agency.direccion && agency.direccion.toLowerCase().includes(queryText));
+
+                return matchZone && matchQuery;
+            });
+
+            updateKPIs();
+            renderCharts();
+            renderTable();
+        }
+
+        function updateKPIs() {
+            document.getElementById("kpiTotalAgencies").textContent = filteredAgencies.length;
+
+            const zonesMap = {};
+            let geolocatedCount = 0;
+
+            filteredAgencies.forEach(a => {
+                if (a.zona) zonesMap[a.zona] = (zonesMap[a.zona] || 0) + 1;
+                if (a.lat && a.lng && a.lat !== 0 && a.lng !== 0) geolocatedCount++;
+            });
+
+            const uniqueZones = Object.keys(zonesMap).length;
+            document.getElementById("kpiTotalZones").textContent = uniqueZones;
+
+            const geoPerc = filteredAgencies.length > 0 ? Math.round((geolocatedCount / filteredAgencies.length) * 100) : 0;
+            document.getElementById("kpiGeolocated").textContent = `${geoPerc}%`;
+
+            let topZoneName = "-";
+            let topZoneVal = 0;
+            Object.entries(zonesMap).forEach(([z, val]) => {
+                if (val > topZoneVal) {
+                    topZoneVal = val;
+                    topZoneName = z;
+                }
+            });
+
+            document.getElementById("kpiTopZone").textContent = topZoneName;
+            document.getElementById("filteredCountBadge").textContent = `${filteredAgencies.length} Registros`;
+        }
+
+        function renderCharts() {
+            // Zone Breakdown Map
+            const zonesMap = {};
+            let geolocated = 0;
+            let missingGeo = 0;
+
+            filteredAgencies.forEach(a => {
+                const z = a.zona || "Sin Zona";
+                zonesMap[z] = (zonesMap[z] || 0) + 1;
+
+                if (a.lat && a.lng && a.lat !== 0 && a.lng !== 0) geolocated++;
+                else missingGeo++;
+            });
+
+            // Destroy previous charts
+            if (zoneChartInstance) zoneChartInstance.destroy();
+            if (completenessChartInstance) completenessChartInstance.destroy();
+
+            // Render Zone Chart
+            const ctxZone = document.getElementById("zoneChart").getContext("2d");
+            zoneChartInstance = new Chart(ctxZone, {
+                type: "bar",
+                data: {
+                    labels: Object.keys(zonesMap),
+                    datasets: [{
+                        label: "Cantidad de Agencias",
+                        data: Object.values(zonesMap),
+                        backgroundColor: "#0284c7",
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            // Render Completeness Pie Chart
+            const ctxComp = document.getElementById("completenessChart").getContext("2d");
+            completenessChartInstance = new Chart(ctxComp, {
+                type: "doughnut",
+                data: {
+                    labels: ["Con Coordenadas", "Sin Coordenadas"],
+                    datasets: [{
+                        data: [geolocated, missingGeo],
+                        backgroundColor: ["#10b981", "#f59e0b"]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: "bottom" } }
+                }
+            });
+        }
+
+        function renderTable() {
+            reportTableBody.innerHTML = "";
+
+            if (filteredAgencies.length === 0) {
+                reportTableBody.innerHTML = `<tr><td colspan="5" class="text-center py-6 text-slate-400 font-medium">No se encontraron registros con los filtros seleccionados.</td></tr>`;
+                return;
+            }
+
+            filteredAgencies.forEach((item, index) => {
+                const tr = document.createElement("tr");
+                tr.className = "hover:bg-slate-50 transition-colors";
+                
+                const hasCoords = item.lat && item.lng && item.lat !== 0 && item.lng !== 0;
+                const coordsBadge = hasCoords 
+                    ? `<span class="px-2 py-0.5 bg-emerald-50 text-emerald-700 font-mono text-[11px] rounded">${item.lat}, ${item.lng}</span>`
+                    : `<span class="px-2 py-0.5 bg-amber-50 text-amber-700 text-[11px] rounded">Pendiente</span>`;
+
+                tr.innerHTML = `
+                    <td class="py-3 px-4 font-mono text-slate-400">${index + 1}</td>
+                    <td class="py-3 px-4"><span class="px-2 py-1 bg-sky-50 text-sky-700 font-mono font-bold rounded">${item.idReal || '-'}</span></td>
+                    <td class="py-3 px-4"><span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 font-medium">${item.zona || '-'}</span></td>
+                    <td class="py-3 px-4 font-medium">${item.direccion || '-'}</td>
+                    <td class="py-3 px-4">${coordsBadge}</td>
+                `;
+                reportTableBody.appendChild(tr);
+            });
+        }
+
+        // Event Listeners
+        btnApplyFilters.addEventListener("click", applyFilters);
+        btnResetFilters.addEventListener("click", () => {
+            filterZona.value = "ALL";
+            searchQuery.value = "";
+            applyFilters();
+        });
+
+        btnExportExcel.addEventListener("click", () => {
+            if (filteredAgencies.length === 0) {
+                Swal.fire("Atención", "No hay datos para exportar.", "warning");
+                return;
+            }
+
+            const exportData = filteredAgencies.map((a, index) => ({
+                "#": index + 1,
+                "ID Real": a.idReal || "",
+                "Zona": a.zona || "",
+                "Dirección": a.direccion || "",
+                "Latitud": a.lat || 0,
+                "Longitud": a.lng || 0
+            }));
+
+            const worksheet = XLSX.utils.json_to_sheet(exportData);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Reporte_Agencias");
+            XLSX.writeFile(workbook, `Reporte_Agencias_${new Date().toISOString().slice(0,10)}.xlsx`);
+        });
+
+        btnPrintReport.addEventListener("click", () => window.print());
+
+        // Initialize Page
+        loadReportData();
+    </script>
+</body>
+</html>
+
+================================================================================
+ARCHIVO: sugerencias.html
+================================================================================
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sugerencias e Integraciones</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+        .custom-scroll::-webkit-scrollbar-thumb:hover { background: #475569; }
+    </style>
+</head>
+
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between relative selection:bg-indigo-500 selection:text-white">
+
+    <!-- LUCES DE FONDO DECORATIVAS -->
+    <div class="absolute top-0 left-1/4 w-[500px] h-[300px] bg-indigo-600/10 rounded-full blur-[120px] pointer-events-none"></div>
+    <div class="absolute bottom-10 right-10 w-[400px] h-[400px] bg-emerald-600/5 rounded-full blur-[100px] pointer-events-none"></div>
+
+    <!-- HEADER -->
+    <header class="max-w-6xl w-full mx-auto px-6 py-6 flex justify-between items-center relative z-10">
+        <div class="flex items-center gap-3">
+            <a href="index.html" class="w-10 h-10 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-2xl flex items-center justify-center text-slate-300 hover:text-white transition-all">
+                <i class="fa-solid fa-arrow-left text-sm"></i>
+            </a>
+            <div>
+                <p class="text-indigo-400 text-[10px] font-extrabold uppercase tracking-widest">Buzón de Ideas</p>
+                <h1 class="font-black text-xl text-white tracking-tight">Sugerencias & Integraciones</h1>
+            </div>
+        </div>
+        <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+            <i class="fa-solid fa-lightbulb text-xs"></i>
+            Plataforma Abierta
+        </span>
+    </header>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="max-w-6xl w-full mx-auto px-6 py-8 flex-1 relative z-10">
+        
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+
+            <!-- FORMULARIO DE ENVÍO (7 Columnas) -->
+            <div class="lg:col-span-7 bg-slate-900/80 border border-slate-800 p-6 sm:p-8 rounded-3xl shadow-2xl backdrop-blur-xl space-y-6">
+                <div>
+                    <h2 class="text-2xl font-black text-white tracking-tight">¿Tienes una idea o necesitas una integración?</h2>
+                    <p class="text-slate-400 text-xs sm:text-sm mt-1 leading-relaxed">
+                        Escribe tus comentarios, herramientas que usas o módulos que te gustaría ver agregados en las próximas versiones.
+                    </p>
+                </div>
+
+                <!-- FORMULARIO CONECTADO A FORMSUBMIT -->
+                <form action="https://formsubmit.co/z159gp+sugerenciaAPP_agencias@gmail.com" method="POST" class="space-y-4">
+                    
+                    <!-- Configuraciones FormSubmit para evitar spam o captcha molesto -->
+                    <input type="hidden" name="_subject" value="Nueva Sugerencia / Solicitud de Integración">
+                    <input type="hidden" name="_captcha" value="false">
+
+                    <!-- NOMBRE / CONTACTO -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Tu Nombre</label>
+                            <input type="text" name="Nombre" required placeholder="Ej. Juan Pérez"
+                                class="w-full bg-slate-800/60 border border-slate-700/80 text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 transition-all placeholder:text-slate-600">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Correo (Opcional)</label>
+                            <input type="email" name="Email" placeholder="juan@ejemplo.com"
+                                class="w-full bg-slate-800/60 border border-slate-700/80 text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 transition-all placeholder:text-slate-600">
+                        </div>
+                    </div>
+
+                    <!-- TIPO DE SOLICITUD -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Categoría</label>
+                        <select name="Categoria" required class="w-full bg-slate-800/60 border border-slate-700/80 text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 transition-all cursor-pointer">
+                            <option value="Nueva Integracion (API, WhatsApp, ERP, etc.)">Nueva Integración (API, WhatsApp, ERP, etc.)</option>
+                            <option value="Nuevo Modulo / Seccion">Nuevo Módulo / Sección</option>
+                            <option value="Mejora de Funcion Existente">Mejora de Función Existente</option>
+                            <option value="Reporte o Metrica Personalizada">Reporte o Métrica Personalizada</option>
+                            <option value="Otro Comentario">Otro Comentario</option>
+                        </select>
+                    </div>
+
+                    <!-- MENSAJE -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Detalles de la Sugerencia</label>
+                        <textarea name="Sugerencia" required rows="4" placeholder="Explica brevemente qué te gustaría integrar o mejorar y cómo ayudaría al trabajo diario..."
+                            class="w-full bg-slate-800/60 border border-slate-700/80 text-white rounded-xl p-4 text-sm focus:outline-none focus:border-indigo-500 transition-all placeholder:text-slate-600 custom-scroll resize-none"></textarea>
+                    </div>
+
+                    <!-- BOTÓN DE ENVÍO -->
+                    <button type="submit"
+                        class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3.5 px-6 rounded-xl transition-all shadow-lg shadow-indigo-600/25 active:scale-[0.99] flex items-center justify-center gap-2 text-sm">
+                        <i class="fa-solid fa-paper-plane text-xs"></i>
+                        <span>Enviar Sugerencia</span>
+                    </button>
+                </form>
+
+            </div>
+
+            <!-- PANEL LATERAL: IDEAS EVALUADAS Y PLANIFICADAS (5 Columnas) -->
+            <div class="lg:col-span-5 space-y-4">
+                <div class="flex justify-between items-center px-1">
+                    <h3 class="text-xs font-extrabold text-slate-400 uppercase tracking-widest">
+                        Ideas en Evaluación / Planificadas
+                    </h3>
+                    <span class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full font-bold">Roadmap</span>
+                </div>
+
+                <div class="space-y-3 custom-scroll max-h-[500px] overflow-y-auto pr-1" id="planned-container">
+
+                    <!-- ITEM PLANIFICADO 1 -->
+                    <div class="bg-slate-900/60 border border-slate-800/80 p-4 rounded-2xl space-y-2">
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="text-xs font-bold text-white flex items-center gap-2">
+                                <i class="fa-brands fa-whatsapp text-emerald-400"></i> Bot de Notificaciones WhatsApp
+                            </span>
+                            <span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">Aprobado</span>
+                        </div>
+                        <p class="text-slate-400 text-xs leading-relaxed">
+                            Integración para enviar alertas automáticas de estado directamente a grupos de WhatsApp.
+                        </p>
+                    </div>
+
+                    <!-- ITEM PLANIFICADO 2 -->
+                    <div class="bg-slate-900/60 border border-slate-800/80 p-4 rounded-2xl space-y-2">
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="text-xs font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-file-excel text-emerald-500"></i> Exportación Avanzada a Excel/CSV
+                            </span>
+                            <span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-amber-500/10 text-amber-400 border border-amber-500/20">En Revisión</span>
+                        </div>
+                        <p class="text-slate-400 text-xs leading-relaxed">
+                            Descarga directa de métricas formateadas con filtros personalizados.
+                        </p>
+                    </div>
+
+                    <!-- ITEM PLANIFICADO 3 -->
+                    <div class="bg-slate-900/60 border border-slate-800/80 p-4 rounded-2xl space-y-2">
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="text-xs font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-bell text-amber-400"></i> Panel de Monitoreo en Tiempo Real
+                            </span>
+                            <span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-slate-800 text-slate-400 border border-slate-700">Sugerido</span>
+                        </div>
+                        <p class="text-slate-400 text-xs leading-relaxed">
+                            Vista simplificada para pantallas o monitores en la oficina con actualización automática.
+                        </p>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="max-w-6xl w-full mx-auto px-6 py-6 text-center text-xs text-slate-500 border-t border-slate-900 relative z-10">
+        <p>© 2026 Sistema en Desarrollo. Todas las sugerencias ayudan a mejorar la plataforma.</p>
+    </footer>
+
+</body>
+
+</html>
+
+================================================================================
+ARCHIVO: unir.py
+================================================================================
+
+import os
+
+# Extensiones de código a incluir
+EXTENSIONES_PERMITIDAS = {
+    '.py', '.js', '.ts', '.jsx', '.tsx', '.kt', '.java', 
+    '.html', '.css', '.json', '.sql', '.xml', '.yaml', '.yml'
+}
+
+# Carpetas que se deben ignorar por completo
+CARPETAS_IGNORADAS = {
+    '.git', '.idea', '.vscode', 'node_modules', 'venv', 
+    '__pycache__', 'build', 'dist', 'bin', 'obj'
+}
+
+# Archivos específicos que se deben ignorar
+ARCHIVOS_IGNORADOS = {
+    'package-lock.json', 'yarn.lock', 'concatenar_codigo.py', 'codigo_completo.txt'
+}
+
+# Nombre del archivo donde se guardará todo
+ARCHIVO_SALIDA = "codigo_completo.txt"
+
+
+def concatenar_proyecto(directorio_raiz, archivo_salida):
+    archivos_procesados = 0
+    
+    with open(archivo_salida, 'w', encoding='utf-8') as salida:
+        salida.write(f"=== RESUMEN DEL PROYECTO ===\n")
+        salida.write(f"Ruta base: {os.path.abspath(directorio_raiz)}\n\n")
+
+        for raiz, directorios, archivos in os.walk(directorio_raiz):
+            # Filtrar carpetas ignoradas en sitio para evitar recorrerlas
+            directorios[:] = [d for d in directorios if d not in CARPETAS_IGNORADAS]
+
+            for archivo in archivos:
+                if archivo in ARCHIVOS_IGNORADOS:
+                    continue
+
+                _, ext = os.path.splitext(archivo)
+                if ext.lower() in EXTENSIONES_PERMITIDAS:
+                    ruta_completa = os.path.join(raiz, archivo)
+                    ruta_relativa = os.path.relpath(ruta_completa, directorio_raiz)
+
+                    salida.write("=" * 80 + "\n")
+                    salida.write(f"ARCHIVO: {ruta_relativa}\n")
+                    salida.write("=" * 80 + "\n\n")
+
+                    try:
+                        with open(ruta_completa, 'r', encoding='utf-8') as f:
+                            salida.write(f.read())
+                    except UnicodeDecodeError:
+                        # Intentar con codificación fallback en caso de caracteres especiales
+                        try:
+                            with open(ruta_completa, 'r', encoding='latin-1') as f:
+                                salida.write(f.read())
+                        except Exception as e:
+                            salida.write(f"[ERROR AL LEER ARCHIVO: {e}]\n")
+                    except Exception as e:
+                        salida.write(f"[ERROR AL LEER ARCHIVO: {e}]\n")
+
+                    salida.write("\n\n")
+                    archivos_procesados += 1
+
+    print(f"✅ Proceso completado. Se unieron {archivos_procesados} archivos en '{archivo_salida}'.")
+
+
+if __name__ == "__main__":
+    # Ejecuta el script tomando como base la carpeta actual donde se ejecuta
+    directorio_actual = os.getcwd()
+    concatenar_proyecto(directorio_actual, ARCHIVO_SALIDA)
+
+================================================================================
+ARCHIVO: users.html
+================================================================================
+
+<!DOCTYPE html>
+<html lang="es" class="h-full bg-slate-950 text-slate-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Usuarios - Admin Panel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="h-full flex flex-col font-sans antialiased bg-slate-950 text-slate-200">
+
+    <div class="max-w-6xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-8">
+        
+        <!-- ENCABEZADO -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-6">
+            <div>
+                <h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight flex items-center gap-3">
+                    <i class="fa-solid fa-users-gear text-indigo-500"></i>
+                    Gestión de Usuarios
+                </h1>
+                <p class="text-sm text-slate-400 mt-1">Crea, activa o inhabilita cuentas de acceso al sistema.</p>
+            </div>
+            <div id="admin-status" class="flex items-center gap-3 bg-slate-900/80 border border-slate-800 px-4 py-2 rounded-xl text-xs">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span id="admin-email" class="font-mono text-slate-300">Cargando sesión...</span>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            <!-- FORMULARIO DE REGISTRO -->
+            <div class="lg:col-span-5 bg-slate-900/60 border border-slate-800/80 rounded-2xl p-6 shadow-xl backdrop-blur-sm self-start">
+                <h2 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-user-plus text-indigo-400"></i>
+                    Registrar Nuevo Usuario
+                </h2>
+
+                <form id="create-user-form" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Nombre de Usuario</label>
+                        <input type="text" id="reg-username" required placeholder="ej. mmontero"
+                            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Correo Electrónico</label>
+                        <input type="email" id="reg-email" required placeholder="usuario@correo.com"
+                            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Contraseña Inicial</label>
+                        <input type="password" id="reg-password" required placeholder="••••••••" minlength="6"
+                            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition">
+                    </div>
+
+                    <div id="form-message" class="hidden text-xs p-3 rounded-xl"></div>
+
+                    <button type="submit" id="btn-submit"
+                        class="w-full bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white font-semibold py-2.5 px-4 rounded-xl shadow-lg shadow-indigo-600/20 transition flex items-center justify-center gap-2 text-sm">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>Crear Usuario</span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- LISTADO DE USUARIOS -->
+            <div class="lg:col-span-7 bg-slate-900/60 border border-slate-800/80 rounded-2xl p-6 shadow-xl backdrop-blur-sm">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-list text-indigo-400"></i>
+                        Usuarios Registrados
+                    </h2>
+                    <span id="user-count" class="text-xs font-mono bg-slate-800 text-slate-300 px-2.5 py-1 rounded-lg border border-slate-700/50">0 usuarios</span>
+                </div>
+
+                <!-- LISTA -->
+                <div id="users-list" class="space-y-3 max-h-[500px] overflow-y-auto pr-1 custom-scrollbar">
+                    <div class="text-center py-8 text-slate-500 text-sm">Cargando usuarios...</div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- SCRIPT FIREBASE SECUNDARIO -->
+    <script type="module">
+        import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { 
+            getAuth, 
+            createUserWithEmailAndPassword, 
+            onAuthStateChanged 
+        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { 
+            getFirestore, 
+            collection, 
+            doc, 
+            setDoc, 
+            updateDoc, 
+            deleteDoc, 
+            onSnapshot, 
+            query, 
+            orderBy, 
+            serverTimestamp 
+        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // 1. CONFIGURACIÓN DE FIREBASE (Reemplaza con tus llaves)
+        const firebaseConfig = {
+    apiKey: "AIzaSyA9wJ-vgcwG-MJ6gqQz3byolJP6DwrjnVw",
+    authDomain: "agencias-v2.firebaseapp.com",
+    projectId: "agencias-v2",
+    storageBucket: "agencias-v2.firebasestorage.app",
+    messagingSenderId: "896099760213",
+    appId: "1:896099760213:web:969ffa8363d51c0a8bbcdc"
+};
+
+
+
+        // App Principal (Admin activo)
+        const mainApp = initializeApp(firebaseConfig);
+        const auth = getAuth(mainApp);
+        const db = getFirestore(mainApp);
+
+        // App Secundaria (Para crear usuarios sin desloguear al admin)
+        const secondaryApp = initializeApp(firebaseConfig, "SecondaryApp");
+        const secondaryAuth = getAuth(secondaryApp);
+
+        // UI Elements
+        const createUserForm = document.getElementById('create-user-form');
+        const usersList = document.getElementById('users-list');
+        const adminEmailDisplay = document.getElementById('admin-email');
+        const formMessage = document.getElementById('form-message');
+        const userCount = document.getElementById('user-count');
+
+        // 2. MONITOREAR SESIÓN DE ADMIN
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = "login.html";
+                return;
+            }
+
+            try {
+                // Verificar en la colección 'users' el rol del UID actual
+                const userDocRef = doc(db, "users", user.uid);
+                const userSnap = await getDoc(userDocRef);
+
+                if (!userSnap.exists() || userSnap.data().role !== "admin") {
+                    alert("Acceso denegado: Solo los usuarios con rol de Administrador pueden acceder a esta sección.");
+                    window.location.href = "index.html"; // Redirigir a inicio
+                    return;
+                }
+
+                // Permiso concedido
+                userEmailSpan.innerText = user.email;
+                securityOverlay.classList.add("hidden"); // Ocultar overlay
+                loadZones();
+
+            } catch (error) {
+                console.error("Error al validar permisos:", error);
+                alert("Ocurrió un error al verificar tus credenciales.");
+                window.location.href = "index.html";
+            }
+        });
+
+
+        // 3. REGISTRAR NUEVO USUARIO
+        createUserForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const username = document.getElementById('reg-username').value.trim();
+            const email = document.getElementById('reg-email').value.trim();
+            const password = document.getElementById('reg-password').value;
+            const submitBtn = document.getElementById('btn-submit');
+
+            try {
+                setLoading(true);
+                showMessage("", "clear");
+
+                // Crear usuario en Auth usando la app secundaria
+                const userCredential = await createUserWithEmailAndPassword(secondaryAuth, email, password);
+                const newUser = userCredential.user;
+
+                // Cerrar sesión en la app secundaria de inmediato para mantenerla limpia
+                await secondaryAuth.signOut();
+
+                // Guardar información extendida en Firestore usando la app principal
+                await setDoc(doc(db, "users", newUser.uid), {
+                    username: username,
+                    email: email,
+                    enabled: true,
+                    createdAt: serverTimestamp()
+                });
+
+                showMessage("Usuario creado exitosamente.", "success");
+                createUserForm.reset();
+
+            } catch (error) {
+                console.error("Error al crear usuario:", error);
+                let msg = "Ocurrió un error al registrar el usuario.";
+                if (error.code === 'auth/email-already-in-use') msg = "El correo ya está registrado.";
+                if (error.code === 'auth/weak-password') msg = "La contraseña debe tener al menos 6 caracteres.";
+                showMessage(msg, "error");
+            } finally {
+                setLoading(false);
+            }
+        });
+
+        // 4. SUSCRIPCIÓN EN TIEMPO REAL A FIRESTORE
+        const usersQuery = query(collection(db, "users"), orderBy("createdAt", "desc"));
+
+        onSnapshot(usersQuery, (snapshot) => {
+            usersList.innerHTML = "";
+            userCount.textContent = `${snapshot.size} usuario(s)`;
+
+            if (snapshot.empty) {
+                usersList.innerHTML = `<div class="text-center py-8 text-slate-500 text-sm">No hay usuarios registrados.</div>`;
+                return;
+            }
+
+            snapshot.forEach((docSnap) => {
+                const data = docSnap.data();
+                const userId = docSnap.id;
+                usersList.appendChild(createUserCard(userId, data));
+            });
+        });
+
+        // 5. HELPER: CREAR ELEMENTO DOM PARA CADA USUARIO
+        function createUserCard(id, data) {
+            const card = document.createElement('div');
+            card.className = "flex items-center justify-between p-3.5 bg-slate-950/60 border border-slate-800/80 rounded-xl hover:border-slate-700/80 transition gap-4";
+
+            const isEnabled = data.enabled !== false;
+            const displayName = data.username || "Sin Nombre";
+            const email = data.email || "Sin correo";
+
+            card.innerHTML = `
+                <div class="min-w-0 flex-1">
+                    <div class="flex items-center gap-2">
+                        <h3 class="font-bold text-sm text-slate-100 truncate">${displayName}</h3>
+                        
+                        <!-- BADGE ESTADO -->
+                        <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                            isEnabled 
+                                ? 'bg-emerald-500/10 text-emerald-400 ring-1 ring-inset ring-emerald-500/20' 
+                                : 'bg-rose-500/10 text-rose-400 ring-1 ring-inset ring-rose-500/20'
+                        }">
+                            <span class="w-1.5 h-1.5 rounded-full ${isEnabled ? 'bg-emerald-400' : 'bg-rose-400'}"></span>
+                            ${isEnabled ? 'Activo' : 'Inactivo'}
+                        </span>
+                    </div>
+
+                    <p class="text-xs text-slate-400 truncate mt-0.5">${email}</p>
+
+                    <div class="flex items-center gap-2 mt-1">
+                        <span class="text-[10px] font-mono text-slate-500 bg-slate-900 border border-slate-800 px-1.5 py-0.5 rounded">
+                            ID: ${id}
+                        </span>
+                    </div>
+                </div>
+
+                <!-- ACCIONES -->
+                <div class="flex items-center gap-2">
+                    <button data-action="toggle" data-id="${id}" data-status="${isEnabled}" 
+                        title="${isEnabled ? 'Inhabilitar' : 'Habilitar'}"
+                        class="p-2 rounded-lg border text-xs transition ${
+                            isEnabled 
+                                ? 'bg-amber-500/10 border-amber-500/20 text-amber-400 hover:bg-amber-500/20' 
+                                : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20'
+                        }">
+                        <i class="fa-solid ${isEnabled ? 'fa-user-slash' : 'fa-user-check'}"></i>
+                    </button>
+
+                    <button data-action="delete" data-id="${id}" title="Eliminar de Firestore"
+                        class="p-2 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-400 hover:bg-rose-500/20 text-xs transition">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                </div>
+            `;
+
+            // EVENTOS DE BOTONES
+            card.querySelector('[data-action="toggle"]').addEventListener('click', () => toggleUserStatus(id, isEnabled));
+            card.querySelector('[data-action="delete"]').addEventListener('click', () => deleteUserRecord(id));
+
+            return card;
+        }
+
+        // 6. CAMBIAR ESTADO (HABILITAR / INHABILITAR)
+        async function toggleUserStatus(uid, currentStatus) {
+            try {
+                await updateDoc(doc(db, "users", uid), {
+                    enabled: !currentStatus
+                });
+            } catch (error) {
+                console.error("Error al cambiar estado:", error);
+                alert("No se pudo cambiar el estado del usuario.");
+            }
+        }
+
+        // 7. ELIMINAR DOCUMENTO EN FIRESTORE
+        async function deleteUserRecord(uid) {
+            if (!confirm("¿Seguro que deseas eliminar el registro de Firestore? (Nota: El usuario en Auth seguirá existiendo).")) return;
+            
+            try {
+                await deleteDoc(doc(db, "users", uid));
+            } catch (error) {
+                console.error("Error al eliminar registro:", error);
+                alert("Error al intentar eliminar el registro.");
+            }
+        }
+
+        // UI UTILS
+        function setLoading(loading) {
+            const btn = document.getElementById('btn-submit');
+            btn.disabled = loading;
+            btn.style.opacity = loading ? "0.6" : "1";
+            btn.querySelector('span').textContent = loading ? "Creando..." : "Crear Usuario";
+        }
+
+        function showMessage(msg, type) {
+            if (type === "clear") {
+                formMessage.className = "hidden text-xs p-3 rounded-xl";
+                formMessage.textContent = "";
+                return;
+            }
+            formMessage.classList.remove("hidden");
+            if (type === "success") {
+                formMessage.className = "text-xs p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400";
+            } else {
+                formMessage.className = "text-xs p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400";
+            }
+            formMessage.textContent = msg;
+        }
+    </script>
+</body>
+</html>
+
+================================================================================
+ARCHIVO: zonas.html
+================================================================================
+
+<!DOCTYPE html>
+<html lang="es" class="h-full bg-slate-950">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AGENCYPRO | Gestión de Zonas (Solo Admins)</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            800: '#3730a3',
+                            900: '#312e81',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- FontAwesome 6 & Toastify CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 8px; }
+    </style>
+</head>
+
+<body class="h-full bg-slate-950 text-slate-100 flex overflow-hidden antialiased">
+
+    <!-- OVERLAY CARGANDO / VERIFICANDO SEGURIDAD -->
+    <div id="securityOverlay" class="fixed inset-0 bg-slate-950 z-50 flex flex-col items-center justify-center space-y-3">
+        <div class="w-10 h-10 border-4 border-brand-500 border-t-transparent rounded-full animate-spin"></div>
+        <p class="text-xs font-bold text-slate-400 tracking-wider uppercase">Verificando Credenciales de Administrador...</p>
+    </div>
+
+    <!-- BACKDROP MOBILE -->
+    <div id="mobileBackdrop" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-40 hidden lg:hidden"></div>
+
+    <!-- SIDEBAR -->
+    <aside id="sidebar" class="fixed lg:static inset-y-0 left-0 z-50 w-72 bg-slate-900/90 border-r border-slate-800/80 flex flex-col justify-between -translate-x-full lg:translate-x-0 transition-transform duration-300 backdrop-blur-xl">
+        <div>
+            <!-- LOGO / BRANDING -->
+            <div class="h-16 px-6 flex items-center justify-between border-b border-slate-800/80">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-500 flex items-center justify-center text-white font-black text-lg shadow-lg shadow-brand-500/20">
+                        A
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-sm tracking-wide text-white">AGENCY<span class="text-brand-500">PRO</span></h1>
+                        <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Gestión de Zonas</p>
+                    </div>
+                </div>
+                <button id="closeSidebarMobile" class="lg:hidden text-slate-400 hover:text-white text-lg">
+                    <i class="fa fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- NAVEGACIÓN -->
+            <nav class="p-4 space-y-1.5 custom-scroll overflow-y-auto max-h-[calc(100vh-140px)]">
+                <p class="px-3 pt-2 pb-1 text-[10px] font-bold uppercase tracking-widest text-slate-500">Menú Principal</p>
+                <a href="index.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 text-xs font-medium transition-all">
+                    <i class="fa fa-building w-4 text-center text-sm"></i>
+                    <span>Inicio</span>
+                </a>
+                <a href="zonas.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl bg-brand-600/10 text-brand-400 font-semibold text-xs border border-brand-500/20">
+                    <i class="fa fa-map-location-dot w-4 text-center text-sm"></i>
+                    <span>Mapa y Zonas</span>
+                </a>
+                <p class="px-3 pt-4 pb-1 text-[10px] font-bold uppercase tracking-widest text-slate-500">Administración</p>
+                <a href="users.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 text-xs font-medium transition-all">
+                    <i class="fa fa-users-gear w-4 text-center text-sm"></i>
+                    <span>Usuarios y Permisos</span>
+                </a>
+                <a href="configuracion.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 text-xs font-medium transition-all">
+                    <i class="fa fa-sliders w-4 text-center text-sm"></i>
+                    <span>Configuración</span>
+                </a>
+            </nav>
+        </div>
+
+        <!-- FOOTER USER -->
+        <div class="p-4 border-t border-slate-800/80 bg-slate-900/50">
+            <div class="flex items-center justify-between gap-2">
+                <div class="flex items-center gap-2.5 min-w-0">
+                    <div class="w-8 h-8 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center text-brand-400 font-bold text-xs shrink-0">
+                        <i class="fa fa-user-shield"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <p id="userEmail" class="text-xs font-semibold text-slate-200 truncate">Cargando...</p>
+                        <span class="text-[9px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-1.5 py-0.5 rounded font-bold uppercase">ADMIN</span>
+                    </div>
+                </div>
+                <button id="btnLogout" class="text-slate-400 hover:text-rose-400 p-2 rounded-lg hover:bg-rose-500/10 transition-colors" title="Cerrar Sesión">
+                    <i class="fa fa-arrow-right-from-bracket"></i>
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- ÁREA PRINCIPAL -->
+    <div class="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
+        <header class="h-16 bg-slate-900/80 border-b border-slate-800/80 px-6 flex items-center justify-between gap-4 shrink-0 backdrop-blur-md">
+            <div class="flex items-center gap-4">
+                <button id="openSidebarMobile" class="lg:hidden text-slate-400 hover:text-white p-2">
+                    <i class="fa fa-bars"></i>
+                </button>
+                <div>
+                    <h2 class="text-base font-bold text-slate-100">Administración Global de Zonas</h2>
+                    <p class="text-[11px] text-slate-400">Edita zonas y actualiza automáticamente todas las agencias vinculadas en Firestore</p>
+                </div>
+            </div>
+        </header>
+
+        <main class="flex-1 overflow-y-auto px-6 py-6 custom-scroll bg-slate-950 space-y-6">
+            
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+                <!-- FORMULARIO NUEVA ZONA -->
+                <div class="md:col-span-4 bg-slate-900/60 border border-slate-800/80 p-5 rounded-2xl h-fit space-y-4 shadow-xl">
+                    <h3 class="text-sm font-bold text-slate-100 flex items-center gap-2">
+                        <i class="fa fa-plus-circle text-brand-400"></i>
+                        Crear Nueva Zona
+                    </h3>
+                    <div class="space-y-2">
+                        <label class="block text-xs font-semibold text-slate-400">Nombre de la Zona</label>
+                        <input type="text" id="newZoneInput" placeholder="Ej: SAN JUAN CENTRO" 
+                               class="w-full bg-slate-950 border border-slate-800 text-xs text-slate-200 rounded-xl p-3 focus:outline-none focus:border-brand-500 uppercase font-bold">
+                    </div>
+                    <button id="btnCreateZone" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-bold py-2.5 px-4 rounded-xl text-xs transition-all flex items-center justify-center gap-2 active:scale-[0.99] shadow-lg shadow-brand-600/20">
+                        <i class="fa fa-save"></i> Guardar Zona
+                    </button>
+                </div>
+
+                <!-- LISTA Y EDICIÓN DE ZONAS -->
+                <div class="md:col-span-8 bg-slate-900/60 border border-slate-800/80 p-5 rounded-2xl space-y-4 shadow-xl">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-sm font-bold text-slate-100 flex items-center gap-2">
+                            <i class="fa fa-layer-group text-emerald-400"></i>
+                            Zonas Registradas
+                        </h3>
+                        <button id="btnRefreshZones" class="text-xs text-slate-400 hover:text-slate-200 transition-colors">
+                            <i class="fa fa-rotate-right"></i> Recargar Lista
+                        </button>
+                    </div>
+
+                    <div class="overflow-x-auto border border-slate-800/80 rounded-xl bg-slate-950/50">
+                        <table class="w-full text-left text-xs text-slate-300">
+                            <thead class="bg-slate-900/90 text-slate-400 uppercase text-[10px] font-bold border-b border-slate-800">
+                                <tr>
+                                    <th class="p-3">Nombre de la Zona</th>
+                                    <th class="p-3 text-center">Agencias Asociadas</th>
+                                    <th class="p-3 text-center">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="zonesTableBody" class="divide-y divide-slate-800/60">
+                                <tr>
+                                    <td colspan="3" class="p-6 text-center text-slate-500 italic">Cargando zonas...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- MODAL EDITAR ZONA -->
+    <div id="editModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 w-full max-w-md space-y-4 shadow-2xl">
+            <h3 class="text-sm font-bold text-slate-100 flex items-center gap-2">
+                <i class="fa fa-pen-to-square text-brand-400"></i>
+                Renombrar Zona en Todo el Sistema
+            </h3>
+            <p class="text-xs text-slate-400">
+                Al renombrar esta zona, un proceso Batch actualizará automáticamente <strong class="text-brand-400 font-bold" id="agencyCountText">0</strong> agencias vinculadas en Firestore.
+            </p>
+            <input type="hidden" id="oldZoneName">
+            <div>
+                <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">Nuevo Nombre de la Zona</label>
+                <input type="text" id="editZoneInput" class="w-full bg-slate-950 border border-slate-800 text-xs text-slate-200 rounded-xl p-3 focus:outline-none focus:border-brand-500 uppercase font-bold">
+            </div>
+            <div class="flex justify-end gap-2 pt-2">
+                <button id="btnCancelEdit" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl">Cancelar</button>
+                <button id="btnConfirmEdit" class="px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold rounded-xl flex items-center gap-2">
+                    <i class="fa fa-arrows-rotate"></i> Actualizar en Todo
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
+    <!-- FIREBASE LOGIC CON SEGURIDAD ADMIN -->
+    <script type="module">
+        import { db, auth } from "./js/firebase/firebase.init.js";
+        import { 
+            collection, 
+            doc, 
+            getDoc,
+            getDocs, 
+            setDoc, 
+            deleteDoc, 
+            query, 
+            where, 
+            writeBatch 
+        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+        const securityOverlay = document.getElementById("securityOverlay");
+        const userEmailSpan = document.getElementById("userEmail");
+        const btnLogout = document.getElementById("btnLogout");
+
+        const sidebar = document.getElementById("sidebar");
+        const openSidebarMobile = document.getElementById("openSidebarMobile");
+        const closeSidebarMobile = document.getElementById("closeSidebarMobile");
+        const mobileBackdrop = document.getElementById("mobileBackdrop");
+
+        const newZoneInput = document.getElementById("newZoneInput");
+        const btnCreateZone = document.getElementById("btnCreateZone");
+        const zonesTableBody = document.getElementById("zonesTableBody");
+        const btnRefreshZones = document.getElementById("btnRefreshZones");
+
+        const editModal = document.getElementById("editModal");
+        const oldZoneName = document.getElementById("oldZoneName");
+        const editZoneInput = document.getElementById("editZoneInput");
+        const agencyCountText = document.getElementById("agencyCountText");
+        const btnCancelEdit = document.getElementById("btnCancelEdit");
+        const btnConfirmEdit = document.getElementById("btnConfirmEdit");
+
+        // NOTIFICACIONES
+        function showToast(msg, type = "info") {
+            let bg = type === "success" ? "linear-gradient(to right, #059669, #10b981)" : type === "error" ? "linear-gradient(to right, #e11d48, #f43f5e)" : "#4f46e5";
+            Toastify({ text: msg, duration: 3000, style: { background: bg, borderRadius: "10px", fontSize: "12px", fontWeight: "600" } }).showToast();
+        }
+
+        // CONTROL SIDEBAR MOBILE
+        function toggleSidebar() {
+            sidebar.classList.toggle("-translate-x-full");
+            mobileBackdrop.classList.toggle("hidden");
+        }
+        openSidebarMobile?.addEventListener("click", toggleSidebar);
+        closeSidebarMobile?.addEventListener("click", toggleSidebar);
+        mobileBackdrop?.addEventListener("click", toggleSidebar);
+
+        // LOGOUT
+        btnLogout?.addEventListener("click", async () => {
+            await signOut(auth);
+            window.location.href = "login.html";
+        });
+
+        // VERIFICACIÓN ESTRICTA DE ROL ADMIN
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = "login.html";
+                return;
+            }
+
+            try {
+                // Verificar en la colección 'users' el rol del UID actual
+                const userDocRef = doc(db, "users", user.uid);
+                const userSnap = await getDoc(userDocRef);
+
+                if (!userSnap.exists() || userSnap.data().role !== "admin") {
+                    alert("Acceso denegado: Solo los usuarios con rol de Administrador pueden acceder a esta sección.");
+                    window.location.href = "index.html"; // Redirigir a inicio
+                    return;
+                }
+
+                // Permiso concedido
+                userEmailSpan.innerText = user.email;
+                securityOverlay.classList.add("hidden"); // Ocultar overlay
+                loadZones();
+
+            } catch (error) {
+                console.error("Error al validar permisos:", error);
+                alert("Ocurrió un error al verificar tus credenciales.");
+                window.location.href = "index.html";
+            }
+        });
+
+        // CARGAR ZONAS Y CONTAR AGENCIAS
+        async function loadZones() {
+            zonesTableBody.innerHTML = `<tr><td colspan="3" class="p-6 text-center text-slate-500 italic">Cargando zonas y agencias asociadas...</td></tr>`;
+            try {
+                const [zonesSnap, agenciasSnap] = await Promise.all([
+                    getDocs(collection(db, "zonas")),
+                    getDocs(collection(db, "agencias"))
+                ]);
+
+                const agencyCounts = {};
+                agenciasSnap.forEach(docSnap => {
+                    const data = docSnap.data();
+                    if (data.zona) {
+                        const zName = data.zona.toUpperCase().trim();
+                        agencyCounts[zName] = (agencyCounts[zName] || 0) + 1;
+                    }
+                });
+
+                const zonesList = [];
+                zonesSnap.forEach(docSnap => {
+                    zonesList.push(docSnap.id);
+                });
+
+                // Incluir zonas detectadas en agencias que no estén creadas explícitamente en /zonas
+                Object.keys(agencyCounts).forEach(z => {
+                    if (!zonesList.includes(z)) zonesList.push(z);
+                });
+
+                if (zonesList.length === 0) {
+                    zonesTableBody.innerHTML = `<tr><td colspan="3" class="p-6 text-center text-slate-500 italic">No hay zonas registradas en el sistema.</td></tr>`;
+                    return;
+                }
+
+                zonesTableBody.innerHTML = "";
+                zonesList.sort().forEach(zoneName => {
+                    const count = agencyCounts[zoneName] || 0;
+                    const tr = document.createElement("tr");
+                    tr.className = "hover:bg-slate-900/50 transition-colors";
+                    tr.innerHTML = `
+                        <td class="p-3 font-bold text-slate-200">${zoneName}</td>
+                        <td class="p-3 text-center">
+                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${count > 0 ? 'bg-brand-500/10 text-brand-400 border border-brand-500/20' : 'bg-slate-800 text-slate-500'}">
+                                ${count} Agencias
+                            </span>
+                        </td>
+                        <td class="p-3 text-center space-x-2">
+                            <button class="btnEdit text-brand-400 hover:text-brand-300 p-1.5 rounded-lg hover:bg-brand-500/10 transition-colors" data-zone="${zoneName}" data-count="${count}" title="Renombrar Zona">
+                                <i class="fa fa-pen-to-square"></i>
+                            </button>
+                            <button class="btnDelete text-rose-400 hover:text-rose-300 p-1.5 rounded-lg hover:bg-rose-500/10 transition-colors" data-zone="${zoneName}" title="Eliminar Zona">
+                                <i class="fa fa-trash-can"></i>
+                            </button>
+                        </td>
+                    `;
+                    zonesTableBody.appendChild(tr);
+                });
+
+                // EVENTOS EDITAR / ELIMINAR
+                document.querySelectorAll(".btnEdit").forEach(btn => {
+                    btn.addEventListener("click", (e) => {
+                        const z = e.currentTarget.getAttribute("data-zone");
+                        const c = e.currentTarget.getAttribute("data-count");
+                        oldZoneName.value = z;
+                        editZoneInput.value = z;
+                        agencyCountText.innerText = c;
+                        editModal.classList.remove("hidden");
+                    });
+                });
+
+                document.querySelectorAll(".btnDelete").forEach(btn => {
+                    btn.addEventListener("click", async (e) => {
+                        const z = e.currentTarget.getAttribute("data-zone");
+                        if (confirm(`¿Seguro que deseas eliminar la zona "${z}"? (Nota: Las agencias conservarán el texto pero la zona se removerá del catálogo de zonas)`)) {
+                            await deleteDoc(doc(db, "zonas", z));
+                            showToast("Zona eliminada del catálogo", "info");
+                            loadZones();
+                        }
+                    });
+                });
+
+            } catch (err) {
+                console.error("Error al cargar las zonas:", err);
+                showToast("Error al cargar zonas de Firestore", "error");
+            }
+        }
+
+        // CREAR ZONA
+        btnCreateZone.addEventListener("click", async () => {
+            const zName = newZoneInput.value.toUpperCase().trim();
+            if (!zName) return showToast("Debes escribir un nombre para la zona", "error");
+
+            try {
+                await setDoc(doc(db, "zonas", zName), { nombre: zName, created_at: Date.now() });
+                newZoneInput.value = "";
+                showToast("Zona creada con éxito", "success");
+                loadZones();
+            } catch (err) {
+                console.error(err);
+                showToast("Error al crear la zona", "error");
+            }
+        });
+
+        // RENOMBRAR ZONA Y ACTUALIZAR EN BATCH LAS AGENCIAS
+        // RENOMBRAR ZONA Y ACTUALIZAR EN BATCH RECORRIENDO TODAS LAS AGENCIAS
+btnConfirmEdit.addEventListener("click", async () => {
+    const oldZ = oldZoneName.value.trim().toUpperCase();
+    const newZ = editZoneInput.value.trim().toUpperCase();
+
+    if (!newZ) {
+        return showToast("El nombre de la nueva zona no puede estar vacío", "error");
+    }
+
+    if (oldZ === newZ) {
+        editModal.classList.add("hidden");
+        return;
+    }
+
+    btnConfirmEdit.disabled = true;
+    btnConfirmEdit.innerHTML = `<i class="fa fa-spinner fa-spin"></i> Procesando agencias...`;
+
+    try {
+        // 1. Crear nueva zona y borrar la antigua en el catálogo /zonas
+        await setDoc(doc(db, "zonas", newZ), { nombre: newZ, updated_at: Date.now() });
+        if (oldZ !== newZ) {
+            await deleteDoc(doc(db, "zonas", oldZ));
+        }
+
+        // 2. Obtener TODAS las agencias para un barrido completo e impreciso (evita fallos de trim/case)
+        const agenciasSnap = await getDocs(collection(db, "agencias"));
+        const matchesToUpdate = [];
+
+        agenciasSnap.forEach(docSnap => {
+            const data = docSnap.data();
+            if (data.zona) {
+                // Normalización de texto para comparar
+                const currentZonaNormalized = String(data.zona).trim().toUpperCase();
+                if (currentZonaNormalized === oldZ) {
+                    matchesToUpdate.push({ id: docSnap.id, data: data });
+                }
+            }
+        });
+
+        // 3. Actualizar en Firestore en lotes de 500 (Límite máximo de Batch en Firestore)
+        if (matchesToUpdate.length > 0) {
+            const BATCH_LIMIT = 500;
+            for (let i = 0; i < matchesToUpdate.length; i += BATCH_LIMIT) {
+                const chunk = matchesToUpdate.slice(i, i + BATCH_LIMIT);
+                const batch = writeBatch(db);
+
+                chunk.forEach(item => {
+                    const ref = doc(db, "agencias", item.id);
+                    const agencyData = item.data;
+
+                    // Reconstruir campo searchable si aplica
+                    const idReal = agencyData.idReal || item.id;
+                    const dir = agencyData.direccion || '';
+                    const newSearchable = `${idReal} ${newZ} ${dir}`.toLowerCase();
+
+                    batch.update(ref, {
+                        zona: newZ,
+                        updated_at: Date.now(),
+                        searchable: newSearchable
+                    });
+                });
+
+                await batch.commit();
+            }
+        }
+
+        showToast(`Zona cambiada a "${newZ}" en ${matchesToUpdate.length} agencias`, "success");
+        editModal.classList.add("hidden");
+        loadZones();
+
+    } catch (err) {
+        console.error("Error al actualizar la zona:", err);
+        showToast("Error al actualizar las agencias vinculadas", "error");
+    } finally {
+        btnConfirmEdit.disabled = false;
+        btnConfirmEdit.innerHTML = `<i class="fa fa-arrows-rotate"></i> Actualizar en Todo`;
+    }
+});
+        btnCancelEdit.addEventListener("click", () => editModal.classList.add("hidden"));
+        btnRefreshZones.addEventListener("click", loadZones);
+    </script>
+</body>
+</html>
+
+================================================================================
+ARCHIVO: js\auth.guard.js
+================================================================================
+
+import { db, auth } from "./firebase/firebase.init.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+// Protección general (Estar logueado)
+export function requireAuth() {
+    onAuthStateChanged(auth, (user) => {
+        if (!user) {
+            window.location.href = "login.html";
+        }
+    });
+}
+
+// Protección estricta para Admin
+export function requireAdmin() {
+    onAuthStateChanged(auth, async (user) => {
+        if (!user) {
+            window.location.href = "login.html";
+            return;
+        }
+
+        try {
+            const userDocSnap = await getDoc(doc(db, "users", user.uid));
+            if (userDocSnap.exists()) {
+                const userData = userDocSnap.data();
+
+                // Validar si es admin (por rol o username)
+                const isAdmin = userData.role === "administrador" || userData.username === "admin";
+
+                if (!isAdmin) {
+                    alert("Acceso denegado. Se requieren permisos de Administrador.");
+                    window.location.href = "index.html";
+                }
+            } else {
+                window.location.href = "index.html";
+            }
+        } catch (error) {
+            console.error("Error verificando rol:", error);
+            window.location.href = "index.html";
+        }
+    });
+}
+
+================================================================================
+ARCHIVO: js\firebase\firebase.init.js
+================================================================================
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyA9wJ-vgcwG-MJ6gqQz3byolJP6DwrjnVw",
+    authDomain: "agencias-v2.firebaseapp.com",
+    projectId: "agencias-v2",
+    storageBucket: "agencias-v2.firebasestorage.app",
+    messagingSenderId: "896099760213",
+    appId: "1:896099760213:web:969ffa8363d51c0a8bbcdc"
+};
+
+const app = initializeApp(firebaseConfig);
+export const auth = getAuth(app);
+export const db = getFirestore(app);
+

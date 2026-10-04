@@ -1,172 +1,916 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="h-full">
 
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sugerencias e Integraciones</title>
+    <title>Sugerencias e Integraciones - AGENCYPRO</title>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
         .custom-scroll::-webkit-scrollbar { width: 6px; }
         .custom-scroll::-webkit-scrollbar-track { background: transparent; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
         .custom-scroll::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in { animation: fadeIn 0.3s ease-out; }
     </style>
 </head>
 
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between relative selection:bg-indigo-500 selection:text-white">
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col relative selection:bg-indigo-500 selection:text-white">
 
-    <!-- LUCES DE FONDO DECORATIVAS -->
+    <!-- LUCES DE FONDO -->
     <div class="absolute top-0 left-1/4 w-[500px] h-[300px] bg-indigo-600/10 rounded-full blur-[120px] pointer-events-none"></div>
     <div class="absolute bottom-10 right-10 w-[400px] h-[400px] bg-emerald-600/5 rounded-full blur-[100px] pointer-events-none"></div>
 
-    <!-- HEADER -->
-    <header class="max-w-6xl w-full mx-auto px-6 py-6 flex justify-between items-center relative z-10">
-        <div class="flex items-center gap-3">
-            <a href="index.html" class="w-10 h-10 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-2xl flex items-center justify-center text-slate-300 hover:text-white transition-all">
-                <i class="fa-solid fa-arrow-left text-sm"></i>
-            </a>
-            <div>
-                <p class="text-indigo-400 text-[10px] font-extrabold uppercase tracking-widest">Buzón de Ideas</p>
-                <h1 class="font-black text-xl text-white tracking-tight">Sugerencias & Integraciones</h1>
-            </div>
-        </div>
-        <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
-            <i class="fa-solid fa-lightbulb text-xs"></i>
-            Plataforma Abierta
-        </span>
-    </header>
+    <!-- OVERLAY DE VERIFICACIÓN -->
+    <div id="bootOverlay" class="fixed inset-0 bg-slate-950 z-[100] flex flex-col items-center justify-center space-y-3">
+        <div class="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+        <p class="text-xs font-bold text-slate-400 tracking-wider uppercase">Verificando Sesión...</p>
+    </div>
 
-    <!-- CONTENIDO PRINCIPAL -->
-    <main class="max-w-6xl w-full mx-auto px-6 py-8 flex-1 relative z-10">
-        
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+    <!-- CONTENIDO -->
+    <div id="mainContent" class="flex-1 flex flex-col relative z-10 hidden">
 
-            <!-- FORMULARIO DE ENVÍO (7 Columnas) -->
-            <div class="lg:col-span-7 bg-slate-900/80 border border-slate-800 p-6 sm:p-8 rounded-3xl shadow-2xl backdrop-blur-xl space-y-6">
+        <!-- HEADER -->
+        <header class="max-w-6xl w-full mx-auto px-6 py-6 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <a href="index.html" class="w-10 h-10 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-2xl flex items-center justify-center text-slate-300 hover:text-white transition-all">
+                    <i class="fa-solid fa-arrow-left text-sm"></i>
+                </a>
                 <div>
-                    <h2 class="text-2xl font-black text-white tracking-tight">¿Tienes una idea o necesitas una integración?</h2>
-                    <p class="text-slate-400 text-xs sm:text-sm mt-1 leading-relaxed">
-                        Escribe tus comentarios, herramientas que usas o módulos que te gustaría ver agregados en las próximas versiones.
-                    </p>
+                    <p class="text-indigo-400 text-[10px] font-extrabold uppercase tracking-widest">Buzón de Ideas</p>
+                    <h1 class="font-black text-xl text-white tracking-tight">Sugerencias & Integraciones</h1>
                 </div>
-
-                <!-- FORMULARIO CONECTADO A FORMSUBMIT -->
-                <form action="https://formsubmit.co/z159gp+sugerenciaAPP_agencias@gmail.com" method="POST" class="space-y-4">
-                    
-                    <!-- Configuraciones FormSubmit para evitar spam o captcha molesto -->
-                    <input type="hidden" name="_subject" value="Nueva Sugerencia / Solicitud de Integración">
-                    <input type="hidden" name="_captcha" value="false">
-
-                    <!-- NOMBRE / CONTACTO -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Tu Nombre</label>
-                            <input type="text" name="Nombre" required placeholder="Ej. Juan Pérez"
-                                class="w-full bg-slate-800/60 border border-slate-700/80 text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 transition-all placeholder:text-slate-600">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Correo (Opcional)</label>
-                            <input type="email" name="Email" placeholder="juan@ejemplo.com"
-                                class="w-full bg-slate-800/60 border border-slate-700/80 text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 transition-all placeholder:text-slate-600">
-                        </div>
-                    </div>
-
-                    <!-- TIPO DE SOLICITUD -->
-                    <div>
-                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Categoría</label>
-                        <select name="Categoria" required class="w-full bg-slate-800/60 border border-slate-700/80 text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 transition-all cursor-pointer">
-                            <option value="Nueva Integracion (API, WhatsApp, ERP, etc.)">Nueva Integración (API, WhatsApp, ERP, etc.)</option>
-                            <option value="Nuevo Modulo / Seccion">Nuevo Módulo / Sección</option>
-                            <option value="Mejora de Funcion Existente">Mejora de Función Existente</option>
-                            <option value="Reporte o Metrica Personalizada">Reporte o Métrica Personalizada</option>
-                            <option value="Otro Comentario">Otro Comentario</option>
-                        </select>
-                    </div>
-
-                    <!-- MENSAJE -->
-                    <div>
-                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Detalles de la Sugerencia</label>
-                        <textarea name="Sugerencia" required rows="4" placeholder="Explica brevemente qué te gustaría integrar o mejorar y cómo ayudaría al trabajo diario..."
-                            class="w-full bg-slate-800/60 border border-slate-700/80 text-white rounded-xl p-4 text-sm focus:outline-none focus:border-indigo-500 transition-all placeholder:text-slate-600 custom-scroll resize-none"></textarea>
-                    </div>
-
-                    <!-- BOTÓN DE ENVÍO -->
-                    <button type="submit"
-                        class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3.5 px-6 rounded-xl transition-all shadow-lg shadow-indigo-600/25 active:scale-[0.99] flex items-center justify-center gap-2 text-sm">
-                        <i class="fa-solid fa-paper-plane text-xs"></i>
-                        <span>Enviar Sugerencia</span>
-                    </button>
-                </form>
-
             </div>
+            <div class="flex items-center gap-2">
+                <span id="roleBadge" class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+                    <i class="fa-solid fa-lightbulb text-xs"></i>
+                    <span id="roleBadgeText">...</span>
+                </span>
+                <button id="btnReload" title="Recargar" aria-label="Recargar"
+                    class="w-9 h-9 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl flex items-center justify-center text-slate-300 hover:text-white transition-all">
+                    <i class="fa-solid fa-rotate-right text-xs"></i>
+                </button>
+            </div>
+        </header>
 
-            <!-- PANEL LATERAL: IDEAS EVALUADAS Y PLANIFICADAS (5 Columnas) -->
-            <div class="lg:col-span-5 space-y-4">
-                <div class="flex justify-between items-center px-1">
-                    <h3 class="text-xs font-extrabold text-slate-400 uppercase tracking-widest">
-                        Ideas en Evaluación / Planificadas
-                    </h3>
-                    <span class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full font-bold">Roadmap</span>
+        <!-- MAIN -->
+        <main class="max-w-6xl w-full mx-auto px-6 py-4 flex-1">
+
+            <!-- STATS ADMIN -->
+            <div id="adminStats" class="hidden grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+                <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-4">
+                    <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Total</p>
+                    <h3 id="statTotal" class="text-2xl font-black text-white mt-0.5">0</h3>
                 </div>
-
-                <div class="space-y-3 custom-scroll max-h-[500px] overflow-y-auto pr-1" id="planned-container">
-
-                    <!-- ITEM PLANIFICADO 1 -->
-                    <div class="bg-slate-900/60 border border-slate-800/80 p-4 rounded-2xl space-y-2">
-                        <div class="flex items-center justify-between gap-2">
-                            <span class="text-xs font-bold text-white flex items-center gap-2">
-                                <i class="fa-brands fa-whatsapp text-emerald-400"></i> Bot de Notificaciones WhatsApp
-                            </span>
-                            <span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">Aprobado</span>
-                        </div>
-                        <p class="text-slate-400 text-xs leading-relaxed">
-                            Integración para enviar alertas automáticas de estado directamente a grupos de WhatsApp.
-                        </p>
-                    </div>
-
-                    <!-- ITEM PLANIFICADO 2 -->
-                    <div class="bg-slate-900/60 border border-slate-800/80 p-4 rounded-2xl space-y-2">
-                        <div class="flex items-center justify-between gap-2">
-                            <span class="text-xs font-bold text-white flex items-center gap-2">
-                                <i class="fa-solid fa-file-excel text-emerald-500"></i> Exportación Avanzada a Excel/CSV
-                            </span>
-                            <span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-amber-500/10 text-amber-400 border border-amber-500/20">En Revisión</span>
-                        </div>
-                        <p class="text-slate-400 text-xs leading-relaxed">
-                            Descarga directa de métricas formateadas con filtros personalizados.
-                        </p>
-                    </div>
-
-                    <!-- ITEM PLANIFICADO 3 -->
-                    <div class="bg-slate-900/60 border border-slate-800/80 p-4 rounded-2xl space-y-2">
-                        <div class="flex items-center justify-between gap-2">
-                            <span class="text-xs font-bold text-white flex items-center gap-2">
-                                <i class="fa-solid fa-bell text-amber-400"></i> Panel de Monitoreo en Tiempo Real
-                            </span>
-                            <span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-slate-800 text-slate-400 border border-slate-700">Sugerido</span>
-                        </div>
-                        <p class="text-slate-400 text-xs leading-relaxed">
-                            Vista simplificada para pantallas o monitores en la oficina con actualización automática.
-                        </p>
-                    </div>
-
+                <div class="bg-slate-900/70 border border-amber-500/20 rounded-2xl p-4">
+                    <p class="text-[10px] font-bold text-amber-500 uppercase tracking-wider">Pendientes</p>
+                    <h3 id="statPending" class="text-2xl font-black text-amber-400 mt-0.5">0</h3>
+                </div>
+                <div class="bg-slate-900/70 border border-emerald-500/20 rounded-2xl p-4">
+                    <p class="text-[10px] font-bold text-emerald-500 uppercase tracking-wider">Aprobadas</p>
+                    <h3 id="statApproved" class="text-2xl font-black text-emerald-400 mt-0.5">0</h3>
+                </div>
+                <div class="bg-slate-900/70 border border-rose-500/20 rounded-2xl p-4">
+                    <p class="text-[10px] font-bold text-rose-500 uppercase tracking-wider">Rechazadas</p>
+                    <h3 id="statRejected" class="text-2xl font-black text-rose-400 mt-0.5">0</h3>
                 </div>
             </div>
 
-        </div>
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
 
-    </main>
+                <!-- FORMULARIO (7 columnas) -->
+                <div class="lg:col-span-7 bg-slate-900/80 border border-slate-800 p-6 sm:p-8 rounded-3xl shadow-2xl backdrop-blur-xl space-y-6">
 
-    <!-- FOOTER -->
-    <footer class="max-w-6xl w-full mx-auto px-6 py-6 text-center text-xs text-slate-500 border-t border-slate-900 relative z-10">
-        <p>© 2026 Sistema en Desarrollo. Todas las sugerencias ayudan a mejorar la plataforma.</p>
-    </footer>
+                    <div>
+                        <h2 class="text-2xl font-black text-white tracking-tight">
+                            ¿Tienes una idea o necesitas una integración?
+                        </h2>
+                        <p class="text-slate-400 text-xs sm:text-sm mt-1 leading-relaxed">
+                            Escribe tus comentarios, herramientas que usas o módulos que te gustaría ver agregados en las próximas versiones.
+                        </p>
+                    </div>
 
+                    <form id="suggestionForm" class="space-y-4" novalidate>
+
+                        <!-- NOMBRE / CORREO -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label for="sgNombre" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
+                                    Tu Nombre <span class="text-rose-400">*</span>
+                                </label>
+                                <input type="text" id="sgNombre" required maxlength="80" autocomplete="name"
+                                    placeholder="Ej. Juan Pérez"
+                                    class="w-full bg-slate-800/60 border border-slate-700/80 text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 transition-all placeholder:text-slate-600">
+                            </div>
+                            <div>
+                                <label for="sgEmail" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
+                                    Correo <span class="text-slate-600 font-normal normal-case">(opcional)</span>
+                                </label>
+                                <input type="email" id="sgEmail" maxlength="120" autocomplete="email" spellcheck="false"
+                                    placeholder="juan@ejemplo.com"
+                                    class="w-full bg-slate-800/60 border border-slate-700/80 text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 transition-all placeholder:text-slate-600">
+                            </div>
+                        </div>
+
+                        <!-- CATEGORIA -->
+                        <div>
+                            <label for="sgCategoria" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
+                                Categoría <span class="text-rose-400">*</span>
+                            </label>
+                            <select id="sgCategoria" required
+                                class="w-full bg-slate-800/60 border border-slate-700/80 text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 transition-all cursor-pointer">
+                                <option value="">-- Selecciona una categoría --</option>
+                                <option value="Nueva Integración (API, WhatsApp, ERP, etc.)">Nueva Integración (API, WhatsApp, ERP, etc.)</option>
+                                <option value="Nuevo Módulo / Sección">Nuevo Módulo / Sección</option>
+                                <option value="Mejora de Función Existente">Mejora de Función Existente</option>
+                                <option value="Reporte o Métrica Personalizada">Reporte o Métrica Personalizada</option>
+                                <option value="Otro Comentario">Otro Comentario</option>
+                            </select>
+                        </div>
+
+                        <!-- MENSAJE -->
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <label for="sgMensaje" class="block text-xs font-bold text-slate-400 uppercase tracking-wider">
+                                    Detalles <span class="text-rose-400">*</span>
+                                </label>
+                                <span id="charCounter" class="text-[10px] font-mono text-slate-500">0 / 1000</span>
+                            </div>
+                            <textarea id="sgMensaje" required rows="5" maxlength="1000"
+                                placeholder="Explica brevemente qué te gustaría integrar o mejorar y cómo ayudaría al trabajo diario..."
+                                class="w-full bg-slate-800/60 border border-slate-700/80 text-white rounded-xl p-4 text-sm focus:outline-none focus:border-indigo-500 transition-all placeholder:text-slate-600 custom-scroll resize-none"></textarea>
+                        </div>
+
+                        <div id="formMessage" class="hidden text-xs p-3 rounded-xl" role="alert" aria-live="polite"></div>
+
+                        <button type="submit" id="btnSubmit"
+                            class="w-full bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-700 disabled:cursor-not-allowed text-white font-bold py-3.5 px-6 rounded-xl transition-all shadow-lg shadow-indigo-600/25 active:scale-[0.99] flex items-center justify-center gap-2 text-sm">
+                            <i class="fa-solid fa-paper-plane text-xs" id="btnSubmitIcon"></i>
+                            <span id="btnSubmitText">Enviar Sugerencia</span>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- PANEL DE SUGERENCIAS (5 columnas) -->
+                <div class="lg:col-span-5 space-y-4">
+
+                    <div class="flex justify-between items-center px-1 gap-2">
+                        <h3 class="text-xs font-extrabold text-slate-400 uppercase tracking-widest">
+                            <span id="panelTitle">Sugerencias</span>
+                        </h3>
+                        <span id="panelCount" class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full font-bold">0</span>
+                    </div>
+
+                    <!-- Filtros admin -->
+                    <div id="adminFilters" class="hidden bg-slate-900/60 border border-slate-800 rounded-2xl p-1 flex gap-1">
+                        <button data-filter="ALL" class="filter-btn flex-1 px-2 py-1.5 rounded-xl text-[11px] font-bold transition-all">Todas</button>
+                        <button data-filter="pendiente" class="filter-btn flex-1 px-2 py-1.5 rounded-xl text-[11px] font-bold transition-all">Pendientes</button>
+                        <button data-filter="aprobada" class="filter-btn flex-1 px-2 py-1.5 rounded-xl text-[11px] font-bold transition-all">Aprobadas</button>
+                        <button data-filter="rechazada" class="filter-btn flex-1 px-2 py-1.5 rounded-xl text-[11px] font-bold transition-all">Rechazadas</button>
+                    </div>
+
+                    <!-- LISTA -->
+                    <div id="suggestionsList" class="space-y-3 custom-scroll max-h-[640px] overflow-y-auto pr-1">
+                        <!-- Dinámico -->
+                    </div>
+                </div>
+
+            </div>
+        </main>
+
+        <!-- FOOTER -->
+        <footer class="max-w-6xl w-full mx-auto px-6 py-6 text-center text-xs text-slate-500 border-t border-slate-900">
+            <p>© 2026 AGENCYPRO — Todas las sugerencias ayudan a mejorar la plataforma.</p>
+        </footer>
+    </div>
+
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- Lógica -->
+    <script type="module">
+        import { db, auth } from "./js/firebase/firebase.init.js";
+
+        import {
+            collection,
+            doc,
+            getDoc,
+            addDoc,
+            updateDoc,
+            deleteDoc,
+            query,
+            where,
+            orderBy,
+            onSnapshot,
+            serverTimestamp
+        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+        // ────────────────────────────────────────────────
+        // DOM
+        // ────────────────────────────────────────────────
+        const bootOverlay      = document.getElementById("bootOverlay");
+        const mainContent      = document.getElementById("mainContent");
+        const roleBadgeText    = document.getElementById("roleBadgeText");
+        const btnReload        = document.getElementById("btnReload");
+        const adminStats       = document.getElementById("adminStats");
+        const adminFilters     = document.getElementById("adminFilters");
+        const suggestionsList  = document.getElementById("suggestionsList");
+        const panelTitle       = document.getElementById("panelTitle");
+        const panelCount       = document.getElementById("panelCount");
+
+        const suggestionForm   = document.getElementById("suggestionForm");
+        const sgNombre         = document.getElementById("sgNombre");
+        const sgEmail          = document.getElementById("sgEmail");
+        const sgCategoria      = document.getElementById("sgCategoria");
+        const sgMensaje        = document.getElementById("sgMensaje");
+        const charCounter      = document.getElementById("charCounter");
+        const formMessage      = document.getElementById("formMessage");
+        const btnSubmit        = document.getElementById("btnSubmit");
+        const btnSubmitIcon    = document.getElementById("btnSubmitIcon");
+        const btnSubmitText    = document.getElementById("btnSubmitText");
+
+        const statTotal    = document.getElementById("statTotal");
+        const statPending  = document.getElementById("statPending");
+        const statApproved = document.getElementById("statApproved");
+        const statRejected = document.getElementById("statRejected");
+
+        // ────────────────────────────────────────────────
+        // ESTADO
+        // ────────────────────────────────────────────────
+        let currentUser    = null;
+        let currentProfile = null;
+        let isAdmin        = false;
+        let allSuggestions = [];        // Solo para admin
+        let mySuggestions  = [];        // Solo para viewer
+        let activeFilter   = "ALL";     // Para admin
+        let unsubscribe    = null;
+
+        const CATEGORY_ICONS = {
+            "Nueva Integración (API, WhatsApp, ERP, etc.)": "fa-plug",
+            "Nuevo Módulo / Sección": "fa-cube",
+            "Mejora de Función Existente": "fa-wand-magic-sparkles",
+            "Reporte o Métrica Personalizada": "fa-chart-line",
+            "Otro Comentario": "fa-comment-dots"
+        };
+
+        // ────────────────────────────────────────────────
+        // AUTENTICACIÓN
+        // ────────────────────────────────────────────────
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.replace("login.html");
+                return;
+            }
+
+            currentUser = user;
+
+            try {
+                const userSnap = await getDoc(doc(db, "users", user.uid));
+
+                if (!userSnap.exists()) {
+                    await Swal.fire("Cuenta no registrada", "Contacta al administrador.", "error");
+                    await signOut(auth);
+                    window.location.replace("login.html");
+                    return;
+                }
+
+                currentProfile = userSnap.data();
+
+                if (currentProfile.enabled === false) {
+                    await Swal.fire("Usuario inhabilitado", "Tu acceso ha sido revocado.", "warning");
+                    await signOut(auth);
+                    window.location.replace("login.html");
+                    return;
+                }
+
+                isAdmin = currentProfile.role === "admin";
+
+                // Configurar UI según rol
+                setupUIForRole();
+
+                // Pre-llenar formulario
+                sgNombre.value = currentProfile.username || "";
+                sgEmail.value = user.email || "";
+
+                // Cargar sugerencias
+                subscribeToSuggestions();
+
+                bootOverlay.classList.add("hidden");
+                mainContent.classList.remove("hidden");
+
+            } catch (err) {
+                console.error("Error al validar sesión:", err);
+                await Swal.fire("Error", "No se pudieron verificar tus credenciales.", "error");
+                window.location.replace("login.html");
+            }
+        });
+
+        function setupUIForRole() {
+            if (isAdmin) {
+                roleBadgeText.textContent = "Vista Administrador";
+                panelTitle.textContent = "Todas las Sugerencias";
+                adminStats.classList.remove("hidden");
+                adminStats.classList.add("grid");
+                adminFilters.classList.remove("hidden");
+                setActiveFilter("ALL");
+            } else {
+                roleBadgeText.textContent = "Tus Sugerencias";
+                panelTitle.textContent = "Mis Sugerencias";
+                adminStats.classList.add("hidden");
+                adminFilters.classList.add("hidden");
+            }
+        }
+
+        // ────────────────────────────────────────────────
+        // SUSCRIPCIÓN EN TIEMPO REAL
+        // ────────────────────────────────────────────────
+        function subscribeToSuggestions() {
+            if (unsubscribe) unsubscribe();
+
+            let q;
+            if (isAdmin) {
+                q = query(
+                    collection(db, "sugerencias"),
+                    orderBy("createdAt", "desc")
+                );
+            } else {
+                // Viewer: solo las suyas. Ordenamos en memoria para evitar índice compuesto.
+                q = query(
+                    collection(db, "sugerencias"),
+                    where("createdBy", "==", currentUser.uid)
+                );
+            }
+
+            unsubscribe = onSnapshot(
+                q,
+                (snapshot) => {
+                    const list = [];
+                    snapshot.forEach(docSnap => {
+                        list.push({ id: docSnap.id, ...docSnap.data() });
+                    });
+
+                    // Ordenar en memoria si es viewer (no hay índice)
+                    if (!isAdmin) {
+                        list.sort((a, b) => {
+                            const ta = a.createdAt?.toMillis?.() ?? 0;
+                            const tb = b.createdAt?.toMillis?.() ?? 0;
+                            return tb - ta;
+                        });
+                    }
+
+                    if (isAdmin) {
+                        allSuggestions = list;
+                        updateAdminStats();
+                        renderAdminList();
+                    } else {
+                        mySuggestions = list;
+                        renderViewerList();
+                    }
+                },
+                (error) => {
+                    console.error("Error en suscripción de sugerencias:", error);
+                    let msg = "No se pudieron cargar las sugerencias.";
+                    if (error.code === "permission-denied") {
+                        msg = "Sin permisos. Revisa las reglas de Firestore.";
+                    } else if (error.code === "failed-precondition") {
+                        msg = "Falta un índice compuesto en Firestore. Revisa la consola para crear el índice sugerido.";
+                    }
+                    suggestionsList.innerHTML = `
+                        <div class="text-center py-8 text-rose-400 text-xs bg-rose-500/5 border border-rose-500/20 rounded-2xl">
+                            <i class="fa-solid fa-triangle-exclamation text-2xl mb-2 block"></i>
+                            ${msg}
+                        </div>`;
+                }
+            );
+        }
+
+        // ────────────────────────────────────────────────
+        // FORM: CONTADOR DE CARACTERES
+        // ────────────────────────────────────────────────
+        sgMensaje.addEventListener("input", () => {
+            const len = sgMensaje.value.length;
+            charCounter.textContent = `${len} / 1000`;
+            charCounter.className = len > 950
+                ? "text-[10px] font-mono text-amber-400"
+                : "text-[10px] font-mono text-slate-500";
+        });
+
+        // ────────────────────────────────────────────────
+        // FORM: ENVÍO
+        // ────────────────────────────────────────────────
+        suggestionForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            if (btnSubmit.disabled) return;
+
+            const nombre = sgNombre.value.trim();
+            const email = sgEmail.value.trim();
+            const categoria = sgCategoria.value;
+            const mensaje = sgMensaje.value.trim();
+
+            // Validaciones
+            if (!nombre || !categoria || !mensaje) {
+                showMessage("Completa todos los campos obligatorios (*).", "error");
+                return;
+            }
+            if (mensaje.length < 10) {
+                showMessage("El mensaje debe tener al menos 10 caracteres.", "error");
+                return;
+            }
+            if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                showMessage("El formato del correo no es válido.", "error");
+                return;
+            }
+
+            setLoading(true);
+            showMessage("", "clear");
+
+            try {
+                await addDoc(collection(db, "sugerencias"), {
+                    nombre,
+                    email,
+                    categoria,
+                    mensaje,
+                    status: "pendiente",
+                    createdBy: currentUser.uid,
+                    createdAt: serverTimestamp()
+                });
+
+                // Reset (mantener nombre y email para comodidad)
+                sgCategoria.value = "";
+                sgMensaje.value = "";
+                charCounter.textContent = "0 / 1000";
+                charCounter.className = "text-[10px] font-mono text-slate-500";
+
+                await Swal.fire({
+                    toast: true,
+                    position: "top-end",
+                    icon: "success",
+                    title: "¡Sugerencia enviada!",
+                    text: "Los administradores la revisarán pronto.",
+                    showConfirmButton: false,
+                    timer: 2800,
+                    timerProgressBar: true
+                });
+
+            } catch (err) {
+                console.error("Error al enviar sugerencia:", err);
+                let msg = "No se pudo enviar la sugerencia.";
+                if (err.code === "permission-denied") {
+                    msg = "Sin permisos. Debes estar autenticado para enviar sugerencias.";
+                }
+                showMessage(msg, "error");
+            } finally {
+                setLoading(false);
+            }
+        });
+
+        function setLoading(loading) {
+            btnSubmit.disabled = loading;
+            btnSubmitText.textContent = loading ? "Enviando..." : "Enviar Sugerencia";
+            btnSubmitIcon.className = loading
+                ? "fa-solid fa-circle-notch fa-spin text-xs"
+                : "fa-solid fa-paper-plane text-xs";
+        }
+
+        function showMessage(msg, type) {
+            if (type === "clear") {
+                formMessage.className = "hidden text-xs p-3 rounded-xl";
+                formMessage.textContent = "";
+                return;
+            }
+            formMessage.classList.remove("hidden");
+            formMessage.className = type === "success"
+                ? "text-xs p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400"
+                : "text-xs p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400";
+            formMessage.textContent = msg;
+        }
+
+        // ────────────────────────────────────────────────
+        // FILTROS ADMIN
+        // ────────────────────────────────────────────────
+        adminFilters.addEventListener("click", (e) => {
+            const btn = e.target.closest(".filter-btn");
+            if (!btn) return;
+            setActiveFilter(btn.dataset.filter);
+        });
+
+        function setActiveFilter(filter) {
+            activeFilter = filter;
+            document.querySelectorAll(".filter-btn").forEach(btn => {
+                const isActive = btn.dataset.filter === filter;
+                btn.className = isActive
+                    ? "filter-btn flex-1 px-2 py-1.5 rounded-xl text-[11px] font-bold bg-indigo-600 text-white transition-all"
+                    : "filter-btn flex-1 px-2 py-1.5 rounded-xl text-[11px] font-bold text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition-all";
+            });
+            renderAdminList();
+        }
+
+        // ────────────────────────────────────────────────
+        // STATS ADMIN
+        // ────────────────────────────────────────────────
+        function updateAdminStats() {
+            const total = allSuggestions.length;
+            const pending = allSuggestions.filter(s => s.status === "pendiente").length;
+            const approved = allSuggestions.filter(s => s.status === "aprobada").length;
+            const rejected = allSuggestions.filter(s => s.status === "rechazada").length;
+
+            statTotal.textContent = total;
+            statPending.textContent = pending;
+            statApproved.textContent = approved;
+            statRejected.textContent = rejected;
+            panelCount.textContent = total;
+        }
+
+        // ────────────────────────────────────────────────
+        // RENDER: LISTA ADMIN
+        // ────────────────────────────────────────────────
+        function renderAdminList() {
+            suggestionsList.innerHTML = "";
+
+            let filtered = allSuggestions;
+            if (activeFilter !== "ALL") {
+                filtered = allSuggestions.filter(s => s.status === activeFilter);
+            }
+
+            if (filtered.length === 0) {
+                suggestionsList.innerHTML = `
+                    <div class="text-center py-12 bg-slate-900/40 border border-dashed border-slate-800 rounded-2xl">
+                        <i class="fa-solid fa-inbox text-3xl text-slate-600 mb-2 block"></i>
+                        <p class="text-slate-400 text-sm font-bold">Sin sugerencias</p>
+                        <p class="text-slate-500 text-xs mt-1">
+                            ${activeFilter === "ALL" ? "Aún no hay sugerencias registradas." : "No hay sugerencias con este estado."}
+                        </p>
+                    </div>`;
+                return;
+            }
+
+            filtered.forEach(sg => {
+                suggestionsList.appendChild(buildAdminCard(sg));
+            });
+        }
+
+        function buildAdminCard(sg) {
+            const card = document.createElement("div");
+            card.className = "fade-in bg-slate-900/70 border border-slate-800 rounded-2xl p-4 space-y-3 hover:border-slate-700 transition-colors";
+
+            // ── Header: nombre + status ──
+            const header = document.createElement("div");
+            header.className = "flex items-start justify-between gap-2";
+
+            const who = document.createElement("div");
+            who.className = "min-w-0 flex-1";
+
+            const nombreEl = document.createElement("p");
+            nombreEl.className = "text-sm font-bold text-white truncate";
+            nombreEl.textContent = sg.nombre || "Anónimo";
+            who.appendChild(nombreEl);
+
+            if (sg.email) {
+                const emailEl = document.createElement("p");
+                emailEl.className = "text-[11px] text-slate-400 truncate";
+                emailEl.textContent = sg.email;
+                who.appendChild(emailEl);
+            }
+
+            header.appendChild(who);
+            header.appendChild(buildStatusBadge(sg.status));
+
+            card.appendChild(header);
+
+            // ── Meta: categoría + fecha ──
+            const meta = document.createElement("div");
+            meta.className = "flex items-center justify-between gap-2 flex-wrap";
+
+            const catBadge = document.createElement("span");
+            catBadge.className = "inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-800 text-slate-300 border border-slate-700/50";
+            const icon = CATEGORY_ICONS[sg.categoria] || "fa-tag";
+            catBadge.innerHTML = `<i class="fa-solid ${icon} text-[9px]"></i>`;
+            catBadge.appendChild(document.createTextNode(sg.categoria || "Sin categoría"));
+            meta.appendChild(catBadge);
+
+            const dateEl = document.createElement("span");
+            dateEl.className = "text-[10px] text-slate-500";
+            dateEl.textContent = timeAgo(sg.createdAt);
+            meta.appendChild(dateEl);
+
+            card.appendChild(meta);
+
+            // ── Mensaje ──
+            const msg = document.createElement("p");
+            msg.className = "text-xs text-slate-300 leading-relaxed whitespace-pre-wrap break-words bg-slate-950/40 border border-slate-800/50 rounded-xl p-3";
+            msg.textContent = sg.mensaje || "(sin mensaje)";
+            card.appendChild(msg);
+
+            // ── Nota admin (si existe) ──
+            if (sg.adminNote) {
+                const noteWrap = document.createElement("div");
+                noteWrap.className = "flex items-start gap-2 text-[11px] text-amber-300/80 bg-amber-500/5 border border-amber-500/20 rounded-xl p-2.5";
+                noteWrap.innerHTML = `<i class="fa-solid fa-note-sticky mt-0.5"></i>`;
+                const noteText = document.createElement("span");
+                noteText.textContent = sg.adminNote;
+                noteWrap.appendChild(noteText);
+                card.appendChild(noteWrap);
+            }
+
+            // ── Acciones ──
+            const actions = document.createElement("div");
+            actions.className = "flex items-center gap-2 pt-2 border-t border-slate-800/60";
+
+            if (sg.status !== "aprobada") {
+                const btnApprove = document.createElement("button");
+                btnApprove.className = "flex-1 px-3 py-2 bg-emerald-600/90 hover:bg-emerald-500 text-white text-[11px] font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 active:scale-95";
+                btnApprove.innerHTML = `<i class="fa-solid fa-check"></i> Aprobar`;
+                btnApprove.addEventListener("click", () => reviewSuggestion(sg, "aprobada"));
+                actions.appendChild(btnApprove);
+            }
+
+            if (sg.status !== "rechazada") {
+                const btnReject = document.createElement("button");
+                btnReject.className = "flex-1 px-3 py-2 bg-rose-600/90 hover:bg-rose-500 text-white text-[11px] font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 active:scale-95";
+                btnReject.innerHTML = `<i class="fa-solid fa-xmark"></i> Rechazar`;
+                btnReject.addEventListener("click", () => reviewSuggestion(sg, "rechazada"));
+                actions.appendChild(btnReject);
+            }
+
+            const btnDelete = document.createElement("button");
+            btnDelete.className = "px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-rose-400 text-[11px] font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 active:scale-95";
+            btnDelete.title = "Eliminar definitivamente";
+            btnDelete.innerHTML = `<i class="fa-solid fa-trash-can"></i>`;
+            btnDelete.addEventListener("click", () => deleteSuggestion(sg));
+            actions.appendChild(btnDelete);
+
+            card.appendChild(actions);
+
+            return card;
+        }
+
+        // ────────────────────────────────────────────────
+        // RENDER: LISTA VIEWER
+        // ────────────────────────────────────────────────
+        function renderViewerList() {
+            suggestionsList.innerHTML = "";
+            panelCount.textContent = mySuggestions.length;
+
+            if (mySuggestions.length === 0) {
+                suggestionsList.innerHTML = `
+                    <div class="text-center py-12 bg-slate-900/40 border border-dashed border-slate-800 rounded-2xl">
+                        <i class="fa-solid fa-lightbulb text-3xl text-slate-600 mb-2 block"></i>
+                        <p class="text-slate-400 text-sm font-bold">Aún no has enviado sugerencias</p>
+                        <p class="text-slate-500 text-xs mt-1">Usa el formulario de la izquierda para enviar la primera.</p>
+                    </div>`;
+                return;
+            }
+
+            mySuggestions.forEach(sg => {
+                suggestionsList.appendChild(buildViewerCard(sg));
+            });
+        }
+
+        function buildViewerCard(sg) {
+            const card = document.createElement("div");
+            card.className = "fade-in bg-slate-900/70 border border-slate-800 rounded-2xl p-4 space-y-3";
+
+            // Header
+            const header = document.createElement("div");
+            header.className = "flex items-start justify-between gap-2";
+
+            const catBadge = document.createElement("span");
+            catBadge.className = "inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-800 text-slate-300 border border-slate-700/50 min-w-0 truncate";
+            const icon = CATEGORY_ICONS[sg.categoria] || "fa-tag";
+            catBadge.innerHTML = `<i class="fa-solid ${icon} text-[9px] shrink-0"></i>`;
+            const catText = document.createElement("span");
+            catText.className = "truncate";
+            catText.textContent = sg.categoria || "Sin categoría";
+            catBadge.appendChild(catText);
+            header.appendChild(catBadge);
+
+            header.appendChild(buildStatusBadge(sg.status));
+            card.appendChild(header);
+
+            // Mensaje
+            const msg = document.createElement("p");
+            msg.className = "text-xs text-slate-300 leading-relaxed whitespace-pre-wrap break-words bg-slate-950/40 border border-slate-800/50 rounded-xl p-3";
+            msg.textContent = sg.mensaje || "(sin mensaje)";
+            card.appendChild(msg);
+
+            // Nota del admin (si existe) — útil para el usuario
+            if (sg.adminNote) {
+                const noteWrap = document.createElement("div");
+                noteWrap.className = "flex items-start gap-2 text-[11px] text-amber-300/80 bg-amber-500/5 border border-amber-500/20 rounded-xl p-2.5";
+                noteWrap.innerHTML = `<i class="fa-solid fa-comment-dots mt-0.5"></i>`;
+                const noteText = document.createElement("span");
+                noteText.textContent = sg.adminNote;
+                noteWrap.appendChild(noteText);
+                card.appendChild(noteWrap);
+            }
+
+            // Footer: fecha + review date
+            const footer = document.createElement("div");
+            footer.className = "flex items-center justify-between gap-2 text-[10px] text-slate-500 pt-1 border-t border-slate-800/60";
+
+            const created = document.createElement("span");
+            created.innerHTML = `<i class="fa-regular fa-clock mr-1"></i>`;
+            created.appendChild(document.createTextNode(`Enviada ${timeAgo(sg.createdAt)}`));
+            footer.appendChild(created);
+
+            if (sg.reviewedAt && sg.status !== "pendiente") {
+                const reviewed = document.createElement("span");
+                reviewed.innerHTML = `<i class="fa-solid fa-check-double mr-1"></i>`;
+                reviewed.appendChild(document.createTextNode(`Revisada ${timeAgo(sg.reviewedAt)}`));
+                footer.appendChild(reviewed);
+            }
+
+            card.appendChild(footer);
+
+            return card;
+        }
+
+        // ────────────────────────────────────────────────
+        // BADGE DE STATUS
+        // ────────────────────────────────────────────────
+        function buildStatusBadge(status) {
+            const badge = document.createElement("span");
+            badge.className = "shrink-0 inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider";
+
+            const map = {
+                pendiente: {
+                    cls: "bg-amber-500/10 text-amber-400 border border-amber-500/20",
+                    icon: "fa-clock",
+                    label: "Pendiente"
+                },
+                aprobada: {
+                    cls: "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20",
+                    icon: "fa-check",
+                    label: "Aprobada"
+                },
+                rechazada: {
+                    cls: "bg-rose-500/10 text-rose-400 border border-rose-500/20",
+                    icon: "fa-xmark",
+                    label: "Rechazada"
+                }
+            };
+
+            const cfg = map[status] || map.pendiente;
+            badge.className += " " + cfg.cls;
+            badge.innerHTML = `<i class="fa-solid ${cfg.icon} text-[8px]"></i>${cfg.label}`;
+            return badge;
+        }
+
+        // ────────────────────────────────────────────────
+        // ACCIONES ADMIN: APROBAR / RECHAZAR
+        // ────────────────────────────────────────────────
+        async function reviewSuggestion(sg, newStatus) {
+            const isApprove = newStatus === "aprobada";
+            const label = isApprove ? "aprobar" : "rechazar";
+            const color = isApprove ? "#10b981" : "#e11d48";
+
+            const res = await Swal.fire({
+                title: isApprove ? "¿Aprobar sugerencia?" : "¿Rechazar sugerencia?",
+                html: `
+                    <div class="text-left text-sm space-y-2">
+                        <p class="text-slate-600">Sugerencia de <b>${escapeHtml(sg.nombre || "Anónimo")}</b></p>
+                        <div class="bg-slate-100 rounded-lg p-3 text-xs text-slate-700 max-h-32 overflow-y-auto">
+                            ${escapeHtml(sg.mensaje || "")}
+                        </div>
+                        <label class="block text-xs font-bold text-slate-600 mt-2">
+                            Nota interna (opcional, el autor la verá):
+                        </label>
+                        <textarea id="swal-note" rows="2" maxlength="300"
+                            class="w-full border border-slate-300 rounded-lg p-2 text-xs focus:outline-none focus:border-indigo-500"
+                            placeholder="Ej: Excelente idea, la implementaremos pronto..."></textarea>
+                    </div>
+                `,
+                icon: "question",
+                showCancelButton: true,
+                confirmButtonText: isApprove ? "Sí, aprobar" : "Sí, rechazar",
+                cancelButtonText: "Cancelar",
+                confirmButtonColor: color,
+                cancelButtonColor: "#475569",
+                preConfirm: () => {
+                    return document.getElementById("swal-note").value.trim();
+                }
+            });
+
+            if (!res.isConfirmed) return;
+
+            const adminNote = res.value || "";
+
+            try {
+                await updateDoc(doc(db, "sugerencias", sg.id), {
+                    status: newStatus,
+                    adminNote,
+                    reviewedBy: currentUser.uid,
+                    reviewedAt: serverTimestamp()
+                });
+
+                Swal.fire({
+                    toast: true,
+                    position: "top-end",
+                    icon: "success",
+                    title: isApprove ? "Sugerencia aprobada" : "Sugerencia rechazada",
+                    showConfirmButton: false,
+                    timer: 2000,
+                    timerProgressBar: true
+                });
+
+            } catch (err) {
+                console.error("Error al revisar sugerencia:", err);
+                Swal.fire("Error", `No se pudo ${label} la sugerencia.`, "error");
+            }
+        }
+
+        // ────────────────────────────────────────────────
+        // ACCIÓN ADMIN: ELIMINAR
+        // ────────────────────────────────────────────────
+        async function deleteSuggestion(sg) {
+            const res = await Swal.fire({
+                title: "¿Eliminar sugerencia?",
+                html: `
+                    <div class="text-left text-sm">
+                        <p>Esta acción es <b class="text-rose-500">permanente</b> y no se puede deshacer.</p>
+                        <div class="bg-slate-100 rounded-lg p-3 text-xs text-slate-700 mt-2 max-h-24 overflow-y-auto">
+                            ${escapeHtml(sg.mensaje || "")}
+                        </div>
+                    </div>
+                `,
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Sí, eliminar",
+                cancelButtonText: "Cancelar",
+                confirmButtonColor: "#e11d48",
+                cancelButtonColor: "#475569"
+            });
+
+            if (!res.isConfirmed) return;
+
+            try {
+                await deleteDoc(doc(db, "sugerencias", sg.id));
+                Swal.fire({
+                    toast: true,
+                    position: "top-end",
+                    icon: "success",
+                    title: "Sugerencia eliminada",
+                    showConfirmButton: false,
+                    timer: 1800
+                });
+            } catch (err) {
+                console.error("Error al eliminar:", err);
+                Swal.fire("Error", "No se pudo eliminar la sugerencia.", "error");
+            }
+        }
+
+        // ────────────────────────────────────────────────
+        // RECARGAR
+        // ────────────────────────────────────────────────
+        btnReload.addEventListener("click", () => {
+            btnReload.disabled = true;
+            btnReload.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin text-xs"></i>`;
+            subscribeToSuggestions();
+            setTimeout(() => {
+                btnReload.disabled = false;
+                btnReload.innerHTML = `<i class="fa-solid fa-rotate-right text-xs"></i>`;
+            }, 800);
+        });
+
+        // ────────────────────────────────────────────────
+        // UTILIDADES
+        // ────────────────────────────────────────────────
+        function timeAgo(ts) {
+            if (!ts) return "hace un momento";
+            const date = ts.toDate ? ts.toDate() : new Date(ts);
+            const diff = Math.floor((Date.now() - date.getTime()) / 1000);
+
+            if (diff < 60) return "hace unos segundos";
+            const min = Math.floor(diff / 60);
+            if (min < 60) return `hace ${min} min`;
+            const h = Math.floor(min / 60);
+            if (h < 24) return `hace ${h} h`;
+            const d = Math.floor(h / 24);
+            if (d < 30) return `hace ${d} d`;
+            return date.toLocaleDateString("es-DO");
+        }
+
+        function escapeHtml(str) {
+            return String(str ?? "").replace(/[&<>"']/g, (c) => ({
+                "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+            }[c]));
+        }
+    </script>
 </body>
-
 </html>

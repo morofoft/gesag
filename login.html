@@ -7,8 +7,10 @@
     <title>Iniciar Sesión - Consulta de Agencias</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
     </style>
 </head>
@@ -17,22 +19,19 @@
 
     <!-- CONTENEDOR PRINCIPAL -->
     <div class="bg-slate-900/80 border border-slate-800/90 w-full max-w-md p-8 rounded-3xl shadow-2xl backdrop-blur-xl relative overflow-hidden">
-        
+
         <!-- ELEMENTOS DECORATIVOS DE FONDO -->
         <div class="absolute -top-16 -right-16 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl pointer-events-none"></div>
         <div class="absolute -bottom-16 -left-16 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl pointer-events-none"></div>
 
-        <!-- ENCABEZADO CON LOGO Y TÍTULO -->
+        <!-- ENCABEZADO -->
         <div class="text-center mb-8 relative">
-            <div class="w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-4 p-3 shadow-inner group transition-transform hover:scale-105">
-                <!-- Monograma SVG estilo limpio / plano -->
-                <svg class="w-36 h-48 text-white fill-current" viewBox="0 0 100 130" xmlns="http://www.w3.org/2000/svg">
-                    <!-- P & G -->
+            <div class="w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-4 p-3 shadow-inner transition-transform hover:scale-105">
+                <svg class="w-10 h-14 text-white fill-current" viewBox="0 0 100 130" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                     <g>
                         <!-- P -->
                         <rect x="0" y="0" width="18" height="130" rx="4" />
                         <rect x="26" y="0" width="18" height="70" rx="4" />
-                        
                         <!-- G -->
                         <rect x="52" y="0" width="18" height="130" rx="4" />
                         <rect x="78" y="0" width="18" height="38" rx="4" />
@@ -40,42 +39,61 @@
                     </g>
                 </svg>
             </div>
-            
+
             <h1 class="text-2xl font-black text-white tracking-tight">Bienvenido</h1>
             <p class="text-xs font-medium text-slate-400 mt-1">Dev. Pedro E. Garcia R. V2.1 2026</p>
         </div>
 
-        <!-- FORMULARIO DE INICIO DE SESIÓN -->
-        <form id="loginForm" class="space-y-4 relative">
+        <!-- FORMULARIO -->
+        <form id="loginForm" class="space-y-4 relative" novalidate>
             <div>
-                <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Correo Electrónico</label>
+                <label for="email" class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">
+                    Correo Electrónico
+                </label>
                 <div class="relative">
-                    <i class="fa fa-envelope absolute left-3.5 top-3.5 text-slate-500 text-xs"></i>
-                    <input type="email" id="email" required placeholder="usuario@app.com"
+                    <i class="fa fa-envelope absolute left-3.5 top-3.5 text-slate-500 text-xs pointer-events-none"></i>
+                    <input type="email" id="email" name="email" required
+                        autocomplete="email" spellcheck="false"
+                        placeholder="usuario@app.com"
                         class="w-full bg-slate-800/60 border border-slate-700/70 text-white pl-9 pr-4 py-3 rounded-xl text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all placeholder:text-slate-600">
                 </div>
             </div>
 
             <div>
-                <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Contraseña</label>
+                <label for="password" class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">
+                    Contraseña
+                </label>
                 <div class="relative">
-                    <i class="fa fa-key absolute left-3.5 top-3.5 text-slate-500 text-xs"></i>
-                    <input type="password" id="password" required placeholder="••••••••"
+                    <i class="fa fa-key absolute left-3.5 top-3.5 text-slate-500 text-xs pointer-events-none"></i>
+                    <input type="password" id="password" name="password" required
+                        autocomplete="current-password"
+                        placeholder="••••••••"
                         class="w-full bg-slate-800/60 border border-slate-700/70 text-white pl-9 pr-10 py-3 rounded-xl text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all placeholder:text-slate-600">
-                    <button type="button" id="togglePassword" class="absolute right-3.5 top-3.5 text-slate-500 hover:text-slate-300 transition-colors focus:outline-none">
-                        <i class="fa fa-eye text-xs"></i>
+                    <button type="button" id="togglePassword"
+                        aria-label="Mostrar u ocultar contraseña"
+                        class="absolute right-3.5 top-3.5 text-slate-500 hover:text-slate-300 transition-colors focus:outline-none focus:text-indigo-400">
+                        <i class="fa fa-eye text-xs" aria-hidden="true"></i>
                     </button>
                 </div>
             </div>
 
+            <!-- LINK OLVIDÉ CONTRASEÑA -->
+            <div class="flex justify-end">
+                <button type="button" id="btnForgotPassword"
+                    class="text-[11px] font-semibold text-indigo-400 hover:text-indigo-300 transition-colors">
+                    ¿Olvidaste tu contraseña?
+                </button>
+            </div>
+
             <!-- MENSAJE DE ERROR O ALERTA -->
-            <div id="errorMsg" class="hidden p-3 rounded-xl text-xs font-bold text-center border transition-all"></div>
+            <div id="errorMsg" role="alert" aria-live="polite"
+                class="hidden p-3 rounded-xl text-xs font-bold text-center border transition-all"></div>
 
             <!-- BOTÓN DE SUBMIT -->
             <button type="submit" id="btnLogin"
-                class="w-full bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white font-bold py-3.5 rounded-xl text-sm transition-all shadow-lg shadow-indigo-600/25 active:scale-95 flex items-center justify-center gap-2">
+                class="w-full bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 disabled:from-slate-700 disabled:to-slate-700 disabled:cursor-not-allowed text-white font-bold py-3.5 rounded-xl text-sm transition-all shadow-lg shadow-indigo-600/25 active:scale-95 flex items-center justify-center gap-2">
                 <span id="btnText">Iniciar Sesión</span>
-                <i id="btnIcon" class="fa fa-arrow-right text-xs"></i>
+                <i id="btnIcon" class="fa fa-arrow-right text-xs" aria-hidden="true"></i>
             </button>
         </form>
     </div>
@@ -83,81 +101,190 @@
     <!-- SCRIPT DE AUTENTICACIÓN FIREBASE -->
     <script type="module">
         import { db, auth } from "./js/firebase/firebase.init.js";
-        import { signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import {
+            signInWithEmailAndPassword,
+            signOut,
+            onAuthStateChanged,
+            sendPasswordResetEmail
+        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
         import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
         const form = document.getElementById("loginForm");
         const errorMsg = document.getElementById("errorMsg");
+        const emailInput = document.getElementById("email");
         const passwordInput = document.getElementById("password");
         const togglePassword = document.getElementById("togglePassword");
         const btnLogin = document.getElementById("btnLogin");
         const btnText = document.getElementById("btnText");
         const btnIcon = document.getElementById("btnIcon");
+        const btnForgotPassword = document.getElementById("btnForgotPassword");
 
-        // Alternar visibilidad de la contraseña
+        // Bandera para evitar que onAuthStateChanged redirija mientras estamos iniciando sesión
+        let isLoggingIn = false;
+
+        // ────────────────────────────────────────────────
+        // REDIRECCIÓN AUTOMÁTICA SI YA HAY SESIÓN ACTIVA
+        // ────────────────────────────────────────────────
+        onAuthStateChanged(auth, (user) => {
+            if (user && !isLoggingIn) {
+                window.location.replace("index.html");
+            }
+        });
+
+        // ────────────────────────────────────────────────
+        // TOGGLE DE VISIBILIDAD DE CONTRASEÑA
+        // ────────────────────────────────────────────────
         togglePassword.addEventListener("click", () => {
             const isPassword = passwordInput.type === "password";
             passwordInput.type = isPassword ? "text" : "password";
-            togglePassword.innerHTML = `<i class="fa fa-${isPassword ? 'eye-slash' : 'eye'} text-xs"></i>`;
+            togglePassword.innerHTML = `<i class="fa fa-${isPassword ? "eye-slash" : "eye"} text-xs" aria-hidden="true"></i>`;
+            passwordInput.focus();
         });
 
-        // Manejo del Login
+        // ────────────────────────────────────────────────
+        // OLVIDÉ MI CONTRASEÑA
+        // ────────────────────────────────────────────────
+        btnForgotPassword.addEventListener("click", async () => {
+            const email = emailInput.value.trim();
+
+            if (!email) {
+                showError("Escribe tu correo arriba y vuelve a presionar este botón.", true, "warning");
+                emailInput.focus();
+                return;
+            }
+
+            btnForgotPassword.disabled = true;
+            const originalText = btnForgotPassword.textContent;
+            btnForgotPassword.textContent = "Enviando...";
+
+            try {
+                await sendPasswordResetEmail(auth, email);
+                showError(`Se envió un enlace de recuperación a ${email}. Revisa tu bandeja (y spam).`, true, "success");
+            } catch (err) {
+                console.error("Error enviando reset:", err);
+                if (err.code === "auth/user-not-found") {
+                    showError("No existe una cuenta con ese correo.", true, "error");
+                } else {
+                    showError("No se pudo enviar el correo de recuperación. Intenta más tarde.", true, "error");
+                }
+            } finally {
+                btnForgotPassword.disabled = false;
+                btnForgotPassword.textContent = originalText;
+            }
+        });
+
+        // ────────────────────────────────────────────────
+        // MANEJO DEL LOGIN
+        // ────────────────────────────────────────────────
         form.addEventListener("submit", async (e) => {
             e.preventDefault();
+            if (btnLogin.disabled) return; // protección anti doble-submit
+
             showError("", false);
             setLoading(true);
+            isLoggingIn = true;
 
-            const email = document.getElementById("email").value.trim();
+            const email = emailInput.value.trim();
             const password = passwordInput.value;
 
             try {
-                // 1. Iniciar sesión en Auth
+                // 1. Autenticar
                 const userCredential = await signInWithEmailAndPassword(auth, email, password);
                 const uid = userCredential.user.uid;
 
-                // 2. Verificar estado en la colección "users"
+                // 2. Verificar doc en Firestore (OBLIGATORIO)
                 const userDocRef = doc(db, "users", uid);
                 const userDocSnap = await getDoc(userDocRef);
 
-                if (userDocSnap.exists()) {
-                    const userData = userDocSnap.data();
-
-                    // Verificar si el usuario está inhabilitado
-                    if (userData.enabled === false) {
-                        await signOut(auth); // Cerrar sesión automáticamente
-                        showError("Tu usuario ha sido inhabilitado. Contacta al administrador.", true, "bg-amber-500/10 text-amber-400 border-amber-500/20");
-                        setLoading(false);
-                        return;
-                    }
+                if (!userDocSnap.exists()) {
+                    await signOut(auth);
+                    isLoggingIn = false;
+                    setLoading(false);
+                    showError(
+                        "Tu cuenta no está registrada en el sistema. Contacta al administrador.",
+                        true, "error"
+                    );
+                    return;
                 }
 
-                // 3. Redirigir si está activo
-                window.location.href = "index.html";
+                const userData = userDocSnap.data();
+
+                // 3. Verificar estado habilitado
+                if (userData.enabled === false) {
+                    await signOut(auth);
+                    isLoggingIn = false;
+                    setLoading(false);
+                    showError(
+                        "Tu usuario ha sido inhabilitado. Contacta al administrador.",
+                        true, "warning"
+                    );
+                    return;
+                }
+
+                // 4. Todo OK → redirigir
+                window.location.replace("index.html");
 
             } catch (error) {
                 console.error("Error en login:", error);
+                isLoggingIn = false;
                 setLoading(false);
-                showError("Credenciales inválidas o problema de conexión.", true, "bg-rose-500/10 text-rose-400 border-rose-500/20");
+                showError(getFriendlyError(error), true, "error");
             }
         });
 
-        function showError(msg, visible, classes = "") {
-            errorMsg.innerText = msg;
-            errorMsg.className = `p-3 rounded-xl text-xs font-bold text-center border ${classes}`;
-            if (visible) errorMsg.classList.remove("hidden");
-            else errorMsg.classList.add("hidden");
+        // ────────────────────────────────────────────────
+        // UTILIDADES
+        // ────────────────────────────────────────────────
+
+        /**
+         * Traduce los códigos de Firebase Auth a mensajes claros en español.
+         */
+        function getFriendlyError(error) {
+            switch (error.code) {
+                case "auth/invalid-email":
+                    return "El formato del correo no es válido.";
+                case "auth/user-not-found":
+                    return "No existe una cuenta con ese correo.";
+                case "auth/wrong-password":
+                case "auth/invalid-credential":
+                    return "Correo o contraseña incorrectos.";
+                case "auth/too-many-requests":
+                    return "Demasiados intentos fallidos. Espera unos minutos e intenta de nuevo.";
+                case "auth/network-request-failed":
+                    return "Sin conexión. Verifica tu red e intenta de nuevo.";
+                case "auth/user-disabled":
+                    return "Esta cuenta ha sido deshabilitada por un administrador.";
+                default:
+                    return "No se pudo iniciar sesión. Verifica tus datos e intenta de nuevo.";
+            }
         }
 
+        /**
+         * Muestra u oculta el mensaje de alerta.
+         * @param {string} msg - Texto a mostrar
+         * @param {boolean} visible - Si se muestra o no
+         * @param {"error"|"warning"|"success"} type - Estilo visual
+         */
+        function showError(msg, visible, type = "error") {
+            const styles = {
+                error:   "bg-rose-500/10 text-rose-400 border-rose-500/20",
+                warning: "bg-amber-500/10 text-amber-400 border-amber-500/20",
+                success: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
+            };
+            errorMsg.innerText = msg;
+            errorMsg.className = `p-3 rounded-xl text-xs font-bold text-center border transition-all ${styles[type] || styles.error}`;
+            errorMsg.classList.toggle("hidden", !visible);
+        }
+
+        /**
+         * Activa/desactiva el estado de carga del botón.
+         */
         function setLoading(isLoading) {
-            if (isLoading) {
-                btnLogin.disabled = true;
-                btnText.innerText = "Verificando...";
-                btnIcon.className = "fa fa-circle-notch animate-spin text-xs";
-            } else {
-                btnLogin.disabled = false;
-                btnText.innerText = "Iniciar Sesión";
-                btnIcon.className = "fa fa-arrow-right text-xs";
-            }
+            btnLogin.disabled = isLoading;
+            btnText.innerText = isLoading ? "Verificando..." : "Iniciar Sesión";
+            btnIcon.className = isLoading
+                ? "fa fa-circle-notch animate-spin text-xs"
+                : "fa fa-arrow-right text-xs";
         }
     </script>
 </body>

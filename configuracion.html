@@ -4,35 +4,40 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Configuración - Carga de Agencias</title>
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome Icons -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
-    <!-- SweetAlert2 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
-    <!-- Custom Config for Tailwind -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
                         brand: {
-                            50: '#f0f7ff',
-                            100: '#e0effe',
-                            500: '#0284c7',
-                            600: '#0369a1',
-                            700: '#075985',
+                            50: '#f0f7ff', 100: '#e0effe', 500: '#0284c7',
+                            600: '#0369a1', 700: '#075985',
                         }
                     }
                 }
             }
         }
     </script>
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
 </head>
 <body class="bg-slate-50 font-sans text-slate-800 antialiased min-h-screen">
 
-    <div class="max-w-6xl mx-auto px-4 py-8">
-        
+    <!-- OVERLAY DE VERIFICACIÓN -->
+    <div id="bootOverlay" class="fixed inset-0 bg-white z-[100] flex flex-col items-center justify-center space-y-3">
+        <div class="w-10 h-10 border-4 border-brand-500 border-t-transparent rounded-full animate-spin"></div>
+        <p class="text-xs font-bold text-slate-500 tracking-wider uppercase">Verificando Permisos...</p>
+    </div>
+
+    <div id="mainContent" class="max-w-6xl mx-auto px-4 py-8 hidden">
+
         <!-- Header -->
         <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8 pb-4 border-b border-slate-200">
             <div>
@@ -45,97 +50,112 @@
                 <p class="text-slate-500 mt-1 text-sm">Gestiona e importa tus agencias a la base de datos de Firestore.</p>
             </div>
             <div class="mt-4 md:mt-0 flex items-center gap-3">
+                <a href="index.html" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-xl shadow-sm transition-all flex items-center gap-2">
+                    <i class="fa-solid fa-arrow-left text-sm"></i> Volver
+                </a>
                 <button id="btnOpenSingleModal" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md transition-all flex items-center gap-2">
                     <i class="fa-solid fa-plus text-sm"></i> Agregar Individual
                 </button>
-                <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-slate-200 text-slate-700">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                    Módulo de Administración
-                </span>
             </div>
         </div>
 
-        <!-- Main Card Container -->
+        <!-- Main Card -->
         <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-8">
             <div class="p-6 md:p-8">
-                
+
                 <h2 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
                     <i class="fa-solid fa-file-import text-brand-500"></i>
                     Método de Entrada Masiva de Datos
                 </h2>
 
-                <!-- Tabs Header -->
+                <!-- Tabs -->
                 <div class="flex border-b border-slate-200 mb-6" role="tablist">
-                    <button id="tabExcelBtn" onclick="switchTab('excel')" class="flex items-center gap-2 py-3 px-5 text-sm font-semibold border-b-2 border-brand-500 text-brand-600 transition-all">
+                    <button id="tabExcelBtn" role="tab" aria-selected="true"
+                        class="tab-btn active flex items-center gap-2 py-3 px-5 text-sm font-semibold border-b-2 transition-all">
                         <i class="fa-solid fa-file-excel"></i> Subir Archivo Excel
                     </button>
-                    <button id="tabTextareaBtn" onclick="switchTab('textarea')" class="flex items-center gap-2 py-3 px-5 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-700 transition-all">
+                    <button id="tabTextareaBtn" role="tab" aria-selected="false"
+                        class="tab-btn flex items-center gap-2 py-3 px-5 text-sm font-semibold border-b-2 transition-all">
                         <i class="fa-solid fa-align-left"></i> Área de Texto Copiar/Pegar
                     </button>
                 </div>
 
                 <!-- Tab Contents -->
                 <div class="mb-6">
-                    <!-- Excel Drop Zone -->
-                    <div id="tabExcel" class="block">
+                    <!-- Excel -->
+                    <div id="tabExcel">
                         <div id="dropZone" class="border-2 border-dashed border-brand-500/40 hover:border-brand-500 bg-brand-50/50 hover:bg-brand-50 transition-all duration-200 rounded-xl p-8 text-center cursor-pointer group">
                             <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-3 shadow-sm group-hover:scale-110 transition-transform">
                                 <i class="fa-solid fa-cloud-arrow-up text-2xl text-brand-500"></i>
                             </div>
-                            <p class="text-sm font-semibold text-slate-700">Arrastra y suelta tu archivo Excel aquí, o <span class="text-brand-600 underline">haz clic para examinar</span></p>
+                            <p class="text-sm font-semibold text-slate-700">
+                                Arrastra y suelta tu archivo Excel aquí, o
+                                <span class="text-brand-600 underline">haz clic para examinar</span>
+                            </p>
                             <p class="text-xs text-slate-400 mt-1">Formatos soportados: .xlsx, .xls</p>
                             <input type="file" id="excelFileInput" accept=".xlsx, .xls" class="hidden">
                         </div>
-                        <div id="fileNameDisplay" class="mt-2 text-xs font-medium text-slate-600 hidden flex items-center gap-2">
+                        <div id="fileNameDisplay" class="mt-2 text-xs font-medium text-slate-600 hidden items-center gap-2">
                             <i class="fa-solid fa-paperclip text-brand-500"></i>
                             <span id="fileNameText"></span>
+                            <button id="btnClearFile" class="text-rose-500 hover:text-rose-700 ml-2" title="Quitar archivo">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
                         </div>
                     </div>
 
-                    <!-- Textarea Input -->
+                    <!-- Textarea -->
                     <div id="tabTextarea" class="hidden">
-                        <label for="rawTextarea" class="block text-xs font-semibold text-slate-600 mb-2">Ingresa datos tabulados o separados por comas:</label>
-                        <textarea id="rawTextarea" rows="6" placeholder="Ejemplo por filas (idReal, direccion, latitud, longitud):&#10;8125840, Av. Independencia 123, 18.4861, -69.9312&#10;8125841, Calle Principal 45, 18.4875, -69.9320" class="w-full font-mono text-xs p-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all"></textarea>
+                        <label for="rawTextarea" class="block text-xs font-semibold text-slate-600 mb-2">
+                            Ingresa datos separados por comas o tabulaciones.
+                            <span class="text-slate-400 font-normal">Formato: <code class="bg-slate-100 px-1 rounded">idReal, dirección, latitud, longitud</code> (la zona se toma del selector de arriba).</span>
+                        </label>
+                        <textarea id="rawTextarea" rows="7"
+                            placeholder="Ejemplo:&#10;8125840, Av. Independencia 123, 18.4861, -69.9312&#10;8125841, Calle Principal 45, 18.4875, -69.9320"
+                            class="w-full font-mono text-xs p-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all"></textarea>
                         <p class="text-xs text-slate-400 mt-1">Puedes copiar directamente múltiples filas y columnas de un Excel y pegarlas aquí.</p>
                     </div>
                 </div>
 
-                <!-- Parameters Box -->
+                <!-- Parámetros -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200 mb-6">
                     <div>
                         <label for="selectZona" class="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">
-                            <i class="fa-solid fa-map-location-dot me-1 text-brand-500"></i> Seleccionar Zona
+                            <i class="fa-solid fa-map-location-dot mr-1 text-brand-500"></i> Zona por Defecto
                         </label>
                         <select id="selectZona" class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500">
-                            <option value="">-- Preservar zona especificada / Por defecto --</option>
+                            <option value="">-- Sin zona global (usa columna) --</option>
                         </select>
+                        <p class="text-[10px] text-slate-500 mt-1">Si el Excel/tabla no trae columna "zona", se aplicará esta a todas las filas.</p>
                     </div>
 
                     <div>
                         <label for="importStrategy" class="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">
-                            <i class="fa-solid fa-arrows-rotate me-1 text-brand-500"></i> Estrategia de Duplicados
+                            <i class="fa-solid fa-arrows-rotate mr-1 text-brand-500"></i> Estrategia de Duplicados
                         </label>
                         <select id="importStrategy" class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500">
                             <option value="skip">Omitir duplicados (mantiene existente)</option>
                             <option value="upsert">Actualizar / Sobrescribir existentes</option>
                         </select>
+                        <p class="text-[10px] text-slate-500 mt-1">Un "duplicado" se detecta por el campo <code>idReal</code>.</p>
                     </div>
                 </div>
 
-                <!-- Action Controls -->
+                <!-- Acciones -->
                 <div class="flex flex-col sm:flex-row justify-end items-center gap-3">
                     <button id="btnProcessData" class="w-full sm:w-auto px-5 py-2.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-sm font-semibold rounded-xl shadow-sm transition-all flex items-center justify-center gap-2">
                         <i class="fa-solid fa-magnifying-glass text-slate-400"></i> Procesar y Previsualizar
                     </button>
-                    <button id="btnSaveAgencies" disabled class="w-full sm:w-auto px-6 py-2.5 bg-brand-500 hover:bg-brand-600 disabled:bg-slate-300 text-white text-sm font-semibold rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer disabled:cursor-not-allowed">
+                    <button id="btnSaveAgencies" disabled
+                        class="w-full sm:w-auto px-6 py-2.5 bg-brand-500 hover:bg-brand-600 disabled:bg-slate-300 text-white text-sm font-semibold rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer disabled:cursor-not-allowed">
                         <i class="fa-solid fa-cloud-arrow-up"></i> Guardar en Firestore
                     </button>
                 </div>
 
-                <!-- Progress Bar Container -->
+                <!-- Progress -->
                 <div id="progressContainer" class="hidden mt-6">
                     <div class="flex justify-between text-xs font-semibold text-slate-600 mb-1">
-                        <span>Procesando registros...</span>
+                        <span id="progressLabel">Procesando registros...</span>
                         <span id="progressText">0%</span>
                     </div>
                     <div class="w-full bg-slate-200 rounded-full h-3 overflow-hidden">
@@ -146,7 +166,7 @@
             </div>
         </div>
 
-        <!-- Preview Card Container -->
+        <!-- Preview Card -->
         <div id="previewCard" class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden hidden">
             <div class="px-6 py-4 border-b border-slate-200 bg-slate-50/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                 <div class="flex items-center gap-2">
@@ -155,7 +175,7 @@
                     </h3>
                     <span id="recordCountBadge" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-brand-100 text-brand-700">0 registros</span>
                 </div>
-                <span class="text-xs text-slate-400">Estructura Firestore: <b>ID Autogenerado</b></span>
+                <span class="text-xs text-slate-400">Estructura: <b>ID autogenerado</b> + <code>enabled:true</code></span>
             </div>
 
             <div class="overflow-x-auto max-h-96">
@@ -163,15 +183,16 @@
                     <thead class="bg-slate-100/70 text-slate-500 font-semibold uppercase tracking-wider sticky top-0 border-b border-slate-200">
                         <tr>
                             <th class="py-3 px-4">#</th>
-                            <th class="py-3 px-4">idReal (Atributo)</th>
+                            <th class="py-3 px-4">idReal</th>
                             <th class="py-3 px-4">Zona</th>
                             <th class="py-3 px-4">Dirección</th>
                             <th class="py-3 px-4">Latitud</th>
                             <th class="py-3 px-4">Longitud</th>
+                            <th class="py-3 px-4">Estado</th>
                         </tr>
                     </thead>
                     <tbody id="previewTableBody" class="divide-y divide-slate-100 text-slate-700">
-                        <!-- Dynamic rows -->
+                        <!-- Dinámico -->
                     </tbody>
                 </table>
             </div>
@@ -179,190 +200,275 @@
 
     </div>
 
-    <!-- Modal para Agregar Agencia Individual -->
+    <!-- Modal Agencia Individual -->
     <div id="singleAgencyModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
-        <div class="bg-white rounded-2xl shadow-xl border border-slate-200 w-full max-w-lg overflow-hidden transform transition-all">
+        <div class="bg-white rounded-2xl shadow-xl border border-slate-200 w-full max-w-lg overflow-hidden max-h-[90vh] overflow-y-auto">
             <div class="px-6 py-4 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
                 <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
                     <i class="fa-solid fa-building-circle-check text-emerald-600"></i>
                     Agregar Agencia Individual
                 </h3>
-                <button id="btnCloseModal" class="text-slate-400 hover:text-slate-600 transition-colors">
+                <button id="btnCloseModal" class="text-slate-400 hover:text-slate-600 transition-colors" aria-label="Cerrar">
                     <i class="fa-solid fa-xmark text-lg"></i>
                 </button>
             </div>
-            <form id="singleAgencyForm" class="p-6 space-y-4">
+            <form id="singleAgencyForm" class="p-6 space-y-4" novalidate>
                 <div>
                     <label for="singleIdReal" class="block text-xs font-bold text-slate-700 mb-1">ID Real *</label>
-                    <input type="text" id="singleIdReal" required placeholder="Ej: 8125840" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    <input type="text" id="singleIdReal" required placeholder="Ej: 8125840"
+                        class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
                 </div>
 
                 <div>
                     <label for="singleSelectZona" class="block text-xs font-bold text-slate-700 mb-1">Zona *</label>
-                    <select id="singleSelectZona" required class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    <select id="singleSelectZona" required
+                        class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
                         <option value="">-- Seleccionar Zona --</option>
                     </select>
                 </div>
 
                 <div>
                     <label for="singleDireccion" class="block text-xs font-bold text-slate-700 mb-1">Dirección</label>
-                    <input type="text" id="singleDireccion" placeholder="Ej: Av. Independencia 123" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    <input type="text" id="singleDireccion" placeholder="Ej: Av. Independencia 123"
+                        class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label for="singleLat" class="block text-xs font-bold text-slate-700 mb-1">Latitud</label>
-                        <input type="number" step="any" id="singleLat" placeholder="18.4861" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        <input type="number" step="any" id="singleLat" placeholder="18.4861"
+                            class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
                     </div>
                     <div>
                         <label for="singleLng" class="block text-xs font-bold text-slate-700 mb-1">Longitud</label>
-                        <input type="number" step="any" id="singleLng" placeholder="-69.9312" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        <input type="number" step="any" id="singleLng" placeholder="-69.9312"
+                            class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
                     </div>
                 </div>
 
                 <div class="pt-4 flex justify-end gap-2 border-t border-slate-100">
-                    <button type="button" id="btnCancelModal" class="px-4 py-2 border border-slate-300 text-slate-600 text-xs font-bold rounded-lg hover:bg-slate-50 transition-all">
+                    <button type="button" id="btnCancelModal"
+                        class="px-4 py-2 border border-slate-300 text-slate-600 text-xs font-bold rounded-lg hover:bg-slate-50 transition-all">
                         Cancelar
                     </button>
-                    <button type="submit" id="btnSaveSingle" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg shadow transition-all flex items-center gap-2">
-                        <i class="fa-solid fa-floppy-disk"></i> Guardar Agencia
+                    <button type="submit" id="btnSaveSingle"
+                        class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-400 text-white text-xs font-bold rounded-lg shadow transition-all flex items-center gap-2">
+                        <i class="fa-solid fa-floppy-disk" id="btnSaveSingleIcon"></i>
+                        <span id="btnSaveSingleText">Guardar Agencia</span>
                     </button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- SheetJS (Excel Parser) -->
+    <!-- Librerías -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-    <!-- SweetAlert2 JS -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    <!-- App Logic Script -->
+    <!-- Lógica Principal -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { 
-            getFirestore, 
-            collection, 
-            doc, 
-            query, 
-            where, 
-            getDocs, 
-            addDoc,
-            writeBatch 
+        import { db, auth } from "./js/firebase/firebase.init.js";
+
+        import {
+            collection,
+            doc,
+            getDoc,
+            getDocs,
+            setDoc,
+            updateDoc,
+            query,
+            where,
+            writeBatch,
+            serverTimestamp
         } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-        // Firebase Config
-        const firebaseConfig = {
-    apiKey: "AIzaSyA9wJ-vgcwG-MJ6gqQz3byolJP6DwrjnVw",
-    authDomain: "agencias-v2.firebaseapp.com",
-    projectId: "agencias-v2",
-    storageBucket: "agencias-v2.firebasestorage.app",
-    messagingSenderId: "896099760213",
-    appId: "1:896099760213:web:969ffa8363d51c0a8bbcdc"
-};
+        import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+        // ────────────────────────────────────────────────
+        // DOM
+        // ────────────────────────────────────────────────
+        const bootOverlay        = document.getElementById("bootOverlay");
+        const mainContent        = document.getElementById("mainContent");
+        const dropZone           = document.getElementById("dropZone");
+        const excelFileInput     = document.getElementById("excelFileInput");
+        const fileNameDisplay    = document.getElementById("fileNameDisplay");
+        const fileNameText       = document.getElementById("fileNameText");
+        const btnClearFile       = document.getElementById("btnClearFile");
+        const rawTextarea        = document.getElementById("rawTextarea");
+        const selectZona         = document.getElementById("selectZona");
+        const importStrategy     = document.getElementById("importStrategy");
+        const btnProcessData     = document.getElementById("btnProcessData");
+        const btnSaveAgencies    = document.getElementById("btnSaveAgencies");
+        const previewCard        = document.getElementById("previewCard");
+        const previewTableBody   = document.getElementById("previewTableBody");
+        const recordCountBadge   = document.getElementById("recordCountBadge");
+        const progressContainer  = document.getElementById("progressContainer");
+        const progressBar        = document.getElementById("progressBar");
+        const progressText       = document.getElementById("progressText");
+        const progressLabel      = document.getElementById("progressLabel");
+        const tabExcelBtn        = document.getElementById("tabExcelBtn");
+        const tabTextareaBtn     = document.getElementById("tabTextareaBtn");
+        const tabExcel           = document.getElementById("tabExcel");
+        const tabTextarea        = document.getElementById("tabTextarea");
 
-        // State Variables
+        const singleAgencyModal  = document.getElementById("singleAgencyModal");
+        const singleAgencyForm   = document.getElementById("singleAgencyForm");
+        const singleSelectZona   = document.getElementById("singleSelectZona");
+        const btnSaveSingle      = document.getElementById("btnSaveSingle");
+        const btnSaveSingleIcon  = document.getElementById("btnSaveSingleIcon");
+        const btnSaveSingleText  = document.getElementById("btnSaveSingleText");
+
+        // ────────────────────────────────────────────────
+        // ESTADO
+        // ────────────────────────────────────────────────
         let parsedAgencies = [];
         let selectedFile = null;
         let activeTab = "excel";
         let existingZones = [];
+        let isAdmin = false;
 
-        // DOM Elements
-        const dropZone = document.getElementById("dropZone");
-        const excelFileInput = document.getElementById("excelFileInput");
-        const fileNameDisplay = document.getElementById("fileNameDisplay");
-        const fileNameText = document.getElementById("fileNameText");
-        const rawTextarea = document.getElementById("rawTextarea");
-        const selectZona = document.getElementById("selectZona");
-        const importStrategy = document.getElementById("importStrategy");
-        const btnProcessData = document.getElementById("btnProcessData");
-        const btnSaveAgencies = document.getElementById("btnSaveAgencies");
-        const previewCard = document.getElementById("previewCard");
-        const previewTableBody = document.getElementById("previewTableBody");
-        const recordCountBadge = document.getElementById("recordCountBadge");
-        const progressContainer = document.getElementById("progressContainer");
-        const progressBar = document.getElementById("progressBar");
-        const progressText = document.getElementById("progressText");
+        // ────────────────────────────────────────────────
+        // TABS (sin window global)
+        // ────────────────────────────────────────────────
+        const TAB_ACTIVE = "flex items-center gap-2 py-3 px-5 text-sm font-semibold border-b-2 border-brand-500 text-brand-600 transition-all";
+        const TAB_INACTIVE = "flex items-center gap-2 py-3 px-5 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-700 transition-all";
 
-        // Modal Elements
-        const btnOpenSingleModal = document.getElementById("btnOpenSingleModal");
-        const singleAgencyModal = document.getElementById("singleAgencyModal");
-        const btnCloseModal = document.getElementById("btnCloseModal");
-        const btnCancelModal = document.getElementById("btnCancelModal");
-        const singleAgencyForm = document.getElementById("singleAgencyForm");
-        const singleSelectZona = document.getElementById("singleSelectZona");
+        function setActiveTab(type) {
+            activeTab = type;
+            if (type === "excel") {
+                tabExcel.classList.remove("hidden");
+                tabTextarea.classList.add("hidden");
+                tabExcelBtn.className = TAB_ACTIVE;
+                tabTextareaBtn.className = TAB_INACTIVE;
+                tabExcelBtn.setAttribute("aria-selected", "true");
+                tabTextareaBtn.setAttribute("aria-selected", "false");
+            } else {
+                tabTextarea.classList.remove("hidden");
+                tabExcel.classList.add("hidden");
+                tabTextareaBtn.className = TAB_ACTIVE;
+                tabExcelBtn.className = TAB_INACTIVE;
+                tabTextareaBtn.setAttribute("aria-selected", "true");
+                tabExcelBtn.setAttribute("aria-selected", "false");
+            }
+        }
+        tabExcelBtn.addEventListener("click", () => setActiveTab("excel"));
+        tabTextareaBtn.addEventListener("click", () => setActiveTab("textarea"));
 
-        // Fetch Zones from DB
-        async function fetchZonesFromDB() {
+        // ────────────────────────────────────────────────
+        // AUTENTICACIÓN Y ROL
+        // ────────────────────────────────────────────────
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.replace("login.html");
+                return;
+            }
+
             try {
-                const zonesSet = new Set();
-                
-                // Fetch from "zonas" collection if it exists
-                const zonasSnap = await getDocs(collection(db, "zonas"));
-                zonasSnap.forEach(docSnap => {
-                    const data = docSnap.data();
-                    if (data.nombre) zonesSet.add(data.nombre);
-                    else if (typeof data === 'string') zonesSet.add(data);
-                });
+                const userSnap = await getDoc(doc(db, "users", user.uid));
 
-                // Fetch distinct zones from existing "agencias" collection
-                const agenciasSnap = await getDocs(collection(db, "agencias"));
-                agenciasSnap.forEach(docSnap => {
-                    const data = docSnap.data();
-                    if (data.zona) zonesSet.add(data.zona);
+                if (!userSnap.exists()) {
+                    alert("Tu cuenta no está registrada. Contacta al administrador.");
+                    await signOut(auth);
+                    window.location.replace("login.html");
+                    return;
+                }
+
+                const userData = userSnap.data();
+
+                if (userData.enabled === false) {
+                    alert("Tu usuario ha sido inhabilitado.");
+                    await signOut(auth);
+                    window.location.replace("login.html");
+                    return;
+                }
+
+                if (userData.role !== "admin") {
+                    alert("Acceso denegado: solo administradores pueden importar datos.");
+                    window.location.replace("index.html");
+                    return;
+                }
+
+                isAdmin = true;
+                bootOverlay.classList.add("hidden");
+                mainContent.classList.remove("hidden");
+
+                await loadZones();
+
+            } catch (err) {
+                console.error("Error al validar sesión:", err);
+                alert("Error al verificar tus credenciales.");
+                window.location.replace("index.html");
+            }
+        });
+
+        // ────────────────────────────────────────────────
+        // CARGAR ZONAS (solo colección "zonas")
+        // ────────────────────────────────────────────────
+        async function loadZones() {
+            try {
+                const zonasSnap = await getDocs(collection(db, "zonas"));
+                const zonesSet = new Set();
+
+                zonasSnap.forEach(d => {
+                    // El ID ya viene en mayúsculas por zonas.html
+                    const id = String(d.id || "").toUpperCase().trim();
+                    const nombre = d.data().nombre ? String(d.data().nombre).toUpperCase().trim() : "";
+                    if (id) zonesSet.add(id);
+                    if (nombre) zonesSet.add(nombre);
                 });
 
                 existingZones = Array.from(zonesSet).sort();
-                
-                // Fallback default zones if DB has none yet
+
                 if (existingZones.length === 0) {
-                    existingZones = ["Zona Norte", "Zona Sur", "Zona Este", "Zona Oeste", "Zona Metropolitana"];
+                    existingZones = ["GENERAL"];
                 }
 
                 populateZoneDropdowns(existingZones);
 
-            } catch (error) {
-                console.error("Error al cargar zonas:", error);
-                // Fallback on error
-                existingZones = ["Zona Norte", "Zona Sur", "Zona Este", "Zona Oeste", "Zona Metropolitana"];
+            } catch (err) {
+                console.error("Error al cargar zonas:", err);
+                existingZones = ["GENERAL"];
                 populateZoneDropdowns(existingZones);
             }
         }
 
         function populateZoneDropdowns(zones) {
-            // Populate Bulk Select
-            selectZona.innerHTML = `<option value="">-- Preservar zona especificada / Por defecto --</option>`;
+            // Select del bulk
+            selectZona.innerHTML = `<option value="">-- Sin zona global (usa columna) --</option>`;
             zones.forEach(z => {
-                selectZona.innerHTML += `<option value="${z}">${z}</option>`;
+                selectZona.innerHTML += `<option value="${escapeHtml(z)}">${escapeHtml(z)}</option>`;
             });
 
-            // Populate Single Modal Select
+            // Select del modal individual
             singleSelectZona.innerHTML = `<option value="">-- Seleccionar Zona --</option>`;
             zones.forEach(z => {
-                singleSelectZona.innerHTML += `<option value="${z}">${z}</option>`;
+                singleSelectZona.innerHTML += `<option value="${escapeHtml(z)}">${escapeHtml(z)}</option>`;
             });
         }
 
-        // Initialize DB data
-        fetchZonesFromDB();
-
-        // Modal Open / Close Handlers
-        btnOpenSingleModal.addEventListener("click", () => {
+        // ────────────────────────────────────────────────
+        // MODAL INDIVIDUAL
+        // ────────────────────────────────────────────────
+        document.getElementById("btnOpenSingleModal").addEventListener("click", () => {
             singleAgencyForm.reset();
             singleAgencyModal.classList.remove("hidden");
+            setTimeout(() => document.getElementById("singleIdReal").focus(), 50);
         });
 
-        const closeModal = () => singleAgencyModal.classList.add("hidden");
-        btnCloseModal.addEventListener("click", closeModal);
-        btnCancelModal.addEventListener("click", closeModal);
+        const closeModal = () => {
+            singleAgencyModal.classList.add("hidden");
+            singleAgencyForm.reset();
+        };
+        document.getElementById("btnCloseModal").addEventListener("click", closeModal);
+        document.getElementById("btnCancelModal").addEventListener("click", closeModal);
+        singleAgencyModal.addEventListener("click", (e) => {
+            if (e.target === singleAgencyModal) closeModal();
+        });
 
-        // Save Single Agency Handler
         singleAgencyForm.addEventListener("submit", async (e) => {
             e.preventDefault();
-            
+            if (btnSaveSingle.disabled) return;
+
             const idReal = document.getElementById("singleIdReal").value.trim();
             const zona = singleSelectZona.value;
             const direccion = document.getElementById("singleDireccion").value.trim();
@@ -374,12 +480,11 @@
                 return;
             }
 
-            const btnSaveSingle = document.getElementById("btnSaveSingle");
             btnSaveSingle.disabled = true;
-            btnSaveSingle.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Guardando...`;
+            btnSaveSingleIcon.className = "fa-solid fa-spinner fa-spin";
+            btnSaveSingleText.textContent = "Guardando...";
 
             try {
-                // Check if agency with same idReal exists
                 const q = query(collection(db, "agencias"), where("idReal", "==", idReal));
                 const snap = await getDocs(q);
 
@@ -393,95 +498,97 @@
                         cancelButtonText: "Cancelar"
                     });
 
-                    if (updateConfirm.isConfirmed) {
-                        const existingDocId = snap.docs[0].id;
-                        await writeBatch(db).update(doc(db, "agencias", existingDocId), {
-                            zona,
-                            direccion,
-                            lat,
-                            lng,
-                            updatedAt: new Date()
-                        }).commit();
-
-                        Swal.fire("Actualizado", "La agencia ha sido actualizada correctamente.", "success");
-                        closeModal();
+                    if (!updateConfirm.isConfirmed) {
+                        btnSaveSingle.disabled = false;
+                        btnSaveSingleIcon.className = "fa-solid fa-floppy-disk";
+                        btnSaveSingleText.textContent = "Guardar Agencia";
+                        return;
                     }
+
+                    const existingDocId = snap.docs[0].id;
+                    await updateDoc(doc(db, "agencias", existingDocId), {
+                        zona,
+                        direccion,
+                        lat,
+                        lng,
+                        updatedAt: serverTimestamp()
+                    });
+
+                    Swal.fire("Actualizado", "La agencia ha sido actualizada correctamente.", "success");
                 } else {
-                    // Create new agency
-                    await addDoc(collection(db, "agencias"), {
+                    await setDoc(doc(collection(db, "agencias")), {
                         idReal,
                         zona,
                         direccion,
                         lat,
                         lng,
-                        createdAt: new Date()
+                        enabled: true,        // 👈 nuevo
+                        createdAt: serverTimestamp(),
+                        updatedAt: serverTimestamp()
                     });
 
                     Swal.fire("¡Guardado!", "La agencia ha sido registrada con éxito.", "success");
-                    closeModal();
                 }
 
-                // Refresh zones list in case a new zone was added
-                fetchZonesFromDB();
+                closeModal();
 
             } catch (err) {
                 console.error("Error guardando agencia individual:", err);
                 Swal.fire("Error", "Ocurrió un error al guardar: " + err.message, "error");
             } finally {
                 btnSaveSingle.disabled = false;
-                btnSaveSingle.innerHTML = `<i class="fa-solid fa-floppy-disk"></i> Guardar Agencia`;
+                btnSaveSingleIcon.className = "fa-solid fa-floppy-disk";
+                btnSaveSingleText.textContent = "Guardar Agencia";
             }
         });
 
-        // Global function for tab switching
-        window.switchTab = function(type) {
-            activeTab = type;
-            const tabExcelBtn = document.getElementById("tabExcelBtn");
-            const tabTextareaBtn = document.getElementById("tabTextareaBtn");
-            const tabExcel = document.getElementById("tabExcel");
-            const tabTextarea = document.getElementById("tabTextarea");
-
-            if (type === "excel") {
-                tabExcel.classList.remove("hidden");
-                tabTextarea.classList.add("hidden");
-                tabExcelBtn.className = "flex items-center gap-2 py-3 px-5 text-sm font-semibold border-b-2 border-brand-500 text-brand-600 transition-all";
-                tabTextareaBtn.className = "flex items-center gap-2 py-3 px-5 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-700 transition-all";
-            } else {
-                tabTextarea.classList.remove("hidden");
-                tabExcel.classList.add("hidden");
-                tabTextareaBtn.className = "flex items-center gap-2 py-3 px-5 text-sm font-semibold border-b-2 border-brand-500 text-brand-600 transition-all";
-                tabExcelBtn.className = "flex items-center gap-2 py-3 px-5 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-700 transition-all";
-            }
-        };
-
-        // Drag & Drop Handling
+        // ────────────────────────────────────────────────
+        // DRAG & DROP
+        // ────────────────────────────────────────────────
         dropZone.addEventListener("click", () => excelFileInput.click());
-        dropZone.addEventListener("dragover", (e) => { e.preventDefault(); dropZone.classList.add("border-brand-500", "bg-brand-50"); });
-        ["dragleave", "dragend"].forEach(t => dropZone.addEventListener(t, () => dropZone.classList.remove("border-brand-500", "bg-brand-50")));
+        dropZone.addEventListener("dragover", (e) => {
+            e.preventDefault();
+            dropZone.classList.add("border-brand-500", "bg-brand-50");
+        });
+        ["dragleave", "dragend"].forEach(t =>
+            dropZone.addEventListener(t, () => dropZone.classList.remove("border-brand-500", "bg-brand-50"))
+        );
         dropZone.addEventListener("drop", (e) => {
             e.preventDefault();
             dropZone.classList.remove("border-brand-500", "bg-brand-50");
             if (e.dataTransfer.files.length > 0) handleFileSelection(e.dataTransfer.files[0]);
         });
-        excelFileInput.addEventListener("change", (e) => { if (e.target.files.length > 0) handleFileSelection(e.target.files[0]); });
+        excelFileInput.addEventListener("change", (e) => {
+            if (e.target.files.length > 0) handleFileSelection(e.target.files[0]);
+        });
+        btnClearFile.addEventListener("click", (e) => {
+            e.stopPropagation();
+            selectedFile = null;
+            excelFileInput.value = "";
+            fileNameDisplay.classList.add("hidden");
+            fileNameDisplay.classList.remove("flex");
+        });
 
         function handleFileSelection(file) {
-            if (!file.name.endsWith(".xlsx") && !file.name.endsWith(".xls")) {
-                Swal.fire("Archivo Inválido", "Por favor selecciona un archivo con extensión .xlsx o .xls", "error");
+            if (!file.name.toLowerCase().endsWith(".xlsx") && !file.name.toLowerCase().endsWith(".xls")) {
+                Swal.fire("Archivo Inválido", "Selecciona un archivo con extensión .xlsx o .xls", "error");
                 return;
             }
             selectedFile = file;
             fileNameText.textContent = file.name;
             fileNameDisplay.classList.remove("hidden");
+            fileNameDisplay.classList.add("flex");
         }
 
-        // Process Data Trigger
+        // ────────────────────────────────────────────────
+        // PROCESAR DATOS
+        // ────────────────────────────────────────────────
         btnProcessData.addEventListener("click", () => {
-            const selectedZone = selectZona.value;
+            const selectedZone = selectZona.value.trim().toUpperCase();
 
             if (activeTab === "excel") {
                 if (!selectedFile) {
-                    Swal.fire("Atención", "Por favor selecciona un archivo Excel primero.", "warning");
+                    Swal.fire("Atención", "Selecciona un archivo Excel primero.", "warning");
                     return;
                 }
                 processExcelFile(selectedFile, selectedZone);
@@ -495,52 +602,112 @@
             }
         });
 
+        /**
+         * Procesa un archivo Excel. Detecta columnas de forma flexible.
+         */
         function processExcelFile(file, globalZone) {
             const reader = new FileReader();
             reader.onload = (e) => {
-                const data = new Uint8Array(e.target.result);
-                const workbook = XLSX.read(data, { type: "array" });
-                const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-                const rawData = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: "array" });
+                    const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const rawData = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
 
-                parsedAgencies = rawData.map((row) => ({
-                    idReal: String(row["idReal"] || row["ID Real"] || row["ID"] || "").trim(),
-                    zona: globalZone || String(row["zona"] || row["Zona"] || "").trim() || "General",
-                    direccion: String(row["direccion"] || row["Direccion"] || row["Dirección"] || "").trim(),
-                    lat: parseFloat(row["lat"] || row["Latitud"] || 0),
-                    lng: parseFloat(row["lng"] || row["Longitud"] || 0)
-                })).filter(a => a.idReal !== "");
+                    parsedAgencies = rawData.map(row => normalizeRow(row, globalZone)).filter(a => a.idReal !== "");
 
-                validateAndShowPreview();
+                    validateAndShowPreview();
+                } catch (err) {
+                    console.error("Error leyendo Excel:", err);
+                    Swal.fire("Error", "No se pudo leer el archivo Excel. Verifica su formato.", "error");
+                }
             };
+            reader.onerror = () => Swal.fire("Error", "No se pudo leer el archivo.", "error");
             reader.readAsArrayBuffer(file);
         }
 
+        /**
+         * Normaliza una fila de Excel a nuestro modelo interno.
+         * Detecta headers case-insensitive.
+         */
+        function normalizeRow(row, globalZone) {
+            // Construir versión lowercase de las claves
+            const lower = {};
+            Object.keys(row).forEach(k => {
+                lower[String(k).trim().toLowerCase()] = row[k];
+            });
+
+            const idReal = String(
+                lower["idreal"] ?? lower["id real"] ?? lower["id"] ?? lower["codigo"] ?? ""
+            ).trim();
+
+            const rowZone = String(lower["zona"] ?? "").trim().toUpperCase();
+            const zona = globalZone || rowZone || "GENERAL";
+
+            const direccion = String(
+                lower["direccion"] ?? lower["dirección"] ?? lower["address"] ?? ""
+            ).trim();
+
+            const lat = parseFloat(lower["lat"] ?? lower["latitud"] ?? 0) || 0;
+            const lng = parseFloat(lower["lng"] ?? lower["longitud"] ?? lower["lon"] ?? 0) || 0;
+
+            return { idReal, zona, direccion, lat, lng };
+        }
+
+        /**
+         * Procesa el contenido del textarea.
+         * Formato esperado:
+         *   4 columnas: idReal, direccion, lat, lng
+         *   5 columnas: idReal, zona, direccion, lat, lng
+         */
         function processTextareaContent(text, globalZone) {
             const lines = text.split("\n");
             parsedAgencies = [];
 
-            lines.forEach(line => {
+            lines.forEach((line, idx) => {
                 if (!line.trim()) return;
+
+                // Detectar delimitador (tab tiene prioridad porque viene de Excel)
                 const delimiter = line.includes("\t") ? "\t" : ",";
                 const parts = line.split(delimiter).map(p => p.trim());
 
-                if (parts.length > 0 && parts[0] !== "") {
-                    if (parts[0].toLowerCase() === "idreal" || parts[0].toLowerCase() === "id") return;
+                if (parts.length === 0 || !parts[0]) return;
 
-                    parsedAgencies.push({
-                        idReal: String(parts[0] || "").trim(),
-                        zona: globalZone || String(parts[1] && isNaN(parts[1]) ? parts[1] : "General").trim(),
-                        direccion: parts.length >= 4 ? String(parts[1] || "") : String(parts[1] || ""),
-                        lat: parseFloat(parts[2] || 0),
-                        lng: parseFloat(parts[3] || 0)
-                    });
+                // Saltar header
+                const first = parts[0].toLowerCase();
+                if (first === "idreal" || first === "id" || first === "codigo") return;
+
+                let idReal, zona, direccion, lat, lng;
+
+                if (parts.length >= 5) {
+                    // idReal, zona, direccion, lat, lng
+                    [idReal, zona, direccion, lat, lng] = parts;
+                } else {
+                    // idReal, direccion, lat, lng
+                    idReal = parts[0];
+                    direccion = parts[1] || "";
+                    lat = parts[2] || 0;
+                    lng = parts[3] || 0;
+                    zona = "";
                 }
+
+                zona = (globalZone || String(zona || "").toUpperCase().trim()) || "GENERAL";
+
+                parsedAgencies.push({
+                    idReal: String(idReal).trim(),
+                    zona,
+                    direccion: String(direccion || "").trim(),
+                    lat: parseFloat(lat) || 0,
+                    lng: parseFloat(lng) || 0
+                });
             });
 
             validateAndShowPreview();
         }
 
+        // ────────────────────────────────────────────────
+        // PREVISUALIZACIÓN
+        // ────────────────────────────────────────────────
         function validateAndShowPreview() {
             if (parsedAgencies.length === 0) {
                 Swal.fire("Sin Registros", "No se encontraron filas válidas con la columna 'idReal'.", "error");
@@ -549,14 +716,22 @@
                 return;
             }
 
+            // Deduplicar por idReal (quedarse con el último)
+            const dedupMap = new Map();
+            parsedAgencies.forEach(a => dedupMap.set(a.idReal, a));
+            const beforeDedup = parsedAgencies.length;
+            parsedAgencies = Array.from(dedupMap.values());
+            const dupsRemoved = beforeDedup - parsedAgencies.length;
+
             renderPreviewTable(parsedAgencies);
             btnSaveAgencies.disabled = false;
-            
+
             Swal.fire({
                 title: "Previsualización Lista",
-                text: `Se cargaron ${parsedAgencies.length} registros correctamente.`,
+                html: `Se cargaron <b>${parsedAgencies.length}</b> registros únicos.` +
+                    (dupsRemoved > 0 ? `<br><small class="text-amber-600">(${dupsRemoved} duplicados internos eliminados)</small>` : ""),
                 icon: "success",
-                timer: 2000,
+                timer: 2500,
                 showConfirmButton: false
             });
         }
@@ -565,30 +740,76 @@
             previewTableBody.innerHTML = "";
             recordCountBadge.textContent = `${data.length} registros`;
 
-            data.forEach((item, index) => {
+            // Mostrar máximo 200 en preview para no colgar el DOM
+            const LIMIT = 200;
+            const visible = data.slice(0, LIMIT);
+
+            visible.forEach((item, index) => {
                 const tr = document.createElement("tr");
                 tr.className = "hover:bg-slate-50 transition-colors";
-                tr.innerHTML = `
-                    <td class="py-3 px-4 font-mono text-slate-400">${index + 1}</td>
-                    <td class="py-3 px-4"><span class="px-2 py-1 rounded bg-sky-50 text-sky-700 font-mono font-bold">${item.idReal}</span></td>
-                    <td class="py-3 px-4"><span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 font-medium">${item.zona}</span></td>
-                    <td class="py-3 px-4 font-medium">${item.direccion || '-'}</td>
-                    <td class="py-3 px-4 font-mono text-slate-500">${item.lat || 0}</td>
-                    <td class="py-3 px-4 font-mono text-slate-500">${item.lng || 0}</td>
-                `;
+
+                // Construcción segura (sin innerHTML con datos)
+                tr.appendChild(createCell(String(index + 1), "py-3 px-4 font-mono text-slate-400"));
+
+                const tdId = document.createElement("td");
+                tdId.className = "py-3 px-4";
+                const spanId = document.createElement("span");
+                spanId.className = "px-2 py-1 rounded bg-sky-50 text-sky-700 font-mono font-bold";
+                spanId.textContent = item.idReal;
+                tdId.appendChild(spanId);
+                tr.appendChild(tdId);
+
+                const tdZona = document.createElement("td");
+                tdZona.className = "py-3 px-4";
+                const spanZona = document.createElement("span");
+                spanZona.className = "px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 font-medium";
+                spanZona.textContent = item.zona;
+                tdZona.appendChild(spanZona);
+                tr.appendChild(tdZona);
+
+                tr.appendChild(createCell(item.direccion || "—", "py-3 px-4 font-medium"));
+                tr.appendChild(createCell(String(item.lat), "py-3 px-4 font-mono text-slate-500"));
+                tr.appendChild(createCell(String(item.lng), "py-3 px-4 font-mono text-slate-500"));
+                tr.appendChild(createCell("Nueva", "py-3 px-4 text-xs font-bold text-emerald-600"));
+
                 previewTableBody.appendChild(tr);
             });
+
+            // Aviso si hay más
+            if (data.length > LIMIT) {
+                const tr = document.createElement("tr");
+                const td = document.createElement("td");
+                td.colSpan = 7;
+                td.className = "py-3 px-4 text-center text-xs text-slate-400 italic";
+                td.textContent = `… y ${data.length - LIMIT} registros más (no se muestran en preview).`;
+                tr.appendChild(td);
+                previewTableBody.appendChild(tr);
+            }
 
             previewCard.classList.remove("hidden");
         }
 
-        // Save Data to Firestore with Auto-generated ID
+        function createCell(text, className) {
+            const td = document.createElement("td");
+            td.className = className;
+            td.textContent = text;
+            return td;
+        }
+
+        // ────────────────────────────────────────────────
+        // GUARDAR EN FIRESTORE (optimizado, sin N+1)
+        // ────────────────────────────────────────────────
         btnSaveAgencies.addEventListener("click", async () => {
             if (parsedAgencies.length === 0) return;
 
+            const strategy = importStrategy.value;
+            const strategyText = strategy === "skip"
+                ? "Se omitirán los <code>idReal</code> que ya existan."
+                : "Se <b>actualizarán</b> los <code>idReal</code> que ya existan.";
+
             const confirmResult = await Swal.fire({
                 title: "¿Guardar Agencias?",
-                text: `Se procesarán ${parsedAgencies.length} registros en Firestore.`,
+                html: `Se procesarán <b>${parsedAgencies.length}</b> registros.<br><small>${strategyText}</small>`,
                 icon: "question",
                 showCancelButton: true,
                 confirmButtonColor: "#0284c7",
@@ -602,92 +823,170 @@
             btnSaveAgencies.disabled = true;
             btnProcessData.disabled = true;
             progressContainer.classList.remove("hidden");
-            updateProgress(0);
-
-            const strategy = importStrategy.value;
-            const agenciasRef = collection(db, "agencias");
-            
-            let processedCount = 0;
-            let batch = writeBatch(db);
-            let operationCount = 0;
+            progressLabel.textContent = "Consultando registros existentes...";
+            updateProgress(5);
 
             try {
-                for (let i = 0; i < parsedAgencies.length; i++) {
-                    const agency = parsedAgencies[i];
+                // ── 1. Pre-cargar los ID existentes en UNA SOLA pasada ──
+                // Usa whereIn en chunks de 30 (límite de Firestore).
+                const allIds = parsedAgencies.map(a => a.idReal);
+                const existingMap = await fetchExistingIdMap(allIds);
 
-                    // Check if document exists by idReal field
-                    const q = query(agenciasRef, where("idReal", "==", agency.idReal));
-                    const querySnapshot = await getDocs(q);
+                progressLabel.textContent = "Guardando en Firestore...";
+                updateProgress(15);
 
-                    if (!querySnapshot.empty) {
+                // ── 2. Guardar en lotes ──
+                const agenciasRef = collection(db, "agencias");
+                let processed = 0;
+                let created = 0;
+                let updated = 0;
+                let skipped = 0;
+
+                let batch = writeBatch(db);
+                let opCount = 0;
+
+                const commitIfNeeded = async (force = false) => {
+                    if (opCount >= 450 || (force && opCount > 0)) {
+                        await batch.commit();
+                        batch = writeBatch(db);
+                        opCount = 0;
+                    }
+                };
+
+                for (const agency of parsedAgencies) {
+                    const existingDocId = existingMap.get(agency.idReal);
+
+                    if (existingDocId) {
                         if (strategy === "skip") {
-                            processedCount++;
-                            updateProgress(Math.round((processedCount / parsedAgencies.length) * 100));
-                            continue;
-                        } else if (strategy === "upsert") {
-                            const existingDocId = querySnapshot.docs[0].id;
-                            const existingDocRef = doc(db, "agencias", existingDocId);
-
-                            batch.update(existingDocRef, {
+                            skipped++;
+                        } else {
+                            const ref = doc(db, "agencias", existingDocId);
+                            batch.update(ref, {
                                 zona: agency.zona,
                                 direccion: agency.direccion,
                                 lat: agency.lat,
                                 lng: agency.lng,
-                                updatedAt: new Date()
+                                updatedAt: serverTimestamp()
                             });
-                            operationCount++;
+                            opCount++;
+                            updated++;
                         }
                     } else {
-                        // Create NEW Document with AUTO-GENERATED ID
-                        const newDocRef = doc(agenciasRef);
-
-                        batch.set(newDocRef, {
+                        const newRef = doc(agenciasRef);
+                        batch.set(newRef, {
                             idReal: agency.idReal,
                             zona: agency.zona,
                             direccion: agency.direccion,
                             lat: agency.lat,
                             lng: agency.lng,
-                            createdAt: new Date()
+                            enabled: true,          // 👈 consistencia con el resto
+                            createdAt: serverTimestamp(),
+                            updatedAt: serverTimestamp()
                         });
-                        operationCount++;
+                        opCount++;
+                        created++;
                     }
 
-                    processedCount++;
-                    updateProgress(Math.round((processedCount / parsedAgencies.length) * 100));
+                    processed++;
+                    const pct = 15 + Math.round((processed / parsedAgencies.length) * 80);
+                    updateProgress(pct);
 
-                    if (operationCount === 450) {
-                        await batch.commit();
-                        batch = writeBatch(db);
-                        operationCount = 0;
-                    }
+                    await commitIfNeeded();
                 }
 
-                if (operationCount > 0) {
-                    await batch.commit();
-                }
+                await commitIfNeeded(true);
 
-                Swal.fire({
-                    title: "¡Éxito!",
-                    text: "Las agencias se guardaron correctamente en Firestore con IDs autogenerados.",
+                updateProgress(100);
+
+                await Swal.fire({
+                    title: "¡Proceso completado!",
+                    html: `
+                        <div class="text-left text-sm space-y-1">
+                            <p>✅ <b>${created}</b> agencias creadas</p>
+                            <p>🔄 <b>${updated}</b> agencias actualizadas</p>
+                            <p>⏭️ <b>${skipped}</b> agencias omitidas (duplicados)</p>
+                            <hr class="my-2">
+                            <p class="text-slate-500">Total procesadas: <b>${processed}</b></p>
+                        </div>
+                    `,
                     icon: "success",
                     confirmButtonColor: "#0284c7"
                 });
 
-                // Refresh zones list
-                fetchZonesFromDB();
+                // Reset UI
+                parsedAgencies = [];
+                previewCard.classList.add("hidden");
+                btnSaveAgencies.disabled = true;
+                progressContainer.classList.add("hidden");
+                updateProgress(0);
+
+                // Recargar zonas por si aparecieron nuevas
+                await loadZones();
 
             } catch (error) {
                 console.error("Firestore Error:", error);
-                Swal.fire("Error", "Error al procesar la carga: " + error.message, "error");
+                let msg = "Error al procesar la carga.";
+                if (error.code === "permission-denied") {
+                    msg = "Sin permisos. Revisa las reglas de Firestore.";
+                } else if (error.code === "resource-exhausted") {
+                    msg = "Cuota de Firestore agotada. Intenta más tarde.";
+                }
+                Swal.fire("Error", msg + "\n\n" + error.message, "error");
             } finally {
                 btnSaveAgencies.disabled = false;
                 btnProcessData.disabled = false;
             }
         });
 
+        /**
+         * Consulta Firestore en chunks de 30 para encontrar los docs existentes
+         * de un array de idReal. Devuelve un Map { idReal -> docId }.
+         *
+         * Esto reemplaza el bug N+1 (una query por fila) por ~N/30 queries.
+         */
+        async function fetchExistingIdMap(idRealArray) {
+            const unique = Array.from(new Set(idRealArray.filter(Boolean)));
+            const CHUNK = 30; // límite de whereIn en Firestore
+
+            const existingMap = new Map();
+
+            const chunks = [];
+            for (let i = 0; i < unique.length; i += CHUNK) {
+                chunks.push(unique.slice(i, i + CHUNK));
+            }
+
+            // Ejecutar en paralelo (máx. 10 simultáneas para no saturar)
+            const CONCURRENCY = 10;
+            for (let i = 0; i < chunks.length; i += CONCURRENCY) {
+                const slice = chunks.slice(i, i + CONCURRENCY);
+                await Promise.all(slice.map(async (chunk) => {
+                    const q = query(collection(db, "agencias"), where("idReal", "in", chunk));
+                    const snap = await getDocs(q);
+                    snap.forEach(d => {
+                        const idr = d.data().idReal;
+                        if (idr !== undefined && idr !== null) {
+                            existingMap.set(String(idr), d.id);
+                        }
+                    });
+                }));
+            }
+
+            return existingMap;
+        }
+
         function updateProgress(percentage) {
-            progressBar.style.width = `${percentage}%`;
-            progressText.textContent = `${percentage}%`;
+            const clamped = Math.max(0, Math.min(100, percentage));
+            progressBar.style.width = `${clamped}%`;
+            progressText.textContent = `${clamped}%`;
+        }
+
+        // ────────────────────────────────────────────────
+        // UTILIDADES
+        // ────────────────────────────────────────────────
+        function escapeHtml(str) {
+            return String(str ?? "").replace(/[&<>"']/g, (c) => ({
+                "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+            }[c]));
         }
     </script>
 </body>

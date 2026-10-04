@@ -4,9 +4,8 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AGENCYPRO | Gestión de Zonas (Solo Admins)</title>
-    
-    <!-- Tailwind CSS CDN -->
+    <title>AGENCYPRO | Gestión de Zonas</title>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -14,39 +13,36 @@
                 extend: {
                     colors: {
                         brand: {
-                            50: '#eef2ff',
-                            100: '#e0e7ff',
-                            500: '#6366f1',
-                            600: '#4f46e5',
-                            700: '#4338ca',
-                            800: '#3730a3',
-                            900: '#312e81',
+                            50: '#eef2ff', 100: '#e0e7ff', 500: '#6366f1',
+                            600: '#4f46e5', 700: '#4338ca', 800: '#3730a3', 900: '#312e81',
                         }
                     }
                 }
             }
         }
     </script>
-    
-    <!-- FontAwesome 6 & Toastify CSS -->
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
         .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
         .custom-scroll::-webkit-scrollbar-track { background: transparent; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 8px; }
+        .custom-scroll::-webkit-scrollbar-thumb:hover { background: #475569; }
     </style>
 </head>
 
 <body class="h-full bg-slate-950 text-slate-100 flex overflow-hidden antialiased">
 
-    <!-- OVERLAY CARGANDO / VERIFICANDO SEGURIDAD -->
-    <div id="securityOverlay" class="fixed inset-0 bg-slate-950 z-50 flex flex-col items-center justify-center space-y-3">
+    <!-- OVERLAY INICIAL -->
+    <div id="securityOverlay" class="fixed inset-0 bg-slate-950 z-[100] flex flex-col items-center justify-center space-y-3">
         <div class="w-10 h-10 border-4 border-brand-500 border-t-transparent rounded-full animate-spin"></div>
-        <p class="text-xs font-bold text-slate-400 tracking-wider uppercase">Verificando Credenciales de Administrador...</p>
+        <p class="text-xs font-bold text-slate-400 tracking-wider uppercase">Verificando Permisos de Administrador...</p>
     </div>
 
     <!-- BACKDROP MOBILE -->
@@ -55,7 +51,6 @@
     <!-- SIDEBAR -->
     <aside id="sidebar" class="fixed lg:static inset-y-0 left-0 z-50 w-72 bg-slate-900/90 border-r border-slate-800/80 flex flex-col justify-between -translate-x-full lg:translate-x-0 transition-transform duration-300 backdrop-blur-xl">
         <div>
-            <!-- LOGO / BRANDING -->
             <div class="h-16 px-6 flex items-center justify-between border-b border-slate-800/80">
                 <div class="flex items-center gap-3">
                     <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-500 flex items-center justify-center text-white font-black text-lg shadow-lg shadow-brand-500/20">
@@ -66,35 +61,53 @@
                         <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Gestión de Zonas</p>
                     </div>
                 </div>
-                <button id="closeSidebarMobile" class="lg:hidden text-slate-400 hover:text-white text-lg">
+                <button id="closeSidebarMobile" class="lg:hidden text-slate-400 hover:text-white text-lg" aria-label="Cerrar menú">
                     <i class="fa fa-xmark"></i>
                 </button>
             </div>
 
-            <!-- NAVEGACIÓN -->
             <nav class="p-4 space-y-1.5 custom-scroll overflow-y-auto max-h-[calc(100vh-140px)]">
                 <p class="px-3 pt-2 pb-1 text-[10px] font-bold uppercase tracking-widest text-slate-500">Menú Principal</p>
+
                 <a href="index.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 text-xs font-medium transition-all">
-                    <i class="fa fa-building w-4 text-center text-sm"></i>
+                    <i class="fa fa-house w-4 text-center text-sm"></i>
                     <span>Inicio</span>
                 </a>
-                <a href="zonas.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl bg-brand-600/10 text-brand-400 font-semibold text-xs border border-brand-500/20">
+
+                <a href="mapa.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 text-xs font-medium transition-all">
                     <i class="fa fa-map-location-dot w-4 text-center text-sm"></i>
-                    <span>Mapa y Zonas</span>
+                    <span>Mapa de Agencias</span>
                 </a>
+
+                <a href="zonas.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl bg-brand-600/10 text-brand-400 font-semibold text-xs border border-brand-500/20 shadow-sm transition-all">
+                    <i class="fa fa-layer-group w-4 text-center text-sm"></i>
+                    <span>Gestión de Zonas</span>
+                </a>
+
                 <p class="px-3 pt-4 pb-1 text-[10px] font-bold uppercase tracking-widest text-slate-500">Administración</p>
+
                 <a href="users.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 text-xs font-medium transition-all">
                     <i class="fa fa-users-gear w-4 text-center text-sm"></i>
                     <span>Usuarios y Permisos</span>
                 </a>
+
+                <a href="reportes.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 text-xs font-medium transition-all">
+                    <i class="fa fa-chart-pie w-4 text-center text-sm"></i>
+                    <span>Reportes</span>
+                </a>
+
                 <a href="configuracion.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 text-xs font-medium transition-all">
                     <i class="fa fa-sliders w-4 text-center text-sm"></i>
                     <span>Configuración</span>
                 </a>
+
+                <a href="sugerencias.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 text-xs font-medium transition-all">
+                    <i class="fa fa-lightbulb w-4 text-center text-sm"></i>
+                    <span>Sugerencias</span>
+                </a>
             </nav>
         </div>
 
-        <!-- FOOTER USER -->
         <div class="p-4 border-t border-slate-800/80 bg-slate-900/50">
             <div class="flex items-center justify-between gap-2">
                 <div class="flex items-center gap-2.5 min-w-0">
@@ -106,7 +119,7 @@
                         <span class="text-[9px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-1.5 py-0.5 rounded font-bold uppercase">ADMIN</span>
                     </div>
                 </div>
-                <button id="btnLogout" class="text-slate-400 hover:text-rose-400 p-2 rounded-lg hover:bg-rose-500/10 transition-colors" title="Cerrar Sesión">
+                <button id="btnLogout" class="text-slate-400 hover:text-rose-400 p-2 rounded-lg hover:bg-rose-500/10 transition-colors" title="Cerrar Sesión" aria-label="Cerrar Sesión">
                     <i class="fa fa-arrow-right-from-bracket"></i>
                 </button>
             </div>
@@ -115,46 +128,64 @@
 
     <!-- ÁREA PRINCIPAL -->
     <div class="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
-        <header class="h-16 bg-slate-900/80 border-b border-slate-800/80 px-6 flex items-center justify-between gap-4 shrink-0 backdrop-blur-md">
-            <div class="flex items-center gap-4">
-                <button id="openSidebarMobile" class="lg:hidden text-slate-400 hover:text-white p-2">
+        <header class="h-16 bg-slate-900/80 border-b border-slate-800/80 px-4 sm:px-6 flex items-center justify-between gap-4 shrink-0 backdrop-blur-md">
+            <div class="flex items-center gap-3 min-w-0">
+                <button id="openSidebarMobile" class="lg:hidden text-slate-400 hover:text-white p-2 shrink-0" aria-label="Abrir menú">
                     <i class="fa fa-bars"></i>
                 </button>
-                <div>
-                    <h2 class="text-base font-bold text-slate-100">Administración Global de Zonas</h2>
-                    <p class="text-[11px] text-slate-400">Edita zonas y actualiza automáticamente todas las agencias vinculadas en Firestore</p>
+                <div class="min-w-0">
+                    <h2 class="text-base font-bold text-slate-100 truncate">Administración Global de Zonas</h2>
+                    <p class="text-[11px] text-slate-400 truncate">Renombra zonas y actualiza automáticamente las agencias vinculadas.</p>
                 </div>
             </div>
+            <a href="index.html" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl transition-all flex items-center gap-2 shrink-0">
+                <i class="fa fa-arrow-left text-xs"></i>
+                <span class="hidden sm:inline">Volver</span>
+            </a>
         </header>
 
-        <main class="flex-1 overflow-y-auto px-6 py-6 custom-scroll bg-slate-950 space-y-6">
-            
-            <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+        <main class="flex-1 overflow-y-auto px-4 sm:px-6 py-6 custom-scroll bg-slate-950 space-y-6">
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
                 <!-- FORMULARIO NUEVA ZONA -->
-                <div class="md:col-span-4 bg-slate-900/60 border border-slate-800/80 p-5 rounded-2xl h-fit space-y-4 shadow-xl">
-                    <h3 class="text-sm font-bold text-slate-100 flex items-center gap-2">
-                        <i class="fa fa-plus-circle text-brand-400"></i>
-                        Crear Nueva Zona
-                    </h3>
-                    <div class="space-y-2">
-                        <label class="block text-xs font-semibold text-slate-400">Nombre de la Zona</label>
-                        <input type="text" id="newZoneInput" placeholder="Ej: SAN JUAN CENTRO" 
-                               class="w-full bg-slate-950 border border-slate-800 text-xs text-slate-200 rounded-xl p-3 focus:outline-none focus:border-brand-500 uppercase font-bold">
+                <div class="lg:col-span-4 bg-slate-900/60 border border-slate-800/80 p-5 rounded-2xl h-fit space-y-4 shadow-xl">
+                    <div>
+                        <h3 class="text-sm font-bold text-slate-100 flex items-center gap-2">
+                            <i class="fa fa-plus-circle text-brand-400"></i>
+                            Crear Nueva Zona
+                        </h3>
+                        <p class="text-[11px] text-slate-500 mt-1">
+                            El nombre se guardará en MAYÚSCULAS. No se permiten <code class="bg-slate-800 px-1 rounded">/</code>, <code class="bg-slate-800 px-1 rounded">.</code> ni caracteres especiales.
+                        </p>
                     </div>
-                    <button id="btnCreateZone" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-bold py-2.5 px-4 rounded-xl text-xs transition-all flex items-center justify-center gap-2 active:scale-[0.99] shadow-lg shadow-brand-600/20">
-                        <i class="fa fa-save"></i> Guardar Zona
+
+                    <div>
+                        <label for="newZoneInput" class="block text-xs font-semibold text-slate-400 mb-1.5">Nombre de la Zona</label>
+                        <input type="text" id="newZoneInput" placeholder="Ej: SAN JUAN CENTRO"
+                            maxlength="80" autocomplete="off"
+                            class="w-full bg-slate-950 border border-slate-800 text-xs text-slate-200 rounded-xl p-3 focus:outline-none focus:border-brand-500 uppercase font-bold tracking-wide">
+                        <p id="newZoneHint" class="text-[10px] text-slate-500 mt-1.5"></p>
+                    </div>
+
+                    <button id="btnCreateZone"
+                        class="w-full bg-brand-600 hover:bg-brand-500 disabled:bg-slate-700 disabled:cursor-not-allowed text-white font-bold py-2.5 px-4 rounded-xl text-xs transition-all flex items-center justify-center gap-2 active:scale-[0.99] shadow-lg shadow-brand-600/20">
+                        <i class="fa fa-save" id="btnCreateZoneIcon"></i>
+                        <span id="btnCreateZoneText">Guardar Zona</span>
                     </button>
                 </div>
 
-                <!-- LISTA Y EDICIÓN DE ZONAS -->
-                <div class="md:col-span-8 bg-slate-900/60 border border-slate-800/80 p-5 rounded-2xl space-y-4 shadow-xl">
-                    <div class="flex justify-between items-center">
+                <!-- TABLA DE ZONAS -->
+                <div class="lg:col-span-8 bg-slate-900/60 border border-slate-800/80 p-5 rounded-2xl space-y-4 shadow-xl">
+                    <div class="flex justify-between items-center gap-2 flex-wrap">
                         <h3 class="text-sm font-bold text-slate-100 flex items-center gap-2">
                             <i class="fa fa-layer-group text-emerald-400"></i>
-                            Zonas Registradas
+                            Zonas Registradas (<span id="zoneCount" class="text-brand-400">0</span>)
                         </h3>
-                        <button id="btnRefreshZones" class="text-xs text-slate-400 hover:text-slate-200 transition-colors">
-                            <i class="fa fa-rotate-right"></i> Recargar Lista
+                        <button id="btnRefreshZones"
+                            class="text-xs text-slate-400 hover:text-slate-200 transition-colors flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-slate-800">
+                            <i class="fa fa-rotate-right"></i>
+                            <span>Recargar</span>
                         </button>
                     </div>
 
@@ -163,292 +194,673 @@
                             <thead class="bg-slate-900/90 text-slate-400 uppercase text-[10px] font-bold border-b border-slate-800">
                                 <tr>
                                     <th class="p-3">Nombre de la Zona</th>
-                                    <th class="p-3 text-center">Agencias Asociadas</th>
+                                    <th class="p-3 text-center">Agencias</th>
                                     <th class="p-3 text-center">Acciones</th>
                                 </tr>
                             </thead>
                             <tbody id="zonesTableBody" class="divide-y divide-slate-800/60">
                                 <tr>
-                                    <td colspan="3" class="p-6 text-center text-slate-500 italic">Cargando zonas...</td>
+                                    <td colspan="3" class="p-6 text-center text-slate-500 italic">
+                                        <i class="fa fa-circle-notch fa-spin mr-2"></i>Cargando zonas...
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
+
+                    <div class="flex items-start gap-2 text-[11px] text-slate-500 bg-slate-950/40 border border-slate-800/60 rounded-lg p-3">
+                        <i class="fa fa-info-circle text-brand-400 mt-0.5"></i>
+                        <p>
+                            Al <b class="text-slate-300">renombrar</b> una zona, todas las agencias vinculadas se actualizan automáticamente en lotes de 500.
+                            Al <b class="text-slate-300">eliminar</b> una zona solo se borra del catálogo — las agencias conservan el texto como referencia histórica.
+                        </p>
+                    </div>
                 </div>
+
             </div>
 
         </main>
     </div>
 
     <!-- MODAL EDITAR ZONA -->
-    <div id="editModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center hidden">
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 w-full max-w-md space-y-4 shadow-2xl">
-            <h3 class="text-sm font-bold text-slate-100 flex items-center gap-2">
-                <i class="fa fa-pen-to-square text-brand-400"></i>
-                Renombrar Zona en Todo el Sistema
-            </h3>
-            <p class="text-xs text-slate-400">
-                Al renombrar esta zona, un proceso Batch actualizará automáticamente <strong class="text-brand-400 font-bold" id="agencyCountText">0</strong> agencias vinculadas en Firestore.
-            </p>
-            <input type="hidden" id="oldZoneName">
-            <div>
-                <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">Nuevo Nombre de la Zona</label>
-                <input type="text" id="editZoneInput" class="w-full bg-slate-950 border border-slate-800 text-xs text-slate-200 rounded-xl p-3 focus:outline-none focus:border-brand-500 uppercase font-bold">
+    <div id="editModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[9998] flex items-center justify-center hidden p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 w-full max-w-md space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto custom-scroll">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                <h3 class="text-sm font-bold text-slate-100 flex items-center gap-2">
+                    <i class="fa fa-pen-to-square text-brand-400"></i>
+                    Renombrar Zona
+                </h3>
+                <button id="btnCloseEditModal" class="text-slate-400 hover:text-white" aria-label="Cerrar">
+                    <i class="fa fa-xmark"></i>
+                </button>
             </div>
-            <div class="flex justify-end gap-2 pt-2">
-                <button id="btnCancelEdit" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl">Cancelar</button>
-                <button id="btnConfirmEdit" class="px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold rounded-xl flex items-center gap-2">
-                    <i class="fa fa-arrows-rotate"></i> Actualizar en Todo
+
+            <div class="bg-amber-500/5 border border-amber-500/20 rounded-lg p-3 flex items-start gap-2">
+                <i class="fa fa-triangle-exclamation text-amber-400 mt-0.5"></i>
+                <div class="text-[11px] text-slate-300">
+                    Se actualizarán <b id="agencyCountText" class="text-amber-400">0</b> agencias vinculadas a esta zona.
+                    <span id="mergeWarning" class="hidden block mt-1 text-rose-400 font-semibold">
+                        ⚠️ La zona destino ya existe. Se fusionarán ambas.
+                    </span>
+                </div>
+            </div>
+
+            <input type="hidden" id="oldZoneName">
+
+            <div>
+                <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">Zona actual</label>
+                <div class="bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs font-mono text-slate-400 uppercase">
+                    <span id="oldZoneDisplay">—</span>
+                </div>
+            </div>
+
+            <div>
+                <label for="editZoneInput" class="block text-[11px] font-bold text-slate-400 uppercase mb-1">Nuevo nombre</label>
+                <input type="text" id="editZoneInput" maxlength="80" autocomplete="off"
+                    class="w-full bg-slate-950 border border-slate-800 text-xs text-slate-200 rounded-xl p-3 focus:outline-none focus:border-brand-500 uppercase font-bold tracking-wide">
+                <p id="editZoneHint" class="text-[10px] text-slate-500 mt-1.5"></p>
+            </div>
+
+            <div class="flex justify-end gap-2 pt-3 border-t border-slate-800">
+                <button id="btnCancelEdit"
+                    class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl">
+                    Cancelar
+                </button>
+                <button id="btnConfirmEdit"
+                    class="px-4 py-2 bg-brand-600 hover:bg-brand-500 disabled:bg-slate-700 disabled:cursor-not-allowed text-white text-xs font-bold rounded-xl flex items-center gap-2">
+                    <i class="fa fa-arrows-rotate" id="btnConfirmEditIcon"></i>
+                    <span id="btnConfirmEditText">Actualizar</span>
                 </button>
             </div>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <!-- Librerías -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    <!-- FIREBASE LOGIC CON SEGURIDAD ADMIN -->
+    <!-- Lógica -->
     <script type="module">
         import { db, auth } from "./js/firebase/firebase.init.js";
-        import { 
-            collection, 
-            doc, 
+
+        import {
+            collection,
+            doc,
             getDoc,
-            getDocs, 
-            setDoc, 
-            deleteDoc, 
-            query, 
-            where, 
-            writeBatch 
+            getDocs,
+            setDoc,
+            deleteDoc,
+            writeBatch,
+            serverTimestamp
         } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
         import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-        const securityOverlay = document.getElementById("securityOverlay");
-        const userEmailSpan = document.getElementById("userEmail");
-        const btnLogout = document.getElementById("btnLogout");
+        // ────────────────────────────────────────────────
+        // DOM
+        // ────────────────────────────────────────────────
+        const securityOverlay  = document.getElementById("securityOverlay");
+        const userEmailSpan    = document.getElementById("userEmail");
+        const btnLogout        = document.getElementById("btnLogout");
 
-        const sidebar = document.getElementById("sidebar");
-        const openSidebarMobile = document.getElementById("openSidebarMobile");
-        const closeSidebarMobile = document.getElementById("closeSidebarMobile");
-        const mobileBackdrop = document.getElementById("mobileBackdrop");
+        const sidebar             = document.getElementById("sidebar");
+        const openSidebarMobile   = document.getElementById("openSidebarMobile");
+        const closeSidebarMobile  = document.getElementById("closeSidebarMobile");
+        const mobileBackdrop      = document.getElementById("mobileBackdrop");
 
-        const newZoneInput = document.getElementById("newZoneInput");
-        const btnCreateZone = document.getElementById("btnCreateZone");
-        const zonesTableBody = document.getElementById("zonesTableBody");
-        const btnRefreshZones = document.getElementById("btnRefreshZones");
+        const newZoneInput     = document.getElementById("newZoneInput");
+        const newZoneHint      = document.getElementById("newZoneHint");
+        const btnCreateZone    = document.getElementById("btnCreateZone");
+        const btnCreateZoneIcon = document.getElementById("btnCreateZoneIcon");
+        const btnCreateZoneText = document.getElementById("btnCreateZoneText");
+        const zonesTableBody   = document.getElementById("zonesTableBody");
+        const zoneCount        = document.getElementById("zoneCount");
+        const btnRefreshZones  = document.getElementById("btnRefreshZones");
 
-        const editModal = document.getElementById("editModal");
-        const oldZoneName = document.getElementById("oldZoneName");
-        const editZoneInput = document.getElementById("editZoneInput");
-        const agencyCountText = document.getElementById("agencyCountText");
-        const btnCancelEdit = document.getElementById("btnCancelEdit");
-        const btnConfirmEdit = document.getElementById("btnConfirmEdit");
+        const editModal         = document.getElementById("editModal");
+        const oldZoneName       = document.getElementById("oldZoneName");
+        const oldZoneDisplay    = document.getElementById("oldZoneDisplay");
+        const editZoneInput     = document.getElementById("editZoneInput");
+        const editZoneHint      = document.getElementById("editZoneHint");
+        const agencyCountText   = document.getElementById("agencyCountText");
+        const mergeWarning      = document.getElementById("mergeWarning");
+        const btnCloseEditModal = document.getElementById("btnCloseEditModal");
+        const btnCancelEdit     = document.getElementById("btnCancelEdit");
+        const btnConfirmEdit    = document.getElementById("btnConfirmEdit");
+        const btnConfirmEditIcon = document.getElementById("btnConfirmEditIcon");
+        const btnConfirmEditText = document.getElementById("btnConfirmEditText");
 
-        // NOTIFICACIONES
-        function showToast(msg, type = "info") {
-            let bg = type === "success" ? "linear-gradient(to right, #059669, #10b981)" : type === "error" ? "linear-gradient(to right, #e11d48, #f43f5e)" : "#4f46e5";
-            Toastify({ text: msg, duration: 3000, style: { background: bg, borderRadius: "10px", fontSize: "12px", fontWeight: "600" } }).showToast();
-        }
+        // ────────────────────────────────────────────────
+        // ESTADO
+        // ────────────────────────────────────────────────
+        let knownZones = [];            // Array de strings (nombres en mayúsculas)
+        let agencyCountsByZone = {};    // { "ZONA A": 12, "ZONA B": 3 }
 
-        // CONTROL SIDEBAR MOBILE
-        function toggleSidebar() {
-            sidebar.classList.toggle("-translate-x-full");
-            mobileBackdrop.classList.toggle("hidden");
-        }
-        openSidebarMobile?.addEventListener("click", toggleSidebar);
-        closeSidebarMobile?.addEventListener("click", toggleSidebar);
-        mobileBackdrop?.addEventListener("click", toggleSidebar);
+        // ────────────────────────────────────────────────
+        // SIDEBAR MOBILE
+        // ────────────────────────────────────────────────
+        openSidebarMobile?.addEventListener("click", () => {
+            sidebar.classList.remove("-translate-x-full");
+            mobileBackdrop.classList.remove("hidden");
+        });
+        const closeSidebar = () => {
+            sidebar.classList.add("-translate-x-full");
+            mobileBackdrop.classList.add("hidden");
+        };
+        closeSidebarMobile?.addEventListener("click", closeSidebar);
+        mobileBackdrop?.addEventListener("click", closeSidebar);
 
+        // ────────────────────────────────────────────────
         // LOGOUT
-        btnLogout?.addEventListener("click", async () => {
+        // ────────────────────────────────────────────────
+        btnLogout.addEventListener("click", async () => {
+            const res = await Swal.fire({
+                title: "¿Cerrar sesión?",
+                icon: "question",
+                showCancelButton: true,
+                confirmButtonText: "Sí, salir",
+                cancelButtonText: "Cancelar",
+                confirmButtonColor: "#e11d48",
+                cancelButtonColor: "#475569"
+            });
+            if (!res.isConfirmed) return;
             await signOut(auth);
-            window.location.href = "login.html";
+            window.location.replace("login.html");
         });
 
-        // VERIFICACIÓN ESTRICTA DE ROL ADMIN
+        // ────────────────────────────────────────────────
+        // VERIFICACIÓN DE ADMIN
+        // ────────────────────────────────────────────────
         onAuthStateChanged(auth, async (user) => {
             if (!user) {
-                window.location.href = "login.html";
+                window.location.replace("login.html");
                 return;
             }
 
             try {
-                // Verificar en la colección 'users' el rol del UID actual
-                const userDocRef = doc(db, "users", user.uid);
-                const userSnap = await getDoc(userDocRef);
+                const userSnap = await getDoc(doc(db, "users", user.uid));
 
-                if (!userSnap.exists() || userSnap.data().role !== "admin") {
-                    alert("Acceso denegado: Solo los usuarios con rol de Administrador pueden acceder a esta sección.");
-                    window.location.href = "index.html"; // Redirigir a inicio
+                if (!userSnap.exists()) {
+                    await Swal.fire("Cuenta no registrada", "Contacta al administrador.", "error");
+                    await signOut(auth);
+                    window.location.replace("login.html");
                     return;
                 }
 
-                // Permiso concedido
-                userEmailSpan.innerText = user.email;
-                securityOverlay.classList.add("hidden"); // Ocultar overlay
-                loadZones();
+                const userData = userSnap.data();
 
-            } catch (error) {
-                console.error("Error al validar permisos:", error);
-                alert("Ocurrió un error al verificar tus credenciales.");
-                window.location.href = "index.html";
+                if (userData.enabled === false) {
+                    await Swal.fire("Usuario inhabilitado", "Tu acceso ha sido revocado.", "warning");
+                    await signOut(auth);
+                    window.location.replace("login.html");
+                    return;
+                }
+
+                if (userData.role !== "admin") {
+                    await Swal.fire("Acceso denegado", "Solo administradores pueden gestionar zonas.", "error");
+                    window.location.replace("index.html");
+                    return;
+                }
+
+                userEmailSpan.innerText = user.email;
+                securityOverlay.classList.add("hidden");
+                await loadZones();
+
+            } catch (err) {
+                console.error("Error al validar permisos:", err);
+                await Swal.fire("Error", "No se pudieron verificar tus credenciales.", "error");
+                window.location.replace("index.html");
             }
         });
 
-        // CARGAR ZONAS Y CONTAR AGENCIAS
+        // ────────────────────────────────────────────────
+        // CARGA DE ZONAS
+        // ────────────────────────────────────────────────
         async function loadZones() {
-            zonesTableBody.innerHTML = `<tr><td colspan="3" class="p-6 text-center text-slate-500 italic">Cargando zonas y agencias asociadas...</td></tr>`;
+            zonesTableBody.innerHTML = `
+                <tr><td colspan="3" class="p-6 text-center text-slate-500 italic">
+                    <i class="fa fa-circle-notch fa-spin mr-2"></i>Cargando zonas...
+                </td></tr>`;
+
             try {
                 const [zonesSnap, agenciasSnap] = await Promise.all([
                     getDocs(collection(db, "zonas")),
                     getDocs(collection(db, "agencias"))
                 ]);
 
-                const agencyCounts = {};
+                // Contar agencias por zona
+                agencyCountsByZone = {};
                 agenciasSnap.forEach(docSnap => {
                     const data = docSnap.data();
                     if (data.zona) {
-                        const zName = data.zona.toUpperCase().trim();
-                        agencyCounts[zName] = (agencyCounts[zName] || 0) + 1;
+                        const zName = String(data.zona).toUpperCase().trim();
+                        agencyCountsByZone[zName] = (agencyCountsByZone[zName] || 0) + 1;
                     }
                 });
 
-                const zonesList = [];
+                // Recopilar zonas del catálogo + zonas "huérfanas" (referenciadas en agencias)
+                const zonesSet = new Set();
+
                 zonesSnap.forEach(docSnap => {
-                    zonesList.push(docSnap.id);
+                    const id = String(docSnap.id || "").toUpperCase().trim();
+                    if (id) zonesSet.add(id);
+                    const nombre = docSnap.data().nombre ? String(docSnap.data().nombre).toUpperCase().trim() : "";
+                    if (nombre) zonesSet.add(nombre);
                 });
 
-                // Incluir zonas detectadas en agencias que no estén creadas explícitamente en /zonas
-                Object.keys(agencyCounts).forEach(z => {
-                    if (!zonesList.includes(z)) zonesList.push(z);
-                });
+                Object.keys(agencyCountsByZone).forEach(z => zonesSet.add(z));
 
-                if (zonesList.length === 0) {
-                    zonesTableBody.innerHTML = `<tr><td colspan="3" class="p-6 text-center text-slate-500 italic">No hay zonas registradas en el sistema.</td></tr>`;
-                    return;
-                }
+                knownZones = Array.from(zonesSet).sort();
 
-                zonesTableBody.innerHTML = "";
-                zonesList.sort().forEach(zoneName => {
-                    const count = agencyCounts[zoneName] || 0;
-                    const tr = document.createElement("tr");
-                    tr.className = "hover:bg-slate-900/50 transition-colors";
-                    tr.innerHTML = `
-                        <td class="p-3 font-bold text-slate-200">${zoneName}</td>
-                        <td class="p-3 text-center">
-                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${count > 0 ? 'bg-brand-500/10 text-brand-400 border border-brand-500/20' : 'bg-slate-800 text-slate-500'}">
-                                ${count} Agencias
-                            </span>
-                        </td>
-                        <td class="p-3 text-center space-x-2">
-                            <button class="btnEdit text-brand-400 hover:text-brand-300 p-1.5 rounded-lg hover:bg-brand-500/10 transition-colors" data-zone="${zoneName}" data-count="${count}" title="Renombrar Zona">
-                                <i class="fa fa-pen-to-square"></i>
-                            </button>
-                            <button class="btnDelete text-rose-400 hover:text-rose-300 p-1.5 rounded-lg hover:bg-rose-500/10 transition-colors" data-zone="${zoneName}" title="Eliminar Zona">
-                                <i class="fa fa-trash-can"></i>
-                            </button>
-                        </td>
-                    `;
-                    zonesTableBody.appendChild(tr);
-                });
-
-                // EVENTOS EDITAR / ELIMINAR
-                document.querySelectorAll(".btnEdit").forEach(btn => {
-                    btn.addEventListener("click", (e) => {
-                        const z = e.currentTarget.getAttribute("data-zone");
-                        const c = e.currentTarget.getAttribute("data-count");
-                        oldZoneName.value = z;
-                        editZoneInput.value = z;
-                        agencyCountText.innerText = c;
-                        editModal.classList.remove("hidden");
-                    });
-                });
-
-                document.querySelectorAll(".btnDelete").forEach(btn => {
-                    btn.addEventListener("click", async (e) => {
-                        const z = e.currentTarget.getAttribute("data-zone");
-                        if (confirm(`¿Seguro que deseas eliminar la zona "${z}"? (Nota: Las agencias conservarán el texto pero la zona se removerá del catálogo de zonas)`)) {
-                            await deleteDoc(doc(db, "zonas", z));
-                            showToast("Zona eliminada del catálogo", "info");
-                            loadZones();
-                        }
-                    });
-                });
+                renderZonesTable();
 
             } catch (err) {
-                console.error("Error al cargar las zonas:", err);
-                showToast("Error al cargar zonas de Firestore", "error");
+                console.error("Error al cargar zonas:", err);
+                zonesTableBody.innerHTML = `
+                    <tr><td colspan="3" class="p-6 text-center text-rose-400">
+                        <i class="fa fa-triangle-exclamation mr-2"></i>
+                        Error al cargar zonas. Revisa tu conexión o las reglas de Firestore.
+                    </td></tr>`;
             }
         }
 
-        // CREAR ZONA
-        btnCreateZone.addEventListener("click", async () => {
-            const zName = newZoneInput.value.toUpperCase().trim();
-            if (!zName) return showToast("Debes escribir un nombre para la zona", "error");
+        function renderZonesTable() {
+            zoneCount.textContent = knownZones.length;
+            zonesTableBody.innerHTML = "";
 
-            try {
-                await setDoc(doc(db, "zonas", zName), { nombre: zName, created_at: Date.now() });
-                newZoneInput.value = "";
-                showToast("Zona creada con éxito", "success");
-                loadZones();
-            } catch (err) {
-                console.error(err);
-                showToast("Error al crear la zona", "error");
-            }
-        });
-
-        // RENOMBRAR ZONA Y ACTUALIZAR EN BATCH LAS AGENCIAS
-        btnConfirmEdit.addEventListener("click", async () => {
-            const oldZ = oldZoneName.value;
-            const newZ = editZoneInput.value.toUpperCase().trim();
-
-            if (!newZ || oldZ === newZ) {
-                editModal.classList.add("hidden");
+            if (knownZones.length === 0) {
+                zonesTableBody.innerHTML = `
+                    <tr><td colspan="3" class="p-6 text-center text-slate-500 italic">
+                        No hay zonas registradas. Crea la primera arriba.
+                    </td></tr>`;
                 return;
             }
 
-            btnConfirmEdit.disabled = true;
-            btnConfirmEdit.innerHTML = `<i class="fa fa-spinner fa-spin"></i> Actualizando...`;
+            knownZones.forEach(zoneName => {
+                const count = agencyCountsByZone[zoneName] || 0;
+                const tr = document.createElement("tr");
+                tr.className = "hover:bg-slate-900/50 transition-colors";
+
+                // Nombre de la zona
+                const tdName = document.createElement("td");
+                tdName.className = "p-3 font-bold text-slate-200 uppercase tracking-wide";
+                tdName.textContent = zoneName;
+                tr.appendChild(tdName);
+
+                // Contador
+                const tdCount = document.createElement("td");
+                tdCount.className = "p-3 text-center";
+                const badge = document.createElement("span");
+                badge.className = count > 0
+                    ? "px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-brand-500/10 text-brand-400 border border-brand-500/20"
+                    : "px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-800 text-slate-500";
+                badge.textContent = `${count} ${count === 1 ? "Agencia" : "Agencias"}`;
+                tdCount.appendChild(badge);
+                tr.appendChild(tdCount);
+
+                // Acciones
+                const tdActions = document.createElement("td");
+                tdActions.className = "p-3 text-center";
+
+                const btnEdit = document.createElement("button");
+                btnEdit.className = "btnEdit text-brand-400 hover:text-brand-300 p-1.5 rounded-lg hover:bg-brand-500/10 transition-colors";
+                btnEdit.title = "Renombrar zona";
+                btnEdit.innerHTML = `<i class="fa fa-pen-to-square"></i>`;
+                btnEdit.addEventListener("click", () => openEditModal(zoneName, count));
+                tdActions.appendChild(btnEdit);
+
+                const btnDelete = document.createElement("button");
+                btnDelete.className = "btnDelete text-rose-400 hover:text-rose-300 p-1.5 rounded-lg hover:bg-rose-500/10 transition-colors ml-1";
+                btnDelete.title = "Eliminar zona";
+                btnDelete.innerHTML = `<i class="fa fa-trash-can"></i>`;
+                btnDelete.addEventListener("click", () => deleteZone(zoneName, count));
+                tdActions.appendChild(btnDelete);
+
+                tr.appendChild(tdActions);
+
+                zonesTableBody.appendChild(tr);
+            });
+        }
+
+        // ────────────────────────────────────────────────
+        // VALIDACIÓN DE NOMBRE DE ZONA
+        // ────────────────────────────────────────────────
+        /**
+         * Firestore no permite IDs con / . .. ni vacíos, y limita a 1500 bytes.
+         * Además limitamos a 80 caracteres por UX.
+         */
+        function validateZoneName(raw) {
+            const name = String(raw || "").toUpperCase().trim();
+
+            if (!name) return { ok: false, error: "El nombre no puede estar vacío." };
+            if (name.length > 80) return { ok: false, error: "Máximo 80 caracteres." };
+            if (name.includes("/")) return { ok: false, error: "No puede contener '/'." };
+            if (name === "." || name === "..") return { ok: false, error: "Nombre reservado por Firestore." };
+            if (/[\x00-\x1f]/.test(name)) return { ok: false, error: "Contiene caracteres de control." };
+
+            return { ok: true, name };
+        }
+
+        // Hints en vivo mientras escribe
+        newZoneInput.addEventListener("input", () => {
+            const raw = newZoneInput.value;
+            const v = validateZoneName(raw);
+            if (!raw.trim()) {
+                newZoneHint.textContent = "";
+                newZoneHint.className = "text-[10px] text-slate-500 mt-1.5";
+                return;
+            }
+            if (!v.ok) {
+                newZoneHint.textContent = "❌ " + v.error;
+                newZoneHint.className = "text-[10px] text-rose-400 mt-1.5";
+            } else if (knownZones.includes(v.name)) {
+                newZoneHint.textContent = "⚠️ Esa zona ya existe.";
+                newZoneHint.className = "text-[10px] text-amber-400 mt-1.5";
+            } else {
+                newZoneHint.textContent = `✅ Se guardará como "${v.name}"`;
+                newZoneHint.className = "text-[10px] text-emerald-400 mt-1.5";
+            }
+        });
+
+        // ────────────────────────────────────────────────
+        // CREAR ZONA
+        // ────────────────────────────────────────────────
+        btnCreateZone.addEventListener("click", async () => {
+            if (btnCreateZone.disabled) return;
+
+            const v = validateZoneName(newZoneInput.value);
+            if (!v.ok) {
+                Swal.fire("Nombre inválido", v.error, "warning");
+                return;
+            }
+
+            if (knownZones.includes(v.name)) {
+                Swal.fire("Zona duplicada", `La zona "${v.name}" ya existe.`, "warning");
+                return;
+            }
+
+            btnCreateZone.disabled = true;
+            btnCreateZoneIcon.className = "fa fa-circle-notch fa-spin";
+            btnCreateZoneText.textContent = "Guardando...";
 
             try {
-                // 1. Crear nueva zona y borrar la antigua en catálogo
-                await setDoc(doc(db, "zonas", newZ), { nombre: newZ, updated_at: Date.now() });
-                if (oldZ !== newZ) await deleteDoc(doc(db, "zonas", oldZ));
+                await setDoc(doc(db, "zonas", v.name), {
+                    nombre: v.name,
+                    createdAt: serverTimestamp(),
+                    updatedAt: serverTimestamp()
+                });
 
-                // 2. Buscar agencias asociadas al nombre viejo
-                const q = query(collection(db, "agencias"), where("zona", "==", oldZ));
-                const querySnap = await getDocs(q);
+                newZoneInput.value = "";
+                newZoneHint.textContent = "";
 
-                // 3. Lote Batch de actualización en Firestore
-                if (!querySnap.empty) {
+                await Swal.fire({
+                    toast: true,
+                    position: "top-end",
+                    icon: "success",
+                    title: `Zona "${v.name}" creada`,
+                    showConfirmButton: false,
+                    timer: 2200,
+                    timerProgressBar: true
+                });
+
+                await loadZones();
+
+            } catch (err) {
+                console.error("Error al crear zona:", err);
+                Swal.fire("Error", "No se pudo crear la zona: " + err.message, "error");
+            } finally {
+                btnCreateZone.disabled = false;
+                btnCreateZoneIcon.className = "fa fa-save";
+                btnCreateZoneText.textContent = "Guardar Zona";
+            }
+        });
+
+        // ────────────────────────────────────────────────
+        // MODAL EDITAR / RENOMBRAR
+        // ────────────────────────────────────────────────
+        function openEditModal(zoneName, count) {
+            oldZoneName.value = zoneName;
+            oldZoneDisplay.textContent = zoneName;
+            editZoneInput.value = zoneName;
+            agencyCountText.textContent = count;
+            mergeWarning.classList.add("hidden");
+            editZoneHint.textContent = "";
+
+            editModal.classList.remove("hidden");
+            setTimeout(() => {
+                editZoneInput.focus();
+                editZoneInput.select();
+            }, 50);
+        }
+
+        function closeEditModal() {
+            editModal.classList.add("hidden");
+            editZoneInput.value = "";
+            oldZoneName.value = "";
+            editZoneHint.textContent = "";
+            mergeWarning.classList.add("hidden");
+        }
+
+        editZoneInput.addEventListener("input", () => {
+            const v = validateZoneName(editZoneInput.value);
+            const oldZ = oldZoneName.value;
+
+            if (!v.ok) {
+                editZoneHint.textContent = "❌ " + v.error;
+                editZoneHint.className = "text-[10px] text-rose-400 mt-1.5";
+                mergeWarning.classList.add("hidden");
+                return;
+            }
+
+            if (v.name === oldZ) {
+                editZoneHint.textContent = "Sin cambios.";
+                editZoneHint.className = "text-[10px] text-slate-500 mt-1.5";
+                mergeWarning.classList.add("hidden");
+                return;
+            }
+
+            if (knownZones.includes(v.name)) {
+                editZoneHint.textContent = `✅ Se guardará como "${v.name}"`;
+                editZoneHint.className = "text-[10px] text-emerald-400 mt-1.5";
+                const existingCount = agencyCountsByZone[v.name] || 0;
+                mergeWarning.textContent = `⚠️ La zona destino ya existe (${existingCount} agencias). Se fusionarán ambas.`;
+                mergeWarning.classList.remove("hidden");
+            } else {
+                editZoneHint.textContent = `✅ Se guardará como "${v.name}"`;
+                editZoneHint.className = "text-[10px] text-emerald-400 mt-1.5";
+                mergeWarning.classList.add("hidden");
+            }
+        });
+
+        btnCloseEditModal.addEventListener("click", closeEditModal);
+        btnCancelEdit.addEventListener("click", closeEditModal);
+        editModal.addEventListener("click", (e) => {
+            if (e.target === editModal) closeEditModal();
+        });
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape" && !editModal.classList.contains("hidden")) closeEditModal();
+        });
+
+        // ────────────────────────────────────────────────
+        // RENOMBRAR ZONA + BATCH DE AGENCIAS
+        // ────────────────────────────────────────────────
+        btnConfirmEdit.addEventListener("click", async () => {
+            if (btnConfirmEdit.disabled) return;
+
+            const oldZ = oldZoneName.value.trim().toUpperCase();
+            const v = validateZoneName(editZoneInput.value);
+
+            if (!v.ok) {
+                Swal.fire("Nombre inválido", v.error, "warning");
+                return;
+            }
+
+            const newZ = v.name;
+
+            if (oldZ === newZ) {
+                closeEditModal();
+                return;
+            }
+
+            const isMerge = knownZones.includes(newZ) && newZ !== oldZ;
+            const oldCount = agencyCountsByZone[oldZ] || 0;
+
+            const confirmResult = await Swal.fire({
+                title: isMerge ? "¿Fusionar zonas?" : "¿Renombrar zona?",
+                html: `
+                    <div class="text-left text-sm space-y-1">
+                        <p>De: <b class="uppercase">${escapeHtml(oldZ)}</b></p>
+                        <p>A: <b class="uppercase text-brand-400">${escapeHtml(newZ)}</b></p>
+                        <hr class="my-2">
+                        <p>Se actualizarán <b>${oldCount}</b> agencias vinculadas.</p>
+                        ${isMerge ? '<p class="text-rose-500 font-bold mt-2">⚠️ La zona destino ya existía. Se fusionarán.</p>' : ''}
+                    </div>
+                `,
+                icon: "question",
+                showCancelButton: true,
+                confirmButtonText: isMerge ? "Sí, fusionar" : "Sí, renombrar",
+                cancelButtonText: "Cancelar",
+                confirmButtonColor: "#4f46e5",
+                cancelButtonColor: "#475569"
+            });
+
+            if (!confirmResult.isConfirmed) return;
+
+            btnConfirmEdit.disabled = true;
+            btnConfirmEditIcon.className = "fa fa-circle-notch fa-spin";
+            btnConfirmEditText.textContent = "Procesando...";
+
+            try {
+                // ── 1. Actualizar catálogo de zonas ──
+                await setDoc(doc(db, "zonas", newZ), {
+                    nombre: newZ,
+                    updatedAt: serverTimestamp(),
+                    ...(isMerge ? {} : { createdAt: serverTimestamp() })
+                }, { merge: true });
+
+                if (!isMerge) {
+                    await deleteDoc(doc(db, "zonas", oldZ));
+                } else {
+                    // Al fusionar, borrar la zona vieja también
+                    await deleteDoc(doc(db, "zonas", oldZ));
+                }
+
+                // ── 2. Actualizar agencias en batch ──
+                // Solo consultamos las agencias que tienen exactamente esa zona
+                const agenciasSnap = await getDocs(collection(db, "agencias"));
+                const matches = [];
+
+                agenciasSnap.forEach(docSnap => {
+                    const data = docSnap.data();
+                    if (data.zona) {
+                        const normalized = String(data.zona).toUpperCase().trim();
+                        if (normalized === oldZ) {
+                            matches.push(docSnap.id);
+                        }
+                    }
+                });
+
+                const BATCH_LIMIT = 450;
+                for (let i = 0; i < matches.length; i += BATCH_LIMIT) {
+                    const chunk = matches.slice(i, i + BATCH_LIMIT);
                     const batch = writeBatch(db);
-                    querySnap.forEach(docSnap => {
-                        const ref = doc(db, "agencias", docSnap.id);
-                        const agencyData = docSnap.data();
-                        
-                        batch.update(ref, {
+                    chunk.forEach(id => {
+                        batch.update(doc(db, "agencias", id), {
                             zona: newZ,
-                            updated_at: Date.now(),
-                            searchable: `${docSnap.id} ${newZ} ${agencyData.direccion || ''}`.toLowerCase()
+                            updatedAt: serverTimestamp()
                         });
                     });
                     await batch.commit();
                 }
 
-                showToast(`Zona cambiada a "${newZ}" en ${querySnap.size} agencias`, "success");
-                editModal.classList.add("hidden");
-                loadZones();
+                await Swal.fire({
+                    toast: true,
+                    position: "top-end",
+                    icon: "success",
+                    title: `${matches.length} agencias actualizadas`,
+                    showConfirmButton: false,
+                    timer: 2500,
+                    timerProgressBar: true
+                });
+
+                closeEditModal();
+                await loadZones();
 
             } catch (err) {
-                console.error("Error al actualizar la zona:", err);
-                showToast("Error al actualizar las agencias vinculadas", "error");
+                console.error("Error al renombrar zona:", err);
+                let msg = "Error al actualizar la zona.";
+                if (err.code === "permission-denied") {
+                    msg = "Sin permisos. Revisa las reglas de Firestore.";
+                }
+                Swal.fire("Error", msg + "\n\n" + err.message, "error");
             } finally {
                 btnConfirmEdit.disabled = false;
-                btnConfirmEdit.innerHTML = `<i class="fa fa-arrows-rotate"></i> Actualizar en Todo`;
+                btnConfirmEditIcon.className = "fa fa-arrows-rotate";
+                btnConfirmEditText.textContent = "Actualizar";
             }
         });
 
-        btnCancelEdit.addEventListener("click", () => editModal.classList.add("hidden"));
-        btnRefreshZones.addEventListener("click", loadZones);
+        // ────────────────────────────────────────────────
+        // ELIMINAR ZONA
+        // ────────────────────────────────────────────────
+        async function deleteZone(zoneName, count) {
+            const warningText = count > 0
+                ? `⚠️ Hay <b>${count}</b> agencias vinculadas a esta zona.<br>
+                   <span class="text-xs text-slate-500">Las agencias NO se eliminarán, pero quedarán con el texto "<b>${escapeHtml(zoneName)}</b>" como referencia huérfana.</span>`
+                : `No hay agencias vinculadas a esta zona.`;
+
+            const res = await Swal.fire({
+                title: `¿Eliminar "${zoneName}"?`,
+                html: `<div class="text-sm">${warningText}</div>`,
+                icon: count > 0 ? "warning" : "question",
+                showCancelButton: true,
+                confirmButtonText: "Sí, eliminar",
+                cancelButtonText: "Cancelar",
+                confirmButtonColor: "#e11d48",
+                cancelColor: "#475569"
+            });
+
+            if (!res.isConfirmed) return;
+
+            try {
+                await deleteDoc(doc(db, "zonas", zoneName));
+
+                await Swal.fire({
+                    toast: true,
+                    position: "top-end",
+                    icon: "success",
+                    title: `Zona "${zoneName}" eliminada`,
+                    showConfirmButton: false,
+                    timer: 2000,
+                    timerProgressBar: true
+                });
+
+                await loadZones();
+
+            } catch (err) {
+                console.error("Error al eliminar zona:", err);
+                Swal.fire("Error", "No se pudo eliminar la zona: " + err.message, "error");
+            }
+        }
+
+        // ────────────────────────────────────────────────
+        // RECARGAR
+        // ────────────────────────────────────────────────
+        btnRefreshZones.addEventListener("click", async () => {
+            btnRefreshZones.disabled = true;
+            btnRefreshZones.innerHTML = `<i class="fa fa-circle-notch fa-spin"></i> <span>Recargando...</span>`;
+            await loadZones();
+            btnRefreshZones.disabled = false;
+            btnRefreshZones.innerHTML = `<i class="fa fa-rotate-right"></i> <span>Recargar</span>`;
+        });
+
+        // ────────────────────────────────────────────────
+        // UTILIDADES
+        // ────────────────────────────────────────────────
+        function escapeHtml(str) {
+            return String(str ?? "").replace(/[&<>"']/g, (c) => ({
+                "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+            }[c]));
+        }
     </script>
 </body>
 </html>

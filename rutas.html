@@ -1,0 +1,2192 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full bg-slate-950">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#020617" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <title>Optimizador de Rutas | AGENCYPRO</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff', 100: '#e0e7ff', 500: '#6366f1',
+                            600: '#4f46e5', 700: '#4338ca', 800: '#3730a3', 900: '#312e81',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        /* ════════════════════════════════════════════════════════════
+           BASE
+           ════════════════════════════════════════════════════════════ */
+        html, body {
+            height: 100%;
+            overflow: hidden; /* evita el bounce en iOS */
+            overscroll-behavior: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            position: fixed; /* ancla para móvil */
+            inset: 0;
+        }
+
+        /* Inputs con font-size >= 16px en móvil para evitar zoom en iOS */
+        @media (max-width: 767px) {
+            input, select, textarea, button {
+                font-size: 16px !important;
+            }
+        }
+
+        .custom-scroll::-webkit-scrollbar { width: 4px; height: 4px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 8px; }
+
+        /* ════════════════════════════════════════════════════════════
+           SAFE AREAS (notch iPhone / barra Android)
+           ════════════════════════════════════════════════════════════ */
+        .safe-top    { padding-top:    env(safe-area-inset-top, 0); }
+        .safe-bottom { padding-bottom: env(safe-area-inset-bottom, 0); }
+
+        /* ════════════════════════════════════════════════════════════
+           MAPA
+           ════════════════════════════════════════════════════════════ */
+        #map {
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+        }
+
+        .leaflet-tile-pane {
+            filter: brightness(0.65) invert(1) contrast(1.15) hue-rotate(200deg) saturate(0.9);
+        }
+        .leaflet-popup-content-wrapper, .leaflet-popup-tip {
+            background-color: #0f172a !important;
+            color: #f8fafc !important;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+        .leaflet-popup-content { margin: 12px 14px; }
+        .leaflet-popup-close-button { color: #94a3b8 !important; font-size: 22px !important; }
+        .leaflet-control-zoom a {
+            background-color: #0f172a !important;
+            color: #cbd5e1 !important;
+            border-color: #334155 !important;
+            width: 40px !important;
+            height: 40px !important;
+            line-height: 40px !important;
+            font-size: 20px !important;
+        }
+
+        /* En móvil, los controles de zoom van arriba a la derecha,
+           debajo de la barra superior */
+        @media (max-width: 767px) {
+            .leaflet-top.leaflet-left {
+                top: 72px !important;
+                left: auto !important;
+                right: 10px !important;
+            }
+            .leaflet-control-attribution {
+                font-size: 9px !important;
+                padding: 1px 4px !important;
+            }
+        }
+
+        /* Marcadores de parada */
+        .stop-marker {
+            background: #6366f1;
+            color: white;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 13px;
+            border: 3px solid white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+        }
+        .stop-marker.start {
+            background: #10b981;
+            width: 38px;
+            height: 38px;
+            font-size: 16px;
+        }
+
+        /* ════════════════════════════════════════════════════════════
+           BOTTOM SHEET (móvil)
+           ════════════════════════════════════════════════════════════ */
+        #bottomSheet {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 30;
+            background: #0f172a;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.6);
+            transform: translateY(0);
+            transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+            display: flex;
+            flex-direction: column;
+            will-change: transform;
+            /* Altura total: 92% de la pantalla */
+            height: 92dvh;
+            padding-bottom: env(safe-area-inset-bottom, 0);
+        }
+
+        /* Estados del sheet */
+        #bottomSheet[data-state="peek"]     { transform: translateY(calc(92dvh - 120px)); }
+        #bottomSheet[data-state="half"]     { transform: translateY(calc(92dvh - 50dvh)); }
+        #bottomSheet[data-state="expanded"] { transform: translateY(0); }
+
+        /* Handle para arrastrar */
+        .drag-handle {
+            padding: 8px 0 4px;
+            display: flex;
+            justify-content: center;
+            cursor: grab;
+            touch-action: none;
+            user-select: none;
+            flex-shrink: 0;
+        }
+        .drag-handle::after {
+            content: '';
+            width: 40px;
+            height: 5px;
+            background: #475569;
+            border-radius: 3px;
+            transition: background 0.2s;
+        }
+        .drag-handle:active::after { background: #6366f1; }
+
+        /* En desktop, el sheet se convierte en sidebar normal */
+        @media (min-width: 768px) {
+            #bottomSheet {
+                position: static;
+                width: 340px;
+                height: auto;
+                max-height: 100%;
+                border-radius: 0;
+                transform: none !important;
+                transition: none;
+                border-right: 1px solid #1e293b;
+                box-shadow: none;
+            }
+            .drag-handle { display: none; }
+        }
+
+        /* ════════════════════════════════════════════════════════════
+           TOP BAR FLOTANTE
+           ════════════════════════════════════════════════════════════ */
+        #topBar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 40;
+            padding: 8px 12px;
+            padding-top: calc(8px + env(safe-area-inset-top, 0));
+            pointer-events: none;
+        }
+        #topBar > * { pointer-events: auto; }
+
+        @media (min-width: 768px) {
+            #topBar { display: none; }
+        }
+
+        .glass-btn {
+            background: rgba(15, 23, 42, 0.92);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(51, 65, 85, 0.6);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.35);
+            min-width: 44px;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.1s;
+        }
+        .glass-btn:active { transform: scale(0.94); }
+
+        /* ════════════════════════════════════════════════════════════
+           FAB CALCULAR RUTA (flotante, encima del sheet)
+           ════════════════════════════════════════════════════════════ */
+        #fabCalculate {
+            position: fixed;
+            right: 16px;
+            z-index: 35;
+            /* Se posiciona arriba del sheet en estado "peek" */
+            bottom: calc(120px + 16px + env(safe-area-inset-bottom, 0));
+            transition: bottom 0.3s cubic-bezier(0.32, 0.72, 0, 1), transform 0.1s;
+            min-width: 60px;
+            min-height: 60px;
+        }
+        #fabCalculate:active { transform: scale(0.94); }
+        #fabCalculate:disabled { opacity: 0.4; }
+
+        /* Cuando el sheet está en half o expanded, el FAB se oculta */
+        body[data-sheet="half"] #fabCalculate,
+        body[data-sheet="expanded"] #fabCalculate {
+            transform: translateY(120px);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        @media (min-width: 768px) {
+            #fabCalculate { display: none !important; }
+        }
+
+        /* ════════════════════════════════════════════════════════════
+           TABS INTERNOS DEL SHEET
+           ════════════════════════════════════════════════════════════ */
+        .sheet-tab {
+            flex: 1;
+            padding: 12px 8px;
+            min-height: 48px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #64748b;
+            transition: color 0.15s;
+            position: relative;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+        }
+        .sheet-tab i { font-size: 16px; }
+        .sheet-tab.active { color: #a5b4fc; }
+        .sheet-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 20%;
+            right: 20%;
+            height: 2px;
+            background: #6366f1;
+            border-radius: 2px 2px 0 0;
+        }
+        .sheet-tab:active { background: rgba(99, 102, 241, 0.08); }
+
+        /* Paneles del sheet */
+        .sheet-panel { display: none; }
+        .sheet-panel.active { display: block; }
+
+        /* ════════════════════════════════════════════════════════════
+           AGENCIAS (filas táctiles)
+           ════════════════════════════════════════════════════════════ */
+        .agency-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            min-height: 64px;
+            border-radius: 12px;
+            border: 1px solid #1e293b;
+            background: rgba(15, 23, 42, 0.6);
+            transition: background 0.15s, border-color 0.15s;
+            touch-action: manipulation;
+            cursor: pointer;
+            user-select: none;
+        }
+        .agency-row:active { background: rgba(99, 102, 241, 0.12); }
+        .agency-row.selected {
+            background: rgba(99, 102, 241, 0.15);
+            border-color: rgba(99, 102, 241, 0.4);
+        }
+
+        /* ════════════════════════════════════════════════════════════
+           MODALES FULL-SCREEN EN MÓVIL
+           ════════════════════════════════════════════════════════════ */
+        .modal-card {
+            width: 100%;
+            max-width: 100%;
+            height: 100dvh;
+            max-height: 100dvh;
+            border-radius: 0;
+        }
+        @media (min-width: 640px) {
+            .modal-card {
+                max-width: 640px;
+                height: auto;
+                max-height: 85vh;
+                border-radius: 16px;
+            }
+        }
+
+        /* ════════════════════════════════════════════════════════════
+           LOADING OVERLAY
+           ════════════════════════════════════════════════════════════ */
+        #calcOverlay {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: rgba(2, 6, 23, 0.9);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+        }
+
+        /* ════════════════════════════════════════════════════════════
+           ACCESIBILIDAD
+           ════════════════════════════════════════════════════════════ */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-slate-950 text-slate-100 antialiased" data-sheet="peek">
+
+    <!-- ════════════════════════════════════════════════════════
+         OVERLAY INICIAL
+         ════════════════════════════════════════════════════════ -->
+    <div id="bootOverlay" class="fixed inset-0 bg-slate-950 z-[9999] flex flex-col items-center justify-center space-y-3">
+        <div class="w-10 h-10 border-4 border-brand-500 border-t-transparent rounded-full animate-spin"></div>
+        <p class="text-xs font-bold text-slate-400 tracking-wider uppercase">Cargando rutas...</p>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════
+         MAPA (fondo, siempre visible)
+         ════════════════════════════════════════════════════════ -->
+    <div id="map"></div>
+
+    <!-- ════════════════════════════════════════════════════════
+         TOP BAR FLOTANTE (solo móvil)
+         ════════════════════════════════════════════════════════ -->
+    <div id="topBar">
+        <div class="flex items-center gap-2">
+            <!-- Menú -->
+            <button id="btnOpenMenu" class="glass-btn rounded-2xl" aria-label="Menú">
+                <i class="fa fa-bars text-slate-300 text-lg"></i>
+            </button>
+
+            <!-- Título / estado -->
+            <div class="glass-btn flex-1 !justify-start rounded-2xl px-4" style="cursor: default">
+                <div class="flex flex-col items-start">
+                    <span class="text-[10px] font-bold text-brand-400 uppercase tracking-wider">Optimizador</span>
+                    <span id="topBarStatus" class="text-xs text-slate-300 font-semibold">Sin ruta calculada</span>
+                </div>
+            </div>
+
+            <!-- Recentrar -->
+            <button id="btnRecenter" class="glass-btn rounded-2xl" aria-label="Recentrar mapa">
+                <i class="fa fa-crosshairs text-slate-300 text-lg"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════
+         FAB: CALCULAR RUTA (solo móvil)
+         ════════════════════════════════════════════════════════ -->
+    <button id="fabCalculate" disabled
+        class="glass-btn rounded-full !bg-brand-600 !border-brand-500 text-white shadow-2xl shadow-brand-500/40"
+        aria-label="Calcular ruta">
+        <div class="flex items-center gap-2 px-2">
+            <i class="fa fa-route text-xl" id="fabIcon"></i>
+            <span id="fabLabel" class="font-bold text-sm pr-2">Ruta</span>
+        </div>
+    </button>
+
+    <!-- ════════════════════════════════════════════════════════
+         SIDEBAR DRAWER (móvil) / SIDEBAR (desktop usa mismo contenedor)
+         ════════════════════════════════════════════════════════ -->
+    <aside id="sidebar"
+        class="fixed inset-y-0 left-0 z-[60] w-72 bg-slate-900 border-r border-slate-800 flex flex-col justify-between -translate-x-full transition-transform duration-300 ease-out backdrop-blur-xl">
+        <div>
+            <div class="h-16 px-6 flex items-center justify-between border-b border-slate-800/80">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-500 flex items-center justify-center text-white font-black text-lg shadow-lg shadow-brand-500/20">
+                        A
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-sm tracking-wide text-white">AGENCY<span class="text-brand-500">PRO</span></h1>
+                        <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Optimizador</p>
+                    </div>
+                </div>
+                <button id="btnCloseMenu" class="text-slate-400 hover:text-white text-lg p-2" aria-label="Cerrar">
+                    <i class="fa fa-xmark"></i>
+                </button>
+            </div>
+
+            <nav class="p-4 space-y-1.5 custom-scroll overflow-y-auto max-h-[calc(100vh-140px)]">
+                <p class="px-3 pt-2 pb-1 text-[10px] font-bold uppercase tracking-widest text-slate-500">Menú Principal</p>
+
+                <a href="index.html" class="flex items-center gap-3 px-3.5 py-3 rounded-xl text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 text-sm font-medium transition-all">
+                    <i class="fa fa-house w-4 text-center"></i>
+                    <span>Inicio</span>
+                </a>
+                <a href="mapa.html" class="flex items-center gap-3 px-3.5 py-3 rounded-xl text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 text-sm font-medium transition-all">
+                    <i class="fa fa-map-location-dot w-4 text-center"></i>
+                    <span>Mapa de Agencias</span>
+                </a>
+                <a href="rutas.html" class="flex items-center gap-3 px-3.5 py-3 rounded-xl bg-brand-600/10 text-brand-400 font-semibold text-sm border border-brand-500/20 shadow-sm">
+                    <i class="fa fa-route w-4 text-center"></i>
+                    <span>Optimizador</span>
+                </a>
+                <a href="zonas.html" data-admin-only class="flex items-center gap-3 px-3.5 py-3 rounded-xl text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 text-sm font-medium transition-all">
+                    <i class="fa fa-layer-group w-4 text-center"></i>
+                    <span>Gestión de Zonas</span>
+                </a>
+
+                <p class="px-3 pt-4 pb-1 text-[10px] font-bold uppercase tracking-widest text-slate-500" data-admin-only>Administración</p>
+                <a href="users.html" data-admin-only class="flex items-center gap-3 px-3.5 py-3 rounded-xl text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 text-sm font-medium transition-all">
+                    <i class="fa fa-users-gear w-4 text-center"></i>
+                    <span>Usuarios</span>
+                </a>
+                <a href="reportes.html" class="flex items-center gap-3 px-3.5 py-3 rounded-xl text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 text-sm font-medium transition-all">
+                    <i class="fa fa-chart-pie w-4 text-center"></i>
+                    <span>Reportes</span>
+                </a>
+                <a href="configuracion.html" data-admin-only class="flex items-center gap-3 px-3.5 py-3 rounded-xl text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 text-sm font-medium transition-all">
+                    <i class="fa fa-sliders w-4 text-center"></i>
+                    <span>Configuración</span>
+                </a>
+                <a href="sugerencias.html" class="flex items-center gap-3 px-3.5 py-3 rounded-xl text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 text-sm font-medium transition-all">
+                    <i class="fa fa-lightbulb w-4 text-center"></i>
+                    <span>Sugerencias</span>
+                </a>
+            </nav>
+        </div>
+
+        <div class="p-4 border-t border-slate-800/80 bg-slate-900/50">
+            <div class="flex items-center justify-between gap-2">
+                <div class="flex items-center gap-2.5 min-w-0">
+                    <div class="w-9 h-9 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center text-brand-400 font-bold text-xs shrink-0">
+                        <i class="fa fa-user"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <p id="userEmail" class="text-xs font-semibold text-slate-200 truncate">Cargando...</p>
+                        <p id="userRole" class="text-[10px] text-slate-500">Sesión Activa</p>
+                    </div>
+                </div>
+                <button id="btnLogout" class="text-slate-400 hover:text-rose-400 p-2.5 rounded-lg hover:bg-rose-500/10 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center" aria-label="Cerrar sesión">
+                    <i class="fa fa-arrow-right-from-bracket"></i>
+                </button>
+            </div>
+        </div>
+    </aside>
+    <div id="menuBackdrop" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-[55] hidden"></div>
+
+    <!-- ════════════════════════════════════════════════════════
+         BOTTOM SHEET (contenido principal)
+         ════════════════════════════════════════════════════════ -->
+    <div id="bottomSheet" data-state="peek">
+
+        <!-- Handle de arrastre -->
+        <div id="dragHandle" class="drag-handle" aria-label="Arrastrar para expandir"></div>
+
+        <!-- TABS -->
+        <div class="flex border-b border-slate-800 shrink-0">
+            <button class="sheet-tab active" data-tab="start">
+                <i class="fa fa-flag-checkered"></i>
+                <span>Partida</span>
+            </button>
+            <button class="sheet-tab" data-tab="agencies">
+                <i class="fa fa-store"></i>
+                <span>Agencias</span>
+                <span id="tabAgencyCount" class="absolute top-2 right-4 bg-brand-600 text-white text-[9px] font-bold rounded-full px-1.5 py-0.5 min-w-[18px] hidden">0</span>
+            </button>
+            <button class="sheet-tab" data-tab="route">
+                <i class="fa fa-route"></i>
+                <span>Ruta</span>
+            </button>
+        </div>
+
+        <!-- CONTENIDO SCROLLEABLE -->
+        <div class="flex-1 overflow-y-auto custom-scroll">
+
+            <!-- ─── PANEL 1: PUNTO DE PARTIDA ─── -->
+            <div class="sheet-panel active p-4 space-y-4" data-panel="start">
+
+                <div>
+                    <h3 class="text-sm font-bold text-slate-200 mb-2 flex items-center gap-2">
+                        <i class="fa fa-location-crosshairs text-emerald-400"></i>
+                        ¿Desde dónde partes?
+                    </h3>
+                    <p class="text-xs text-slate-500 mb-4 leading-relaxed">
+                        Define tu punto de origen para calcular la mejor ruta.
+                    </p>
+                </div>
+
+                <!-- Botón GPS grande -->
+                <button id="btnUseMyLocation"
+                    class="w-full py-4 bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white font-bold rounded-2xl transition-all flex items-center justify-center gap-3 shadow-lg shadow-emerald-600/25">
+                    <i class="fa fa-location-crosshairs text-lg"></i>
+                    <span id="btnUseMyLocationText">Usar mi ubicación actual</span>
+                </button>
+                <p id="geoStatus" class="text-xs text-slate-500 text-center"></p>
+
+                <div class="relative py-2">
+                    <div class="absolute inset-0 flex items-center">
+                        <div class="w-full border-t border-slate-800"></div>
+                    </div>
+                    <div class="relative flex justify-center">
+                        <span class="bg-slate-900 px-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider">o</span>
+                    </div>
+                </div>
+
+                <!-- Tabs manual/agencia -->
+                <div class="grid grid-cols-2 gap-2">
+                    <button data-start-mode="manual" class="start-mode-btn py-3 rounded-xl border border-slate-800 bg-slate-950 text-slate-300 text-xs font-bold transition-all flex items-center justify-center gap-2">
+                        <i class="fa fa-keyboard"></i>
+                        <span>Manual</span>
+                    </button>
+                    <button data-start-mode="agency" class="start-mode-btn py-3 rounded-xl border border-slate-800 bg-slate-950 text-slate-300 text-xs font-bold transition-all flex items-center justify-center gap-2">
+                        <i class="fa fa-store"></i>
+                        <span>Agencia</span>
+                    </button>
+                </div>
+
+                <!-- Manual -->
+                <div id="manualStartPanel" class="hidden space-y-3">
+                    <input type="number" step="any" id="startLat" inputmode="decimal" placeholder="Latitud (ej: 18.4861)"
+                        class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-200 focus:outline-none focus:border-brand-500 font-mono">
+                    <input type="number" step="any" id="startLng" inputmode="decimal" placeholder="Longitud (ej: -69.9312)"
+                        class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-200 focus:outline-none focus:border-brand-500 font-mono">
+                    <button id="btnSetManualStart"
+                        class="w-full py-3 bg-brand-600 hover:bg-brand-500 active:bg-brand-700 text-white text-sm font-bold rounded-xl transition-all">
+                        Establecer punto de partida
+                    </button>
+                </div>
+
+                <!-- Agencia -->
+                <div id="agencyStartPanel" class="hidden">
+                    <div class="text-xs text-slate-500 bg-slate-950/60 border border-slate-800 rounded-xl p-4 text-center">
+                        <i class="fa fa-info-circle text-brand-400 mb-2 block text-lg"></i>
+                        Ve a la pestaña <b class="text-brand-400">Agencias</b>, busca una y toca el ícono <i class="fa fa-flag-checkered text-emerald-400"></i> para marcarla como punto de partida.
+                    </div>
+                    <button id="btnGoToAgencies" class="w-full mt-3 py-3 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold rounded-xl transition-all">
+                        <i class="fa fa-arrow-right mr-2"></i>Ir a Agencias
+                    </button>
+                </div>
+
+                <!-- Estado actual -->
+                <div id="startPointStatus" class="hidden bg-emerald-500/5 border border-emerald-500/20 rounded-2xl p-4 flex items-start gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+                        <i class="fa fa-flag-checkered"></i>
+                    </div>
+                    <div class="min-w-0 flex-1">
+                        <p class="text-xs font-bold text-emerald-400 uppercase tracking-wider">Punto de partida</p>
+                        <p class="text-sm font-semibold text-slate-100 truncate mt-0.5" id="startPointLabel">Sin definir</p>
+                        <p class="text-[11px] text-slate-500 font-mono truncate" id="startPointCoords">—</p>
+                    </div>
+                    <button id="btnClearStart" class="text-slate-500 hover:text-rose-400 p-2 -m-2" aria-label="Eliminar punto de partida">
+                        <i class="fa fa-xmark text-lg"></i>
+                    </button>
+                </div>
+
+                <!-- Opciones de cálculo -->
+                <div class="bg-slate-950/40 border border-slate-800 rounded-2xl p-4 space-y-4">
+                    <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+                        <i class="fa fa-sliders text-brand-400"></i>
+                        Opciones de ruta
+                    </h4>
+
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2">Modo de transporte</label>
+                        <div class="grid grid-cols-3 gap-2">
+                            <button data-profile="driving" class="profile-btn py-3 rounded-xl border transition-all flex flex-col items-center gap-1">
+                                <i class="fa fa-car text-lg"></i>
+                                <span class="text-[10px] font-bold">Auto</span>
+                            </button>
+                            <button data-profile="cycling" class="profile-btn py-3 rounded-xl border transition-all flex flex-col items-center gap-1">
+                                <i class="fa fa-bicycle text-lg"></i>
+                                <span class="text-[10px] font-bold">Bici</span>
+                            </button>
+                            <button data-profile="walking" class="profile-btn py-3 rounded-xl border transition-all flex flex-col items-center gap-1">
+                                <i class="fa fa-person-walking text-lg"></i>
+                                <span class="text-[10px] font-bold">A pie</span>
+                            </button>
+                        </div>
+                        <input type="hidden" id="profileInput" value="driving">
+                    </div>
+
+                    <label class="flex items-center gap-3 cursor-pointer select-none py-2">
+                        <input type="checkbox" id="roundTripCheck" class="w-5 h-5 rounded bg-slate-950 border border-slate-700 text-emerald-500 focus:ring-0 focus:ring-offset-0">
+                        <span class="text-sm text-slate-300">Regresar al punto de partida</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- ─── PANEL 2: AGENCIAS ─── -->
+            <div class="sheet-panel p-4 space-y-3" data-panel="agencies">
+
+                <!-- Buscador -->
+                <div class="relative">
+                    <i class="fa fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none"></i>
+                    <input type="text" id="agencySearch" placeholder="Buscar por ID, dirección o zona..."
+                        autocomplete="off" spellcheck="false"
+                        class="w-full bg-slate-950 border border-slate-800 rounded-2xl pl-11 pr-4 py-3.5 text-sm text-slate-200 focus:outline-none focus:border-brand-500">
+                    <button id="btnClearSearch" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 p-2" aria-label="Limpiar">
+                        <i class="fa fa-xmark"></i>
+                    </button>
+                </div>
+
+                <!-- Filtros y acciones -->
+                <div class="flex gap-2">
+                    <select id="zoneFilterList" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-3 text-xs text-slate-200 focus:outline-none focus:border-brand-500">
+                        <option value="ALL">Todas las zonas</option>
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <button id="btnSelectAllFiltered"
+                        class="py-3 bg-slate-800 hover:bg-slate-700 active:bg-slate-900 text-slate-200 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-2">
+                        <i class="fa fa-check-double"></i>
+                        <span>Seleccionar visibles</span>
+                    </button>
+                    <button id="btnDeselectAll"
+                        class="py-3 bg-slate-800 hover:bg-slate-700 active:bg-slate-900 text-slate-200 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-2">
+                        <i class="fa fa-xmark"></i>
+                        <span>Limpiar</span>
+                    </button>
+                </div>
+
+                <!-- Contador -->
+                <div class="flex items-center justify-between bg-brand-600/10 border border-brand-500/20 rounded-2xl px-4 py-3">
+                    <span class="text-xs font-bold text-brand-400 uppercase tracking-wider">
+                        <i class="fa fa-check-circle mr-2"></i>Seleccionadas
+                    </span>
+                    <span id="selectionCountBig" class="text-lg font-black text-white">0</span>
+                </div>
+
+                <!-- Lista -->
+                <div id="agencyListForRoute" class="space-y-2 pb-4">
+                    <div class="text-center py-12 text-slate-500 text-xs">
+                        <i class="fa fa-circle-notch fa-spin mr-2 text-lg block mb-3"></i>
+                        Cargando agencias...
+                    </div>
+                </div>
+            </div>
+
+            <!-- ─── PANEL 3: RUTA / RESULTADOS ─── -->
+            <div class="sheet-panel p-4 space-y-4" data-panel="route">
+
+                <!-- Estado vacío -->
+                <div id="routeEmpty" class="text-center py-12">
+                    <div class="w-20 h-20 rounded-3xl bg-slate-800/50 flex items-center justify-center mx-auto mb-4">
+                        <i class="fa fa-route text-4xl text-slate-600"></i>
+                    </div>
+                    <h3 class="text-sm font-bold text-slate-300 mb-1">Sin ruta calculada</h3>
+                    <p class="text-xs text-slate-500 max-w-xs mx-auto leading-relaxed">
+                        Selecciona un punto de partida y al menos 2 agencias. Toca el botón
+                        <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-brand-600 text-white text-[10px] font-bold mx-1 align-middle">
+                            <i class="fa fa-route"></i>
+                        </span>
+                        para optimizar.
+                    </p>
+                </div>
+
+                <!-- Contenido cuando hay ruta -->
+                <div id="routeContent" class="hidden space-y-4">
+
+                    <!-- Métricas grandes -->
+                    <div class="grid grid-cols-3 gap-2">
+                        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3 text-center">
+                            <i class="fa fa-route text-brand-400 text-lg"></i>
+                            <p class="text-[9px] text-slate-500 uppercase tracking-wider font-bold mt-1">Distancia</p>
+                            <p class="text-base font-black text-white" id="summaryDistance">—</p>
+                        </div>
+                        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3 text-center">
+                            <i class="fa fa-clock text-emerald-400 text-lg"></i>
+                            <p class="text-[9px] text-slate-500 uppercase tracking-wider font-bold mt-1">Duración</p>
+                            <p class="text-base font-black text-white" id="summaryDuration">—</p>
+                        </div>
+                        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3 text-center">
+                            <i class="fa fa-map-pin text-amber-400 text-lg"></i>
+                            <p class="text-[9px] text-slate-500 uppercase tracking-wider font-bold mt-1">Paradas</p>
+                            <p class="text-base font-black text-white" id="summaryStops">—</p>
+                        </div>
+                    </div>
+
+                    <!-- Acciones -->
+                    <div class="space-y-2">
+                        <button id="btnOpenGoogleMaps"
+                            class="w-full py-4 bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white text-sm font-bold rounded-2xl transition-all flex items-center justify-center gap-3 shadow-lg shadow-blue-600/25">
+                            <i class="fa fa-map text-lg"></i>
+                            <span>Abrir en Google Maps</span>
+                        </button>
+
+                        <div class="grid grid-cols-3 gap-2">
+                            <button id="btnShowDetails"
+                                class="py-3 bg-slate-800 hover:bg-slate-700 active:bg-slate-900 text-slate-200 text-xs font-bold rounded-xl transition-all flex flex-col items-center gap-1">
+                                <i class="fa fa-list-ol text-base"></i>
+                                <span>Paradas</span>
+                            </button>
+                            <button id="btnExportRouteExcel"
+                                class="py-3 bg-slate-800 hover:bg-slate-700 active:bg-slate-900 text-slate-200 text-xs font-bold rounded-xl transition-all flex flex-col items-center gap-1">
+                                <i class="fa fa-file-excel text-base"></i>
+                                <span>Excel</span>
+                            </button>
+                            <button id="btnSaveRoute"
+                                class="py-3 bg-slate-800 hover:bg-slate-700 active:bg-slate-900 text-slate-200 text-xs font-bold rounded-xl transition-all flex flex-col items-center gap-1">
+                                <i class="fa fa-floppy-disk text-base"></i>
+                                <span>Guardar</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Lista de paradas resumida -->
+                    <div>
+                        <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-2 flex items-center gap-2">
+                            <i class="fa fa-list-ol text-brand-400"></i>
+                            Orden de paradas
+                        </h4>
+                        <div id="routeStopsList" class="space-y-2"></div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════
+         MODAL: DETALLE DE PARADAS
+         ════════════════════════════════════════════════════════ -->
+    <div id="stopsModal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-sm z-[9998] hidden flex items-center justify-center p-0 sm:p-4">
+        <div class="modal-card bg-slate-900 border border-slate-800 flex flex-col shadow-2xl">
+            <div class="px-6 py-4 border-b border-slate-800 flex justify-between items-center safe-top">
+                <h3 class="text-base font-bold text-slate-100 flex items-center gap-2">
+                    <i class="fa fa-list-ol text-brand-400"></i>
+                    Detalle de paradas
+                </h3>
+                <button id="btnCloseStopsModal" class="text-slate-400 hover:text-white p-2 -m-2" aria-label="Cerrar">
+                    <i class="fa fa-xmark text-xl"></i>
+                </button>
+            </div>
+
+            <div id="stopsModalBody" class="flex-1 overflow-y-auto p-4 space-y-2 custom-scroll">
+                <!-- Dinámico -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════
+         MODAL: GUARDAR RUTA
+         ════════════════════════════════════════════════════════ -->
+    <div id="saveRouteModal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-sm z-[9998] hidden flex items-center justify-center p-0 sm:p-4">
+        <div class="modal-card sm:!h-auto bg-slate-900 border border-slate-800 flex flex-col shadow-2xl">
+            <div class="px-6 py-4 border-b border-slate-800 flex justify-between items-center safe-top">
+                <h3 class="text-base font-bold text-slate-100 flex items-center gap-2">
+                    <i class="fa fa-floppy-disk text-indigo-400"></i>
+                    Guardar ruta
+                </h3>
+                <button id="btnCloseSaveModal" class="text-slate-400 hover:text-white p-2 -m-2" aria-label="Cerrar">
+                    <i class="fa fa-xmark text-xl"></i>
+                </button>
+            </div>
+
+            <div class="p-6 space-y-4 overflow-y-auto">
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Nombre de la ruta</label>
+                    <input type="text" id="routeName" maxlength="80" placeholder="Ej: Ruta Norte Lunes"
+                        class="w-full bg-slate-950 border border-slate-800 rounded-xl p-4 text-sm text-slate-200 focus:outline-none focus:border-brand-500">
+                </div>
+
+                <p class="text-xs text-slate-500 leading-relaxed">
+                    Se guardará el orden exacto de las paradas, el punto de partida y las métricas para consultarla después.
+                </p>
+            </div>
+
+            <div class="px-6 py-4 border-t border-slate-800 flex justify-end gap-2 safe-bottom">
+                <button id="btnCancelSaveRoute"
+                    class="px-5 py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-bold rounded-xl">
+                    Cancelar
+                </button>
+                <button id="btnConfirmSaveRoute"
+                    class="px-5 py-3 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold rounded-xl flex items-center gap-2">
+                    <i class="fa fa-check"></i> Guardar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════
+         OVERLAY DE CÁLCULO
+         ════════════════════════════════════════════════════════ -->
+    <div id="calcOverlay" class="hidden">
+        <div class="w-16 h-16 border-4 border-brand-500 border-t-transparent rounded-full animate-spin"></div>
+        <div class="text-center px-6">
+            <p class="text-base font-bold text-white" id="calcStatusText">Optimizando ruta...</p>
+            <p class="text-xs text-slate-400 mt-2" id="calcStatusSub">Esto puede tomar unos segundos</p>
+        </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════
+         LIBRERÍAS
+         ════════════════════════════════════════════════════════ -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- ════════════════════════════════════════════════════════
+         LÓGICA PRINCIPAL
+         ════════════════════════════════════════════════════════ -->
+    <script type="module">
+        import { db, auth } from "./js/firebase/firebase.init.js";
+        import {
+            collection, doc, getDoc, getDocs, addDoc, serverTimestamp
+        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+        // ────────────────────────────────────────────────
+        // CONSTANTES
+        // ────────────────────────────────────────────────
+        const OSRM_BASE = "https://router.project-osrm.org";
+        const MAX_STOPS = 90;
+        const DEFAULT_CENTER = [18.7357, -70.1627];
+
+        // ────────────────────────────────────────────────
+        // DOM
+        // ────────────────────────────────────────────────
+        const bootOverlay      = document.getElementById("bootOverlay");
+        const userEmailSpan    = document.getElementById("userEmail");
+        const userRoleSpan     = document.getElementById("userRole");
+        const btnLogout        = document.getElementById("btnLogout");
+        const selectionCountBig = document.getElementById("selectionCountBig");
+        const tabAgencyCount   = document.getElementById("tabAgencyCount");
+        const fabCalculate     = document.getElementById("fabCalculate");
+        const fabIcon          = document.getElementById("fabIcon");
+        const fabLabel         = document.getElementById("fabLabel");
+        const topBarStatus     = document.getElementById("topBarStatus");
+        const btnRecenter      = document.getElementById("btnRecenter");
+
+        const sidebar          = document.getElementById("sidebar");
+        const menuBackdrop     = document.getElementById("menuBackdrop");
+        const btnOpenMenu      = document.getElementById("btnOpenMenu");
+        const btnCloseMenu     = document.getElementById("btnCloseMenu");
+
+        const bottomSheet      = document.getElementById("bottomSheet");
+        const dragHandle       = document.getElementById("dragHandle");
+
+        const agencyListForRoute = document.getElementById("agencyListForRoute");
+        const agencySearch     = document.getElementById("agencySearch");
+        const btnClearSearch   = document.getElementById("btnClearSearch");
+        const zoneFilterList   = document.getElementById("zoneFilterList");
+        const btnSelectAllFiltered = document.getElementById("btnSelectAllFiltered");
+        const btnDeselectAll   = document.getElementById("btnDeselectAll");
+
+        const roundTripCheck   = document.getElementById("roundTripCheck");
+        const profileInput     = document.getElementById("profileInput");
+
+        const startPointStatus = document.getElementById("startPointStatus");
+        const startPointLabel  = document.getElementById("startPointLabel");
+        const startPointCoords = document.getElementById("startPointCoords");
+        const btnClearStart    = document.getElementById("btnClearStart");
+        const btnUseMyLocation = document.getElementById("btnUseMyLocation");
+        const btnUseMyLocationText = document.getElementById("btnUseMyLocationText");
+        const geoStatus        = document.getElementById("geoStatus");
+        const manualStartPanel = document.getElementById("manualStartPanel");
+        const agencyStartPanel = document.getElementById("agencyStartPanel");
+        const btnSetManualStart = document.getElementById("btnSetManualStart");
+        const btnGoToAgencies  = document.getElementById("btnGoToAgencies");
+
+        const calcOverlay      = document.getElementById("calcOverlay");
+        const calcStatusText   = document.getElementById("calcStatusText");
+        const calcStatusSub    = document.getElementById("calcStatusSub");
+
+        const routeEmpty       = document.getElementById("routeEmpty");
+        const routeContent     = document.getElementById("routeContent");
+        const summaryDistance  = document.getElementById("summaryDistance");
+        const summaryDuration  = document.getElementById("summaryDuration");
+        const summaryStops     = document.getElementById("summaryStops");
+        const routeStopsList   = document.getElementById("routeStopsList");
+
+        const btnOpenGoogleMaps   = document.getElementById("btnOpenGoogleMaps");
+        const btnShowDetails      = document.getElementById("btnShowDetails");
+        const btnExportRouteExcel = document.getElementById("btnExportRouteExcel");
+        const btnSaveRoute        = document.getElementById("btnSaveRoute");
+
+        const stopsModal       = document.getElementById("stopsModal");
+        const stopsModalBody   = document.getElementById("stopsModalBody");
+        const btnCloseStopsModal = document.getElementById("btnCloseStopsModal");
+
+        const saveRouteModal   = document.getElementById("saveRouteModal");
+        const routeNameInput   = document.getElementById("routeName");
+        const btnCloseSaveModal = document.getElementById("btnCloseSaveModal");
+        const btnCancelSaveRoute = document.getElementById("btnCancelSaveRoute");
+        const btnConfirmSaveRoute = document.getElementById("btnConfirmSaveRoute");
+
+        // ────────────────────────────────────────────────
+        // ESTADO
+        // ────────────────────────────────────────────────
+        let map = null;
+        let markersLayer = null;
+        let routeLayer = null;
+        let allAgencies = [];
+        let selectedIds = new Set();
+        let startPoint = null;
+        let lastRoute = null;
+        let isAdmin = false;
+        let mapInitialized = false;
+        let currentSheetState = "peek";
+        let selectionMarker = null;
+
+        // ────────────────────────────────────────────────
+        // MENÚ LATERAL (drawer)
+        // ────────────────────────────────────────────────
+        btnOpenMenu.addEventListener("click", () => {
+            sidebar.classList.remove("-translate-x-full");
+            menuBackdrop.classList.remove("hidden");
+        });
+        const closeMenu = () => {
+            sidebar.classList.add("-translate-x-full");
+            menuBackdrop.classList.add("hidden");
+        };
+        btnCloseMenu.addEventListener("click", closeMenu);
+        menuBackdrop.addEventListener("click", closeMenu);
+
+        // ────────────────────────────────────────────────
+        // LOGOUT
+        // ────────────────────────────────────────────────
+        btnLogout.addEventListener("click", async () => {
+            const res = await Swal.fire({
+                title: "¿Cerrar sesión?",
+                icon: "question",
+                showCancelButton: true,
+                confirmButtonText: "Sí, salir",
+                cancelButtonText: "Cancelar",
+                confirmButtonColor: "#e11d48",
+                cancelButtonColor: "#475569"
+            });
+            if (!res.isConfirmed) return;
+            await signOut(auth);
+            window.location.replace("login.html");
+        });
+
+        // ────────────────────────────────────────────────
+        // AUTENTICACIÓN
+        // ────────────────────────────────────────────────
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.replace("login.html");
+                return;
+            }
+
+            userEmailSpan.innerText = user.email;
+
+            try {
+                const userSnap = await getDoc(doc(db, "users", user.uid));
+                if (!userSnap.exists()) {
+                    await Swal.fire("Cuenta no registrada", "Contacta al administrador.", "error");
+                    await signOut(auth);
+                    window.location.replace("login.html");
+                    return;
+                }
+
+                const userData = userSnap.data();
+                if (userData.enabled === false) {
+                    await Swal.fire("Usuario inhabilitado", "Tu acceso ha sido revocado.", "warning");
+                    await signOut(auth);
+                    window.location.replace("login.html");
+                    return;
+                }
+
+                isAdmin = userData.role === "admin";
+                userRoleSpan.innerText = isAdmin ? "Administrador" : "Visualizador";
+
+                if (!isAdmin) {
+                    document.querySelectorAll("[data-admin-only]").forEach(el => el.remove());
+                }
+
+                if (!mapInitialized) {
+                    initMap();
+                    mapInitialized = true;
+                }
+
+                setupBottomSheet();
+                setupSheetTabs();
+                setupProfileButtons();
+                setupStartModeButtons();
+                setupEventListeners();
+
+                await loadAgencies();
+                bootOverlay.classList.add("hidden");
+
+            } catch (err) {
+                console.error("Error al validar sesión:", err);
+                Swal.fire("Error", "No se pudieron verificar tus credenciales.", "error");
+                window.location.replace("login.html");
+            }
+        });
+
+        // ────────────────────────────────────────────────
+        // MAPA
+        // ────────────────────────────────────────────────
+        function initMap() {
+            map = L.map("map", {
+                zoomControl: true,
+                attributionControl: true
+            }).setView(DEFAULT_CENTER, 8);
+
+            L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+                maxZoom: 19,
+                attribution: "&copy; OSM"
+            }).addTo(map);
+
+            markersLayer = L.layerGroup().addTo(map);
+            routeLayer = L.layerGroup().addTo(map);
+
+            btnRecenter.addEventListener("click", fitAllAgencies);
+        }
+
+        function fitAllAgencies() {
+            if (allAgencies.length === 0) return;
+            const bounds = allAgencies.map(a => [a.lat, a.lng]);
+            map.fitBounds(bounds, { padding: [40, 40], maxZoom: 13 });
+        }
+
+        // ────────────────────────────────────────────────
+        // BOTTOM SHEET (arrastrable)
+        // ────────────────────────────────────────────────
+        function setupBottomSheet() {
+            let startY = 0;
+            let startTransform = 0;
+            let currentTransform = 0;
+            let isDragging = false;
+
+            const states = {
+                peek:     window.innerHeight * 0.92 - 120,  // 120px visible
+                half:     window.innerHeight * 0.92 - window.innerHeight * 0.5,
+                expanded: 0
+            };
+
+            const getSheetHeight = () => bottomSheet.offsetHeight;
+
+            function getTransformForState(state) {
+                const h = getSheetHeight();
+                if (state === "peek") return h - 120;
+                if (state === "half") return h - window.innerHeight * 0.5;
+                if (state === "expanded") return 0;
+                return h - 120;
+            }
+
+            function setState(state, animate = true) {
+                currentSheetState = state;
+                document.body.dataset.sheet = state;
+                if (!animate) bottomSheet.style.transition = "none";
+                bottomSheet.style.transform = `translateY(${getTransformForState(state)}px)`;
+                if (!animate) {
+                    requestAnimationFrame(() => {
+                        bottomSheet.style.transition = "";
+                    });
+                }
+            }
+
+            // Inicializar
+            setState("peek");
+
+            const getY = (e) => e.touches ? e.touches[0].clientY : e.clientY;
+
+            function dragStart(e) {
+                if (window.innerWidth >= 768) return; // solo móvil
+                isDragging = true;
+                startY = getY(e);
+                const rect = bottomSheet.getBoundingClientRect();
+                startTransform = rect.top;
+                bottomSheet.style.transition = "none";
+                document.body.style.userSelect = "none";
+            }
+
+            function dragMove(e) {
+                if (!isDragging) return;
+                e.preventDefault();
+                const deltaY = getY(e) - startY;
+                const newTop = Math.max(0, Math.min(window.innerHeight - 60, startTransform + deltaY));
+                bottomSheet.style.transform = `translateY(${newTop}px)`;
+                currentTransform = newTop;
+            }
+
+            function dragEnd() {
+                if (!isDragging) return;
+                isDragging = false;
+                document.body.style.userSelect = "";
+                bottomSheet.style.transition = "";
+
+                const h = getSheetHeight();
+                const peekY = h - 120;
+                const halfY = h - window.innerHeight * 0.5;
+
+                // Decidir estado más cercano
+                const distances = [
+                    { state: "peek",     dist: Math.abs(currentTransform - peekY) },
+                    { state: "half",     dist: Math.abs(currentTransform - halfY) },
+                    { state: "expanded", dist: Math.abs(currentTransform - 0) }
+                ];
+                distances.sort((a, b) => a.dist - b.dist);
+                setState(distances[0].state);
+            }
+
+            dragHandle.addEventListener("touchstart", dragStart, { passive: true });
+            dragHandle.addEventListener("touchmove", dragMove, { passive: false });
+            dragHandle.addEventListener("touchend", dragEnd);
+
+            // Mouse para testing en desktop
+            dragHandle.addEventListener("mousedown", dragStart);
+            document.addEventListener("mousemove", dragMove);
+            document.addEventListener("mouseup", dragEnd);
+
+            // Ajustar al cambiar tamaño/orientación
+            window.addEventListener("resize", () => {
+                if (window.innerWidth >= 768) return;
+                setState(currentSheetState, false);
+            });
+        }
+
+        // ────────────────────────────────────────────────
+        // TABS DEL SHEET
+        // ────────────────────────────────────────────────
+        function setupSheetTabs() {
+            const tabs = document.querySelectorAll(".sheet-tab");
+            tabs.forEach(tab => {
+                tab.addEventListener("click", () => {
+                    const target = tab.dataset.tab;
+                    switchSheetTab(target);
+                });
+            });
+        }
+
+        function switchSheetTab(target) {
+            document.querySelectorAll(".sheet-tab").forEach(t => {
+                t.classList.toggle("active", t.dataset.tab === target);
+            });
+            document.querySelectorAll(".sheet-panel").forEach(p => {
+                p.classList.toggle("active", p.dataset.panel === target);
+            });
+
+            // Expandir sheet al cambiar de tab en móvil
+            if (window.innerWidth < 768) {
+                const sheetHeight = bottomSheet.offsetHeight;
+                bottomSheet.style.transform = `translateY(${sheetHeight - window.innerHeight * 0.5}px)`;
+                document.body.dataset.sheet = "half";
+                currentSheetState = "half";
+            }
+        }
+
+        // ────────────────────────────────────────────────
+        // PROFILE BUTTONS (auto / bici / a pie)
+        // ────────────────────────────────────────────────
+        function setupProfileButtons() {
+            const btns = document.querySelectorAll(".profile-btn");
+            btns.forEach(btn => {
+                btn.addEventListener("click", () => {
+                    btns.forEach(b => {
+                        b.className = "profile-btn py-3 rounded-xl border transition-all flex flex-col items-center gap-1 border-slate-800 bg-slate-950 text-slate-400";
+                    });
+                    btn.className = "profile-btn py-3 rounded-xl border transition-all flex flex-col items-center gap-1 border-brand-500 bg-brand-600/20 text-brand-300";
+                    profileInput.value = btn.dataset.profile;
+                });
+            });
+            btns[0].click(); // auto por defecto
+        }
+
+        // ────────────────────────────────────────────────
+        // START MODE BUTTONS
+        // ────────────────────────────────────────────────
+        function setupStartModeButtons() {
+            const btns = document.querySelectorAll(".start-mode-btn");
+            btns.forEach(btn => {
+                btn.addEventListener("click", () => {
+                    const mode = btn.dataset.startMode;
+                    btns.forEach(b => {
+                        b.className = "start-mode-btn py-3 rounded-xl border transition-all flex items-center justify-center gap-2 border-slate-800 bg-slate-950 text-slate-300 text-xs font-bold";
+                    });
+                    btn.className = "start-mode-btn py-3 rounded-xl border transition-all flex items-center justify-center gap-2 border-brand-500 bg-brand-600/20 text-brand-300 text-xs font-bold";
+
+                    manualStartPanel.classList.toggle("hidden", mode !== "manual");
+                    agencyStartPanel.classList.toggle("hidden", mode !== "agency");
+                });
+            });
+        }
+
+        // ────────────────────────────────────────────────
+        // EVENT LISTENERS
+        // ────────────────────────────────────────────────
+        function setupEventListeners() {
+            btnUseMyLocation.addEventListener("click", useMyLocation);
+            btnSetManualStart.addEventListener("click", setManualStart);
+            btnClearStart.addEventListener("click", clearStartPoint);
+            btnGoToAgencies.addEventListener("click", () => switchSheetTab("agencies"));
+
+            fabCalculate.addEventListener("click", calculateRoute);
+            btnRecenter.addEventListener("click", fitAllAgencies);
+
+            btnSelectAllFiltered.addEventListener("click", selectAllFiltered);
+            btnDeselectAll.addEventListener("click", () => {
+                selectedIds.clear();
+                updateSelectionUI();
+                renderAgencyList();
+            });
+
+            agencySearch.addEventListener("input", debounce(() => {
+                btnClearSearch.classList.toggle("hidden", !agencySearch.value);
+                renderAgencyList();
+            }, 200));
+            btnClearSearch.addEventListener("click", () => {
+                agencySearch.value = "";
+                btnClearSearch.classList.add("hidden");
+                renderAgencyList();
+            });
+            zoneFilterList.addEventListener("change", renderAgencyList);
+
+            btnOpenGoogleMaps.addEventListener("click", openInGoogleMaps);
+            btnShowDetails.addEventListener("click", showStopsModal);
+            btnExportRouteExcel.addEventListener("click", exportRouteToExcel);
+            btnSaveRoute.addEventListener("click", showSaveRouteModal);
+
+            btnCloseStopsModal.addEventListener("click", () => stopsModal.classList.add("hidden"));
+            stopsModal.addEventListener("click", (e) => { if (e.target === stopsModal) stopsModal.classList.add("hidden"); });
+
+            btnCloseSaveModal.addEventListener("click", () => saveRouteModal.classList.add("hidden"));
+            btnCancelSaveRoute.addEventListener("click", () => saveRouteModal.classList.add("hidden"));
+            saveRouteModal.addEventListener("click", (e) => { if (e.target === saveRouteModal) saveRouteModal.classList.add("hidden"); });
+            btnConfirmSaveRoute.addEventListener("click", saveRoute);
+
+            // Escape cierra modales
+            document.addEventListener("keydown", (e) => {
+                if (e.key === "Escape") {
+                    stopsModal.classList.add("hidden");
+                    saveRouteModal.classList.add("hidden");
+                    closeMenu();
+                }
+            });
+        }
+
+        // ────────────────────────────────────────────────
+        // PUNTO DE PARTIDA
+        // ────────────────────────────────────────────────
+        function useMyLocation() {
+            if (!navigator.geolocation) {
+                geoStatus.textContent = "Tu navegador no soporta geolocalización.";
+                geoStatus.className = "text-xs text-rose-400 text-center";
+                return;
+            }
+
+            btnUseMyLocation.disabled = true;
+            btnUseMyLocationText.textContent = "Obteniendo ubicación...";
+            geoStatus.textContent = "Permite el acceso cuando el navegador lo pida...";
+            geoStatus.className = "text-xs text-amber-400 text-center";
+
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    setStartPoint({
+                        lat: pos.coords.latitude,
+                        lng: pos.coords.longitude,
+                        label: "Mi ubicación actual"
+                    });
+                    geoStatus.textContent = `✓ Ubicación obtenida (precisión: ${Math.round(pos.coords.accuracy)}m)`;
+                    geoStatus.className = "text-xs text-emerald-400 text-center";
+                    btnUseMyLocation.disabled = false;
+                    btnUseMyLocationText.textContent = "Usar mi ubicación actual";
+                },
+                (err) => {
+                    let msg = "No se pudo obtener la ubicación.";
+                    if (err.code === 1) msg = "Permiso denegado. Habilítalo en tu navegador.";
+                    if (err.code === 2) msg = "Ubicación no disponible.";
+                    if (err.code === 3) msg = "Tiempo de espera agotado.";
+                    geoStatus.textContent = msg;
+                    geoStatus.className = "text-xs text-rose-400 text-center";
+                    btnUseMyLocation.disabled = false;
+                    btnUseMyLocationText.textContent = "Usar mi ubicación actual";
+                },
+                { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 }
+            );
+        }
+
+        function setManualStart() {
+            const lat = parseFloat(document.getElementById("startLat").value);
+            const lng = parseFloat(document.getElementById("startLng").value);
+
+            if (isNaN(lat) || isNaN(lng)) {
+                Swal.fire("Datos inválidos", "Ingresa latitud y longitud numéricas.", "warning");
+                return;
+            }
+            if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+                Swal.fire("Fuera de rango", "Lat entre -90/90, Lng entre -180/180.", "warning");
+                return;
+            }
+
+            setStartPoint({ lat, lng, label: "Coordenadas manuales" });
+        }
+
+        function setStartPoint(point) {
+            startPoint = point;
+            startPointLabel.textContent = point.label;
+            startPointCoords.textContent = `${point.lat.toFixed(6)}, ${point.lng.toFixed(6)}`;
+            startPointStatus.classList.remove("hidden");
+
+            renderAgencyList();
+            updateSelectionUI();
+
+            map.flyTo([point.lat, point.lng], 12, { duration: 1 });
+
+            routeLayer.clearLayers();
+            const startIcon = L.divIcon({
+                className: "",
+                html: `<div class="stop-marker start"><i class="fa fa-flag-checkered"></i></div>`,
+                iconSize: [38, 38],
+                iconAnchor: [19, 19]
+            });
+            L.marker([point.lat, point.lng], { icon: startIcon, zIndexOffset: 1000 })
+                .bindPopup(`<strong>🏁 Punto de partida</strong><br>${escapeHtml(point.label)}`)
+                .addTo(routeLayer);
+        }
+
+        function clearStartPoint() {
+            startPoint = null;
+            startPointStatus.classList.add("hidden");
+            routeLayer.clearLayers();
+            renderAgencyList();
+            updateSelectionUI();
+        }
+
+        // ────────────────────────────────────────────────
+        // CARGA DE AGENCIAS
+        // ────────────────────────────────────────────────
+        async function loadAgencies() {
+            try {
+                const snap = await getDocs(collection(db, "agencias"));
+                allAgencies = [];
+
+                snap.forEach(docSnap => {
+                    const data = docSnap.data();
+                    const lat = data.lat ?? data.latitud ?? null;
+                    const lng = data.lng ?? data.longitud ?? null;
+
+                    if (lat === null || lng === null) return;
+                    const la = Number(lat), lo = Number(lng);
+                    if (isNaN(la) || isNaN(lo) || la === 0 || lo === 0) return;
+                    if (data.enabled === false) return;
+
+                    const realId = data.idReal ?? data.idreal ?? data.codigo ?? null;
+
+                    allAgencies.push({
+                        docId: docSnap.id,
+                        idReal: realId !== null ? String(realId) : null,
+                        zona: data.zona ? String(data.zona).toUpperCase().trim() : "SIN ZONA",
+                        direccion: String(data.direccion || "").trim(),
+                        lat: la,
+                        lng: lo
+                    });
+                });
+
+                allAgencies.sort((a, b) =>
+                    (a.idReal || "").localeCompare(b.idReal || "", undefined, { numeric: true })
+                );
+
+                const zones = new Set(allAgencies.map(a => a.zona).filter(Boolean));
+                zoneFilterList.innerHTML = `<option value="ALL">Todas las zonas (${zones.size})</option>`;
+                Array.from(zones).sort().forEach(z => {
+                    const opt = document.createElement("option");
+                    opt.value = z;
+                    opt.textContent = z;
+                    zoneFilterList.appendChild(opt);
+                });
+
+                renderAgencyList();
+                updateTopBarStatus();
+
+            } catch (err) {
+                console.error("Error cargando agencias:", err);
+                agencyListForRoute.innerHTML = `
+                    <div class="text-center py-12 text-rose-400 text-sm">
+                        <i class="fa fa-triangle-exclamation text-3xl mb-2 block"></i>
+                        Error al cargar agencias.
+                    </div>`;
+            }
+        }
+
+        // ────────────────────────────────────────────────
+        // RENDER LISTA
+        // ────────────────────────────────────────────────
+        function renderAgencyList() {
+            const search = agencySearch.value.toLowerCase().trim();
+            const zone = zoneFilterList.value;
+
+            const filtered = allAgencies.filter(a => {
+                if (zone !== "ALL" && a.zona !== zone) return false;
+                if (search) {
+                    const inId = (a.idReal || "").toLowerCase().includes(search);
+                    const inDir = a.direccion.toLowerCase().includes(search);
+                    const inZone = a.zona.toLowerCase().includes(search);
+                    if (!inId && !inDir && !inZone) return false;
+                }
+                return true;
+            });
+
+            agencyListForRoute.innerHTML = "";
+
+            if (filtered.length === 0) {
+                agencyListForRoute.innerHTML = `
+                    <div class="text-center py-12 text-slate-500 text-sm">
+                        <i class="fa fa-inbox text-3xl mb-2 block text-slate-600"></i>
+                        Sin agencias que coincidan.
+                    </div>`;
+                return;
+            }
+
+            filtered.forEach(a => agencyListForRoute.appendChild(buildAgencyRow(a)));
+        }
+
+        function buildAgencyRow(a) {
+            const isSelected = selectedIds.has(a.docId);
+            const isStart = startPoint && Math.abs(startPoint.lat - a.lat) < 1e-6 && Math.abs(startPoint.lng - a.lng) < 1e-6;
+
+            const row = document.createElement("div");
+            row.className = `agency-row${isSelected ? " selected" : ""}`;
+
+            // Checkbox
+            const cb = document.createElement("div");
+            cb.className = `w-6 h-6 rounded-lg border-2 flex items-center justify-center shrink-0 transition-all ${
+                isSelected ? "bg-brand-600 border-brand-500" : "bg-slate-950 border-slate-700"
+            }`;
+            if (isSelected) cb.innerHTML = `<i class="fa fa-check text-white text-xs"></i>`;
+            row.appendChild(cb);
+
+            // Contenido
+            const content = document.createElement("div");
+            content.className = "min-w-0 flex-1";
+
+            const title = document.createElement("p");
+            title.className = "text-sm font-bold text-slate-200 truncate";
+            title.textContent = a.idReal || "Sin ID";
+            content.appendChild(title);
+
+            const dir = document.createElement("p");
+            dir.className = "text-xs text-slate-500 truncate mt-0.5";
+            dir.textContent = a.direccion || "Sin dirección";
+            content.appendChild(dir);
+
+            const zoneBadge = document.createElement("span");
+            zoneBadge.className = "inline-block mt-1 text-[10px] font-mono text-brand-400 bg-brand-500/10 px-2 py-0.5 rounded";
+            zoneBadge.textContent = a.zona;
+            content.appendChild(zoneBadge);
+
+            row.appendChild(content);
+
+            // Botón marcar como inicio
+            const btnStart = document.createElement("button");
+            btnStart.className = `w-11 h-11 rounded-xl flex items-center justify-center shrink-0 transition-all text-base ${
+                isStart
+                    ? "bg-emerald-500/20 text-emerald-400"
+                    : "text-slate-500 hover:text-emerald-400 hover:bg-emerald-500/10 active:bg-emerald-500/20"
+            }`;
+            btnStart.title = isStart ? "Este es el punto de partida" : "Marcar como punto de partida";
+            btnStart.innerHTML = `<i class="fa fa-flag-checkered"></i>`;
+            btnStart.addEventListener("click", (e) => {
+                e.stopPropagation();
+                if (isStart) {
+                    clearStartPoint();
+                } else {
+                    setStartPoint({ lat: a.lat, lng: a.lng, label: a.idReal || a.docId });
+                    // Volver al tab de partida
+                    switchSheetTab("start");
+                }
+            });
+            row.appendChild(btnStart);
+
+            // Click en fila → toggle selección
+            row.addEventListener("click", () => toggleSelection(a.docId));
+
+            return row;
+        }
+
+        function toggleSelection(id) {
+            if (selectedIds.has(id)) selectedIds.delete(id);
+            else selectedIds.add(id);
+            updateSelectionUI();
+            renderAgencyList();
+        }
+
+        function selectAllFiltered() {
+            const search = agencySearch.value.toLowerCase().trim();
+            const zone = zoneFilterList.value;
+
+            allAgencies.forEach(a => {
+                if (zone !== "ALL" && a.zona !== zone) return;
+                if (search) {
+                    const inId = (a.idReal || "").toLowerCase().includes(search);
+                    const inDir = a.direccion.toLowerCase().includes(search);
+                    const inZone = a.zona.toLowerCase().includes(search);
+                    if (!inId && !inDir && !inZone) return;
+                }
+                selectedIds.add(a.docId);
+            });
+
+            updateSelectionUI();
+            renderAgencyList();
+        }
+
+        function updateSelectionUI() {
+            const count = selectedIds.size;
+            selectionCountBig.textContent = count;
+
+            // Badge en tab
+            if (count > 0) {
+                tabAgencyCount.textContent = count;
+                tabAgencyCount.classList.remove("hidden");
+            } else {
+                tabAgencyCount.classList.add("hidden");
+            }
+
+            // FAB
+            const canCalculate = count >= 2 && startPoint;
+            fabCalculate.disabled = !canCalculate;
+
+            updateTopBarStatus();
+        }
+
+        function updateTopBarStatus() {
+            const count = selectedIds.size;
+            if (!startPoint) {
+                topBarStatus.textContent = "Falta punto de partida";
+                return;
+            }
+            if (count < 2) {
+                topBarStatus.textContent = `Selecciona 2+ agencias (${count})`;
+                return;
+            }
+            topBarStatus.textContent = `${count} paradas listas`;
+        }
+
+        // ────────────────────────────────────────────────
+        // CÁLCULO DE RUTA
+        // ────────────────────────────────────────────────
+        async function calculateRoute() {
+            if (!startPoint) {
+                Swal.fire("Falta el punto de partida", "Define desde dónde comenzar la ruta.", "warning");
+                return;
+            }
+
+            const stopAgencies = allAgencies.filter(a => selectedIds.has(a.docId));
+            if (stopAgencies.length < 2) {
+                Swal.fire("Muy pocas paradas", "Selecciona al menos 2 agencias.", "warning");
+                return;
+            }
+            if (stopAgencies.length > MAX_STOPS) {
+                Swal.fire("Demasiadas paradas", `El máximo es ${MAX_STOPS}. Divide en varias rutas.`, "warning");
+                return;
+            }
+
+            const profile = profileInput.value;
+            const roundTrip = roundTripCheck.checked;
+
+            calcOverlay.classList.remove("hidden");
+
+            try {
+                const allPoints = [
+                    { lat: startPoint.lat, lng: startPoint.lng, type: "start", label: startPoint.label },
+                    ...stopAgencies.map(a => ({ ...a, type: "stop" }))
+                ];
+
+                updateCalcStatus("Consultando distancias reales...", "OSRM Table API");
+                const matrix = await getDistanceMatrix(allPoints, profile);
+                if (!matrix) throw new Error("No se pudo obtener la matriz de distancias");
+
+                updateCalcStatus("Optimizando orden...", "Nearest Neighbor + 2-opt");
+                const order = solveTSP(matrix.distances, 0);
+                const orderedPoints = order.map(idx => allPoints[idx]);
+
+                updateCalcStatus("Trazando carretera...", "OSRM Route API");
+                const routeGeometry = await getRouteGeometry(orderedPoints, profile, roundTrip);
+
+                const segments = [];
+                const pointsSeq = roundTrip ? [...orderedPoints, orderedPoints[0]] : orderedPoints;
+
+                for (let i = 0; i < pointsSeq.length - 1; i++) {
+                    const from = pointsSeq[i];
+                    const to = pointsSeq[i + 1];
+                    const d = haversine(from.lat, from.lng, to.lat, to.lng) * 1000;
+                    segments.push({ from, to, distance: d });
+                }
+
+                const totalDist = routeGeometry.distance;
+                const totalDur = routeGeometry.duration;
+
+                const sumSegments = segments.reduce((s, x) => s + x.distance, 0) || 1;
+                segments.forEach(s => {
+                    s.distance = (s.distance / sumSegments) * totalDist;
+                    s.duration = (s.distance / totalDist) * totalDur;
+                });
+
+                lastRoute = {
+                    order,
+                    points: orderedPoints,
+                    segments,
+                    geometry: routeGeometry.geometry,
+                    totalDistance: totalDist,
+                    totalDuration: totalDur,
+                    profile,
+                    roundTrip,
+                    startPoint
+                };
+
+                renderRouteOnMap(lastRoute);
+                updateRoutePanel(lastRoute);
+
+                // Cambiar a pestaña de ruta
+                switchSheetTab("route");
+
+                // Vibración de confirmación
+                if (navigator.vibrate) navigator.vibrate([30, 50, 30]);
+
+            } catch (err) {
+                console.error("Error calculando ruta:", err);
+                Swal.fire("Error", "No se pudo calcular la ruta: " + err.message, "error");
+            } finally {
+                calcOverlay.classList.add("hidden");
+            }
+        }
+
+        function updateCalcStatus(main, sub) {
+            calcStatusText.textContent = main;
+            calcStatusSub.textContent = sub || "";
+        }
+
+        // ────────────────────────────────────────────────
+        // MATRIZ DE DISTANCIAS
+        // ────────────────────────────────────────────────
+        async function getDistanceMatrix(points, profile = "driving") {
+            const coordStr = points.map(p => `${p.lng},${p.lat}`).join(";");
+            const url = `${OSRM_BASE}/table/v1/${profile}/${coordStr}?annotations=distance,duration`;
+
+            try {
+                const res = await fetch(url);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const data = await res.json();
+                if (data.code !== "Ok") throw new Error(data.message || data.code);
+
+                return { distances: data.distances, durations: data.durations };
+            } catch (err) {
+                console.warn("[OSRM Table] Falló, usando haversine:", err.message);
+                const n = points.length;
+                const dist = Array.from({ length: n }, () => Array(n).fill(0));
+                const dur = Array.from({ length: n }, () => Array(n).fill(0));
+                const SPEED_KMH = profile === "walking" ? 5 : profile === "cycling" ? 18 : 45;
+
+                for (let i = 0; i < n; i++) {
+                    for (let j = 0; j < n; j++) {
+                        if (i === j) continue;
+                        const d = haversine(points[i].lat, points[i].lng, points[j].lat, points[j].lng);
+                        dist[i][j] = d * 1000;
+                        dur[i][j] = (d / SPEED_KMH) * 3600;
+                    }
+                }
+                return { distances: dist, durations: dur };
+            }
+        }
+
+        // ────────────────────────────────────────────────
+        // OSRM ROUTE
+        // ────────────────────────────────────────────────
+        async function getRouteGeometry(points, profile = "driving", roundTrip = false) {
+            const seq = roundTrip ? [...points, points[0]] : points;
+            const coordStr = seq.map(p => `${p.lng},${p.lat}`).join(";");
+            const url = `${OSRM_BASE}/route/v1/${profile}/${coordStr}?overview=full&geometries=geojson`;
+
+            const res = await fetch(url);
+            if (!res.ok) throw new Error(`OSRM HTTP ${res.status}`);
+            const data = await res.json();
+            if (data.code !== "Ok") throw new Error(data.message || data.code);
+
+            const route = data.routes[0];
+            return {
+                geometry: route.geometry,
+                distance: route.distance,
+                duration: route.duration
+            };
+        }
+
+        // ────────────────────────────────────────────────
+        // TSP
+        // ────────────────────────────────────────────────
+        function solveTSP(matrix, startIdx = 0) {
+            const n = matrix.length;
+            if (n === 0) return [];
+            if (n === 1) return [0];
+
+            const visited = new Set([startIdx]);
+            const order = [startIdx];
+            let current = startIdx;
+
+            while (visited.size < n) {
+                let bestIdx = -1;
+                let bestDist = Infinity;
+                for (let i = 0; i < n; i++) {
+                    if (visited.has(i)) continue;
+                    const d = matrix[current][i];
+                    if (d < bestDist) {
+                        bestDist = d;
+                        bestIdx = i;
+                    }
+                }
+                visited.add(bestIdx);
+                order.push(bestIdx);
+                current = bestIdx;
+            }
+
+            return twoOpt(order, matrix);
+        }
+
+        function twoOpt(order, matrix) {
+            const n = order.length;
+            let improved = true;
+            let best = [...order];
+            let iterations = 0;
+            const MAX_ITER = 200;
+
+            while (improved && iterations < MAX_ITER) {
+                improved = false;
+                iterations++;
+
+                for (let i = 1; i < n - 1; i++) {
+                    for (let j = i + 1; j < n; j++) {
+                        const a = best[i - 1];
+                        const b = best[i];
+                        const c = best[j];
+                        const d = j + 1 < n ? best[j + 1] : -1;
+
+                        const currentDist = matrix[a][b] + (d >= 0 ? matrix[c][d] : 0);
+                        const newDist = matrix[a][c] + (d >= 0 ? matrix[b][d] : 0);
+
+                        if (newDist < currentDist - 0.1) {
+                            best = [
+                                ...best.slice(0, i),
+                                ...best.slice(i, j + 1).reverse(),
+                                ...best.slice(j + 1)
+                            ];
+                            improved = true;
+                        }
+                    }
+                }
+            }
+
+            return best;
+        }
+
+        // ────────────────────────────────────────────────
+        // RENDER RUTA EN MAPA
+        // ────────────────────────────────────────────────
+        function renderRouteOnMap(route) {
+            routeLayer.clearLayers();
+
+            if (route.geometry && route.geometry.coordinates) {
+                const coords = route.geometry.coordinates.map(([lng, lat]) => [lat, lng]);
+                L.polyline(coords, {
+                    color: "#6366f1",
+                    weight: 5,
+                    opacity: 0.85,
+                    lineCap: "round",
+                    lineJoin: "round"
+                }).addTo(routeLayer);
+            }
+
+            route.points.forEach((point, idx) => {
+                const isStart = idx === 0;
+                const html = isStart
+                    ? `<div class="stop-marker start"><i class="fa fa-flag-checkered"></i></div>`
+                    : `<div class="stop-marker">${idx}</div>`;
+
+                const icon = L.divIcon({
+                    className: "",
+                    html,
+                    iconSize: isStart ? [38, 38] : [32, 32],
+                    iconAnchor: isStart ? [19, 19] : [16, 16]
+                });
+
+                const popup = document.createElement("div");
+                popup.className = "text-xs min-w-[180px]";
+                const title = document.createElement("strong");
+                title.className = "block text-sm text-white mb-1";
+                title.textContent = isStart ? `🏁 ${route.startPoint.label}` : `${idx}. ${point.idReal || "Agencia"}`;
+                popup.appendChild(title);
+
+                if (!isStart) {
+                    const addr = document.createElement("p");
+                    addr.className = "text-slate-400 text-[11px]";
+                    addr.textContent = point.direccion || "Sin dirección";
+                    popup.appendChild(addr);
+
+                    const zone = document.createElement("span");
+                    zone.className = "inline-block mt-1 text-[10px] font-bold px-2 py-0.5 rounded bg-brand-500/20 text-brand-300 uppercase";
+                    zone.textContent = point.zona;
+                    popup.appendChild(zone);
+                }
+
+                L.marker([point.lat, point.lng], { icon, zIndexOffset: isStart ? 1000 : 0 })
+                    .bindPopup(popup)
+                    .addTo(routeLayer);
+            });
+
+            if (route.geometry && route.geometry.coordinates.length > 0) {
+                const bounds = route.geometry.coordinates.map(([lng, lat]) => [lat, lng]);
+                map.fitBounds(bounds, { padding: [60, 60] });
+            }
+        }
+
+        // ────────────────────────────────────────────────
+        // PANEL DE RUTA
+        // ────────────────────────────────────────────────
+        function updateRoutePanel(route) {
+            routeEmpty.classList.add("hidden");
+            routeContent.classList.remove("hidden");
+
+            summaryDistance.textContent = formatDistance(route.totalDistance);
+            summaryDuration.textContent = formatDuration(route.totalDuration);
+            summaryStops.textContent = route.points.length - 1;
+
+            // Lista resumida
+            routeStopsList.innerHTML = "";
+            route.points.forEach((point, idx) => {
+                const isStart = idx === 0;
+                const item = document.createElement("div");
+                item.className = "flex items-center gap-3 p-3 bg-slate-950/60 border border-slate-800 rounded-xl";
+
+                const badge = document.createElement("div");
+                badge.className = `shrink-0 w-7 h-7 rounded-full flex items-center justify-center font-black text-xs ${
+                    isStart ? "bg-emerald-500 text-white" : "bg-brand-600 text-white"
+                }`;
+                badge.textContent = isStart ? "🏁" : idx;
+                item.appendChild(badge);
+
+                const content = document.createElement("div");
+                content.className = "min-w-0 flex-1";
+
+                const name = document.createElement("p");
+                name.className = "text-xs font-bold text-slate-100 truncate";
+                name.textContent = isStart ? route.startPoint.label : (point.idReal || "Agencia");
+                content.appendChild(name);
+
+                if (!isStart) {
+                    const meta = document.createElement("div");
+                    meta.className = "flex items-center gap-2 mt-0.5";
+
+                    const zoneBadge = document.createElement("span");
+                    zoneBadge.className = "text-[10px] font-bold px-1.5 py-0.5 rounded bg-brand-500/20 text-brand-300";
+                    zoneBadge.textContent = point.zona;
+                    meta.appendChild(zoneBadge);
+
+                    if (idx >= 1 && route.segments[idx - 1]) {
+                        const seg = route.segments[idx - 1];
+                        const segBadge = document.createElement("span");
+                        segBadge.className = "text-[10px] text-slate-500";
+                        segBadge.textContent = `+${formatDistance(seg.distance)}`;
+                        meta.appendChild(segBadge);
+                    }
+
+                    content.appendChild(meta);
+                }
+
+                item.appendChild(content);
+
+                // Botón para centrar en el mapa
+                const btnCenter = document.createElement("button");
+                btnCenter.className = "w-9 h-9 rounded-lg text-slate-500 hover:text-brand-400 hover:bg-brand-500/10 flex items-center justify-center shrink-0";
+                btnCenter.innerHTML = `<i class="fa fa-crosshairs"></i>`;
+                btnCenter.addEventListener("click", () => {
+                    map.flyTo([point.lat, point.lng], 16, { duration: 0.8 });
+                    if (window.innerWidth < 768) {
+                        bottomSheet.style.transform = `translateY(${bottomSheet.offsetHeight - 120}px)`;
+                        document.body.dataset.sheet = "peek";
+                        currentSheetState = "peek";
+                    }
+                });
+                item.appendChild(btnCenter);
+
+                routeStopsList.appendChild(item);
+            });
+        }
+
+        // ────────────────────────────────────────────────
+        // MODAL DE PARADAS
+        // ────────────────────────────────────────────────
+        function showStopsModal() {
+            if (!lastRoute) return;
+            stopsModalBody.innerHTML = "";
+
+            lastRoute.points.forEach((point, idx) => {
+                const isStart = idx === 0;
+                const item = document.createElement("div");
+                item.className = "flex items-start gap-3 p-4 bg-slate-950/60 border border-slate-800 rounded-xl";
+
+                const badge = document.createElement("div");
+                badge.className = `shrink-0 w-9 h-9 rounded-full flex items-center justify-center font-black text-sm ${
+                    isStart ? "bg-emerald-500 text-white" : "bg-brand-600 text-white"
+                }`;
+                badge.textContent = isStart ? "🏁" : idx;
+                item.appendChild(badge);
+
+                const content = document.createElement("div");
+                content.className = "min-w-0 flex-1";
+
+                const name = document.createElement("p");
+                name.className = "text-sm font-bold text-slate-100";
+                name.textContent = isStart ? lastRoute.startPoint.label : (point.idReal || "Agencia");
+                content.appendChild(name);
+
+                if (!isStart) {
+                    const addr = document.createElement("p");
+                    addr.className = "text-xs text-slate-400 mt-0.5";
+                    addr.textContent = point.direccion || "Sin dirección";
+                    content.appendChild(addr);
+
+                    const meta = document.createElement("div");
+                    meta.className = "flex items-center gap-2 mt-2 flex-wrap";
+
+                    const zoneBadge = document.createElement("span");
+                    zoneBadge.className = "text-[10px] font-bold px-2 py-0.5 rounded bg-brand-500/20 text-brand-300 uppercase";
+                    zoneBadge.textContent = point.zona;
+                    meta.appendChild(zoneBadge);
+
+                    if (idx >= 1 && lastRoute.segments[idx - 1]) {
+                        const seg = lastRoute.segments[idx - 1];
+                        const segBadge = document.createElement("span");
+                        segBadge.className = "text-[11px] text-slate-500";
+                        segBadge.textContent = `+${formatDistance(seg.distance)} · ${formatDuration(seg.duration)}`;
+                        meta.appendChild(segBadge);
+                    }
+
+                    content.appendChild(meta);
+                }
+
+                item.appendChild(content);
+                stopsModalBody.appendChild(item);
+            });
+
+            stopsModal.classList.remove("hidden");
+        }
+
+        // ────────────────────────────────────────────────
+        // GOOGLE MAPS
+        // ────────────────────────────────────────────────
+        function openInGoogleMaps() {
+            if (!lastRoute) return;
+
+            const points = lastRoute.points;
+            const MAX_WAYPOINTS = 23;
+
+            if (points.length - 2 > MAX_WAYPOINTS) {
+                Swal.fire({
+                    title: "Ruta muy larga",
+                    html: `Google Maps permite <b>${MAX_WAYPOINTS}</b> paradas intermedias.<br>Tu ruta tiene <b>${points.length - 2}</b>.<br><br>¿Abrir solo las primeras ${MAX_WAYPOINTS + 2}?`,
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Sí, abrir parcial",
+                    cancelButtonText: "Cancelar",
+                    confirmButtonColor: "#2563eb",
+                    cancelButtonColor: "#475569"
+                }).then(res => {
+                    if (res.isConfirmed) {
+                        openGoogleMapsWith(points.slice(0, MAX_WAYPOINTS + 2), lastRoute.profile);
+                    }
+                });
+                return;
+            }
+
+            openGoogleMapsWith(points, lastRoute.profile);
+        }
+
+        function openGoogleMapsWith(points, profile) {
+            const origin = `${points[0].lat},${points[0].lng}`;
+            const destination = `${points[points.length - 1].lat},${points[points.length - 1].lng}`;
+            const waypoints = points.slice(1, -1)
+                .map(p => `${p.lat},${p.lng}`)
+                .join("|");
+
+            let url = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}&travelmode=${profile}`;
+            if (waypoints) url += `&waypoints=${encodeURIComponent(waypoints)}`;
+
+            window.open(url, "_blank");
+        }
+
+        // ────────────────────────────────────────────────
+        // EXPORT EXCEL
+        // ────────────────────────────────────────────────
+        function exportRouteToExcel() {
+            if (!lastRoute) return;
+
+            const rows = lastRoute.points.map((point, idx) => {
+                const isStart = idx === 0;
+                const seg = idx >= 1 ? lastRoute.segments[idx - 1] : null;
+
+                return {
+                    "Orden": isStart ? "🏁 Inicio" : idx,
+                    "ID Real": isStart ? "—" : (point.idReal || ""),
+                    "Zona": isStart ? "—" : point.zona,
+                    "Dirección": isStart ? point.label : (point.direccion || ""),
+                    "Latitud": point.lat,
+                    "Longitud": point.lng,
+                    "Distancia tramo (km)": seg ? (seg.distance / 1000).toFixed(2) : "",
+                    "Duración tramo (min)": seg ? Math.round(seg.duration / 60) : ""
+                };
+            });
+
+            rows.push({
+                "Orden": "TOTAL",
+                "ID Real": "",
+                "Zona": "",
+                "Dirección": "",
+                "Latitud": "",
+                "Longitud": "",
+                "Distancia tramo (km)": (lastRoute.totalDistance / 1000).toFixed(2),
+                "Duración tramo (min)": Math.round(lastRoute.totalDuration / 60)
+            });
+
+            const ws = XLSX.utils.json_to_sheet(rows);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Ruta");
+            XLSX.writeFile(wb, `Ruta_${new Date().toISOString().slice(0, 10)}.xlsx`);
+        }
+
+        // ────────────────────────────────────────────────
+        // GUARDAR RUTA
+        // ────────────────────────────────────────────────
+        function showSaveRouteModal() {
+            if (!lastRoute) return;
+            routeNameInput.value = `Ruta ${new Date().toLocaleDateString("es-DO")}`;
+            saveRouteModal.classList.remove("hidden");
+            setTimeout(() => routeNameInput.select(), 100);
+        }
+
+        async function saveRoute() {
+            if (!lastRoute) return;
+
+            const nombre = routeNameInput.value.trim();
+            if (!nombre) {
+                Swal.fire("Falta el nombre", "Escribe un nombre para la ruta.", "warning");
+                return;
+            }
+
+            btnConfirmSaveRoute.disabled = true;
+            btnConfirmSaveRoute.innerHTML = `<i class="fa fa-circle-notch fa-spin"></i> Guardando...`;
+
+            try {
+                const stops = lastRoute.points.slice(1).map((p, idx) => ({
+                    agencyId: p.docId,
+                    order: idx + 1,
+                    idReal: p.idReal || "",
+                    zona: p.zona || "",
+                    lat: p.lat,
+                    lng: p.lng,
+                    direccion: p.direccion || ""
+                }));
+
+                await addDoc(collection(db, "rutas"), {
+                    nombre,
+                    startPoint: {
+                        lat: lastRoute.startPoint.lat,
+                        lng: lastRoute.startPoint.lng,
+                        label: lastRoute.startPoint.label
+                    },
+                    stops,
+                    totalDistance: lastRoute.totalDistance,
+                    totalDuration: lastRoute.totalDuration,
+                    profile: lastRoute.profile,
+                    roundTrip: lastRoute.roundTrip,
+                    createdBy: auth.currentUser.uid,
+                    createdAt: serverTimestamp()
+                });
+
+                saveRouteModal.classList.add("hidden");
+
+                Swal.fire({
+                    toast: true,
+                    position: "top-end",
+                    icon: "success",
+                    title: "Ruta guardada",
+                    showConfirmButton: false,
+                    timer: 2200,
+                    timerProgressBar: true
+                });
+
+                if (navigator.vibrate) navigator.vibrate(50);
+
+            } catch (err) {
+                console.error("Error guardando ruta:", err);
+                Swal.fire("Error", "No se pudo guardar la ruta: " + err.message, "error");
+            } finally {
+                btnConfirmSaveRoute.disabled = false;
+                btnConfirmSaveRoute.innerHTML = `<i class="fa fa-check"></i> Guardar`;
+            }
+        }
+
+        // ────────────────────────────────────────────────
+        // UTILIDADES
+        // ────────────────────────────────────────────────
+        function haversine(lat1, lng1, lat2, lng2) {
+            const R = 6371;
+            const toRad = x => x * Math.PI / 180;
+            const dLat = toRad(lat2 - lat1);
+            const dLng = toRad(lng2 - lng1);
+            const a = Math.sin(dLat / 2) ** 2 +
+                Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+                Math.sin(dLng / 2) ** 2;
+            return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        }
+
+        function formatDistance(meters) {
+            if (meters < 1000) return `${Math.round(meters)} m`;
+            return `${(meters / 1000).toFixed(1)} km`;
+        }
+
+        function formatDuration(seconds) {
+            if (seconds < 60) return `${Math.round(seconds)} s`;
+            const m = Math.floor(seconds / 60);
+            if (m < 60) return `${m} min`;
+            const h = Math.floor(m / 60);
+            const rm = m % 60;
+            return rm > 0 ? `${h}h ${rm}m` : `${h}h`;
+        }
+
+        function debounce(fn, ms) {
+            let timer;
+            return (...args) => {
+                clearTimeout(timer);
+                timer = setTimeout(() => fn.apply(this, args), ms);
+            };
+        }
+
+        function escapeHtml(str) {
+            return String(str ?? "").replace(/[&<>"']/g, (c) => ({
+                "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+            }[c]));
+        }
+    </script>
+</body>
+</html>

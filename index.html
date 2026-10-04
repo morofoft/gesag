@@ -5,8 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dev Pedro Garcia V2.1 | Dashboard</title>
-    
-    <!-- Tailwind CSS CDN -->
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -14,27 +13,22 @@
                 extend: {
                     colors: {
                         brand: {
-                            50: '#eef2ff',
-                            100: '#e0e7ff',
-                            500: '#6366f1',
-                            600: '#4f46e5',
-                            700: '#4338ca',
-                            800: '#3730a3',
-                            900: '#312e81',
+                            50: '#eef2ff', 100: '#e0e7ff', 500: '#6366f1',
+                            600: '#4f46e5', 700: '#4338ca', 800: '#3730a3', 900: '#312e81',
                         }
                     }
                 }
             }
         }
     </script>
-    
-    <!-- FontAwesome 6 -->
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
-        
         .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
         .custom-scroll::-webkit-scrollbar-track { background: transparent; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 8px; }
@@ -44,13 +38,18 @@
 
 <body class="h-full bg-slate-950 text-slate-100 flex overflow-hidden antialiased">
 
+    <!-- OVERLAY DE VERIFICACIÓN INICIAL -->
+    <div id="bootOverlay" class="fixed inset-0 bg-slate-950 z-[100] flex flex-col items-center justify-center space-y-3">
+        <div class="w-10 h-10 border-4 border-brand-500 border-t-transparent rounded-full animate-spin"></div>
+        <p class="text-xs font-bold text-slate-400 tracking-wider uppercase">Cargando Panel...</p>
+    </div>
+
     <!-- BACKDROP MOBILE -->
     <div id="mobileBackdrop" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-40 hidden lg:hidden transition-opacity"></div>
 
-    <!-- SIDEBAR LATERAL (ADMINLTE STYLE MODERNO) -->
+    <!-- SIDEBAR -->
     <aside id="sidebar" class="fixed lg:static inset-y-0 left-0 z-50 w-72 bg-slate-900/90 border-r border-slate-800/80 flex flex-col justify-between -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out backdrop-blur-xl">
         <div>
-            <!-- LOGO / BRANDING -->
             <div class="h-16 px-6 flex items-center justify-between border-b border-slate-800/80">
                 <div class="flex items-center gap-3">
                     <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-500 flex items-center justify-center text-white font-black text-lg shadow-lg shadow-brand-500/20">
@@ -61,60 +60,61 @@
                         <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Dev P. Garcia 2026</p>
                     </div>
                 </div>
-                <button id="closeSidebarMobile" class="lg:hidden text-slate-400 hover:text-white text-lg">
+                <button id="closeSidebarMobile" class="lg:hidden text-slate-400 hover:text-white text-lg" aria-label="Cerrar menú">
                     <i class="fa fa-xmark"></i>
                 </button>
             </div>
-    
-            <!-- NAVEGACIÓN PRINCIPAL -->
+
             <nav class="p-4 space-y-1.5 custom-scroll overflow-y-auto max-h-[calc(100vh-140px)]">
                 <p class="px-3 pt-2 pb-1 text-[10px] font-bold uppercase tracking-widest text-slate-500">Menú Principal</p>
-                
+
                 <a href="index.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl bg-brand-600/10 text-brand-400 font-semibold text-xs border border-brand-500/20 shadow-sm transition-all">
                     <i class="fa fa-house w-4 text-center text-sm"></i>
                     <span>Inicio</span>
                 </a>
-    
+
                 <a href="mapa.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 text-xs font-medium transition-all group">
                     <i class="fa fa-map-location-dot w-4 text-center text-sm text-slate-500 group-hover:text-brand-400"></i>
                     <span>Mapa interactivo</span>
                 </a>
-    
-                <a href="zonas.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 text-xs font-medium transition-all group">
+                <a href="rutas.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl bg-brand-600/10 text-brand-400 font-semibold text-xs border border-brand-500/20 shadow-sm transition-all">
+                    <i class="fa fa-route w-4 text-center text-sm"></i>
+                    <span>Optimizador de Rutas</span>
+                </a>
+                <a href="zonas.html" data-admin-only class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 text-xs font-medium transition-all group">
                     <i class="fa fa-layer-group w-4 text-center text-sm text-slate-500 group-hover:text-brand-400"></i>
                     <span>Gestión de Zonas</span>
                 </a>
-    
-                <p class="px-3 pt-4 pb-1 text-[10px] font-bold uppercase tracking-widest text-slate-500">Administración</p>
-    
-                <a href="users.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 text-xs font-medium transition-all group">
+
+                <p class="px-3 pt-4 pb-1 text-[10px] font-bold uppercase tracking-widest text-slate-500" data-admin-only>Administración</p>
+
+                <a href="users.html" data-admin-only class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 text-xs font-medium transition-all group">
                     <i class="fa fa-users-gear w-4 text-center text-sm text-slate-500 group-hover:text-brand-400"></i>
                     <span>Usuarios y Permisos</span>
                 </a>
-    
+
                 <a href="reportes.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 text-xs font-medium transition-all group">
                     <i class="fa fa-chart-pie w-4 text-center text-sm text-slate-500 group-hover:text-brand-400"></i>
                     <span>Reportes y Métricas</span>
                 </a>
-    
+
                 <a href="sugerencias.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 text-xs font-medium transition-all group">
                     <i class="fa fa-lightbulb w-4 text-center text-sm text-slate-500 group-hover:text-brand-400"></i>
                     <span>Sugerencias</span>
                 </a>
-    
-                <a href="configuracion.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 text-xs font-medium transition-all group">
+
+                <a href="configuracion.html" data-admin-only class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 text-xs font-medium transition-all group">
                     <i class="fa fa-sliders w-4 text-center text-sm text-slate-500 group-hover:text-brand-400"></i>
                     <span>Configuración</span>
                 </a>
-    
-                <a href="contruccion.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 text-xs font-medium transition-all group">
+
+                <a href="construccion.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 text-xs font-medium transition-all group">
                     <i class="fa fa-helmet-safety w-4 text-center text-sm text-slate-500 group-hover:text-brand-400"></i>
                     <span>En Construcción</span>
                 </a>
             </nav>
         </div>
-    
-        <!-- FOOTER SIDEBAR (USUARIO PERFIL) -->
+
         <div class="p-4 border-t border-slate-800/80 bg-slate-900/50">
             <div class="flex items-center justify-between gap-2">
                 <div class="flex items-center gap-2.5 min-w-0">
@@ -123,23 +123,22 @@
                     </div>
                     <div class="min-w-0">
                         <p id="userEmail" class="text-xs font-semibold text-slate-200 truncate">Cargando...</p>
-                        <p class="text-[10px] text-slate-500">Sesión Activa</p>
+                        <p id="userRole" class="text-[10px] text-slate-500">Sesión Activa</p>
                     </div>
                 </div>
-                <button id="btnLogout" class="text-slate-400 hover:text-rose-400 p-2 rounded-lg hover:bg-rose-500/10 transition-colors" title="Cerrar Sesión">
+                <button id="btnLogout" class="text-slate-400 hover:text-rose-400 p-2 rounded-lg hover:bg-rose-500/10 transition-colors" title="Cerrar Sesión" aria-label="Cerrar Sesión">
                     <i class="fa fa-arrow-right-from-bracket"></i>
                 </button>
             </div>
         </div>
     </aside>
 
-    <!-- ÁREA DE CONTENIDO PRINCIPAL -->
+    <!-- ÁREA PRINCIPAL -->
     <div class="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
 
-        <!-- HEADER NAVBAR TOP -->
         <header class="h-16 bg-slate-900/80 border-b border-slate-800/80 px-6 flex items-center justify-between gap-4 shrink-0 backdrop-blur-md">
             <div class="flex items-center gap-4">
-                <button id="openSidebarMobile" class="lg:hidden text-slate-400 hover:text-white p-2 text-base">
+                <button id="openSidebarMobile" class="lg:hidden text-slate-400 hover:text-white p-2 text-base" aria-label="Abrir menú">
                     <i class="fa fa-bars"></i>
                 </button>
                 <div class="hidden sm:block">
@@ -148,23 +147,22 @@
                 </div>
             </div>
 
-            <!-- BUSCADOR SUPERIOR MODERNO -->
             <div class="flex-1 max-w-md">
                 <div class="relative">
                     <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500 text-xs">
                         <i class="fa fa-magnifying-glass"></i>
                     </span>
-                    <input id="searchInput" type="text" 
+                    <input id="searchInput" type="text"
                         placeholder="Buscar por código, zona o dirección..."
+                        autocomplete="off" spellcheck="false"
                         class="w-full bg-slate-950/60 border border-slate-800 rounded-xl pl-9 pr-4 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all shadow-inner" />
                 </div>
             </div>
         </header>
 
-        <!-- MAIN SCROLLABLE CONTENT -->
         <main class="flex-1 overflow-y-auto px-6 py-6 custom-scroll bg-slate-950">
 
-            <!-- KPIs Y MÉTRICAS RÁPIDAS -->
+            <!-- KPIs -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
                 <div class="bg-slate-900/60 border border-slate-800/80 p-4 rounded-2xl flex items-center justify-between">
                     <div>
@@ -197,77 +195,227 @@
                 </div>
             </div>
 
-            <!-- CONTENEDOR TITULO Y BOTÓN ACCIÓN -->
+            <!-- TITLE + ACTION -->
             <div class="flex items-center justify-between mb-4">
                 <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Listado Registrado</h3>
-                <button class="bg-brand-600 hover:bg-brand-500 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition-all shadow-md active:scale-95 flex items-center gap-2">
+                <a href="configuracion.html" data-admin-only
+                    class="bg-brand-600 hover:bg-brand-500 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition-all shadow-md active:scale-95 flex items-center gap-2">
                     <i class="fa fa-plus text-xs"></i>
                     <span>Nueva Agencia</span>
-                </button>
+                </a>
             </div>
 
-            <!-- INDICADOR DE CARGA -->
+            <!-- LOADING -->
             <div id="loading" class="text-center py-16">
                 <i class="fa fa-circle-notch animate-spin text-3xl text-brand-500 mb-3"></i>
                 <p class="text-slate-400 text-xs font-semibold uppercase tracking-wider">Cargando base de datos Firestore...</p>
             </div>
 
-            <!-- GRID DE AGENCIAS -->
+            <!-- GRID -->
             <div id="agenciesList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 pb-12"></div>
 
         </main>
     </div>
 
-    <!-- PROTECCIÓN DE RUTA -->
-    <script type="module">
-        import { requireAuth } from "./js/auth.guard.js";
-        requireAuth();
-    </script>
+    <!-- MODAL EDITAR AGENCIA -->
+    <div id="editModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[9998] flex items-center justify-center hidden p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 w-full max-w-lg space-y-4 shadow-2xl">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                <h3 class="text-sm font-bold text-slate-100 flex items-center gap-2">
+                    <i class="fa fa-pen-to-square text-brand-400"></i>
+                    Editar Agencia
+                </h3>
+                <button id="btnCloseEditModal" class="text-slate-400 hover:text-white" aria-label="Cerrar">
+                    <i class="fa fa-xmark"></i>
+                </button>
+            </div>
 
-    <!-- LOGICA JS DE SIDEBAR Y FIRESTORE -->
+            <form id="editForm" class="space-y-3 text-xs" novalidate>
+                <input type="hidden" id="editDocId">
+
+                <div>
+                    <label class="block font-bold text-slate-400 mb-1 uppercase">ID Real</label>
+                    <input type="text" id="editIdReal" required
+                        class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-slate-200 focus:outline-none focus:border-brand-500">
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-400 mb-1 uppercase">Zona</label>
+                    <input type="text" id="editZona" list="zonesDatalist" required
+                        class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-slate-200 focus:outline-none focus:border-brand-500 font-bold uppercase">
+                    <datalist id="zonesDatalist"></datalist>
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-400 mb-1 uppercase">Dirección</label>
+                    <input type="text" id="editDireccion"
+                        class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-slate-200 focus:outline-none focus:border-brand-500">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-bold text-slate-400 mb-1 uppercase">Latitud</label>
+                        <input type="number" step="any" id="editLat"
+                            class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-slate-200 focus:outline-none focus:border-brand-500">
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-400 mb-1 uppercase">Longitud</label>
+                        <input type="number" step="any" id="editLng"
+                            class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-slate-200 focus:outline-none focus:border-brand-500">
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-2 pt-2 border-t border-slate-800">
+                    <button type="button" id="btnCancelEdit"
+                        class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold rounded-xl">
+                        Cancelar
+                    </button>
+                    <button type="submit" id="btnSaveEdit"
+                        class="px-4 py-2 bg-brand-600 hover:bg-brand-500 disabled:bg-slate-700 disabled:cursor-not-allowed text-white font-bold rounded-xl flex items-center gap-2">
+                        <i class="fa fa-floppy-disk" id="btnSaveEditIcon"></i>
+                        <span id="btnSaveEditText">Guardar Cambios</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- SCRIPT PRINCIPAL -->
     <script type="module">
         import { db, auth } from "./js/firebase/firebase.init.js";
-        import { collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-        import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-        // Elementos DOM
-        const agenciesList = document.getElementById("agenciesList");
-        const searchInput = document.getElementById("searchInput");
-        const totalBadge = document.getElementById("totalBadge");
-        const activeBadge = document.getElementById("activeBadge");
-        const inactiveBadge = document.getElementById("inactiveBadge");
-        const loading = document.getElementById("loading");
-        const btnLogout = document.getElementById("btnLogout");
-        const userEmailSpan = document.getElementById("userEmail");
+        import {
+            collection,
+            doc,
+            getDoc,
+            getDocs,
+            updateDoc,
+            deleteDoc,
+            serverTimestamp
+        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-        // Controles de Sidebar Mobile
-        const sidebar = document.getElementById("sidebar");
-        const openSidebarMobile = document.getElementById("openSidebarMobile");
-        const closeSidebarMobile = document.getElementById("closeSidebarMobile");
-        const mobileBackdrop = document.getElementById("mobileBackdrop");
+        import {
+            onAuthStateChanged,
+            signOut
+        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
+        // ────────────────────────────────────────────────
+        // DOM
+        // ────────────────────────────────────────────────
+        const bootOverlay     = document.getElementById("bootOverlay");
+        const agenciesList    = document.getElementById("agenciesList");
+        const searchInput     = document.getElementById("searchInput");
+        const totalBadge      = document.getElementById("totalBadge");
+        const activeBadge     = document.getElementById("activeBadge");
+        const inactiveBadge   = document.getElementById("inactiveBadge");
+        const loading         = document.getElementById("loading");
+        const btnLogout       = document.getElementById("btnLogout");
+        const userEmailSpan   = document.getElementById("userEmail");
+        const userRoleSpan    = document.getElementById("userRole");
+
+        // Sidebar mobile
+        const sidebar             = document.getElementById("sidebar");
+        const openSidebarMobile   = document.getElementById("openSidebarMobile");
+        const closeSidebarMobile  = document.getElementById("closeSidebarMobile");
+        const mobileBackdrop      = document.getElementById("mobileBackdrop");
+
+        // Modal editar
+        const editModal       = document.getElementById("editModal");
+        const editForm        = document.getElementById("editForm");
+        const editDocId       = document.getElementById("editDocId");
+        const editIdReal      = document.getElementById("editIdReal");
+        const editZona        = document.getElementById("editZona");
+        const editDireccion   = document.getElementById("editDireccion");
+        const editLat         = document.getElementById("editLat");
+        const editLng         = document.getElementById("editLng");
+        const zonesDatalist   = document.getElementById("zonesDatalist");
+        const btnSaveEdit     = document.getElementById("btnSaveEdit");
+        const btnSaveEditText = document.getElementById("btnSaveEditText");
+        const btnSaveEditIcon = document.getElementById("btnSaveEditIcon");
+
+        // ────────────────────────────────────────────────
+        // ESTADO
+        // ────────────────────────────────────────────────
+        let allAgencies   = [];
+        let isAdmin       = false;
+        let currentUser   = null;
+
+        // ────────────────────────────────────────────────
+        // SIDEBAR MOBILE
+        // ────────────────────────────────────────────────
         function toggleSidebar() {
             sidebar.classList.toggle("-translate-x-full");
             mobileBackdrop.classList.toggle("hidden");
         }
-
         openSidebarMobile.addEventListener("click", toggleSidebar);
         closeSidebarMobile.addEventListener("click", toggleSidebar);
         mobileBackdrop.addEventListener("click", toggleSidebar);
 
-        let allAgencies = [];
+        // ────────────────────────────────────────────────
+        // AUTENTICACIÓN + VERIFICACIÓN DE ROL
+        // ────────────────────────────────────────────────
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.replace("login.html");
+                return;
+            }
 
-        onAuthStateChanged(auth, (user) => {
-            if (user && userEmailSpan) {
-                userEmailSpan.innerText = user.email;
+            currentUser = user;
+            userEmailSpan.innerText = user.email;
+
+            try {
+                const userSnap = await getDoc(doc(db, "users", user.uid));
+
+                if (!userSnap.exists()) {
+                    alert("Tu cuenta no está registrada. Contacta al administrador.");
+                    await signOut(auth);
+                    window.location.replace("login.html");
+                    return;
+                }
+
+                const userData = userSnap.data();
+
+                if (userData.enabled === false) {
+                    alert("Tu usuario ha sido inhabilitado.");
+                    await signOut(auth);
+                    window.location.replace("login.html");
+                    return;
+                }
+
+                isAdmin = userData.role === "admin";
+                userRoleSpan.innerText = isAdmin ? "Administrador" : "Visualizador";
+                userRoleSpan.className = isAdmin
+                    ? "text-[10px] font-bold text-indigo-400 uppercase tracking-wider"
+                    : "text-[10px] font-bold text-slate-500 uppercase tracking-wider";
+
+                // Ocultar elementos solo-admin para viewers
+                if (!isAdmin) {
+                    document.querySelectorAll("[data-admin-only]").forEach(el => el.remove());
+                }
+
+                // Ocultar overlay inicial
+                bootOverlay.classList.add("hidden");
+
+                // Cargar datos
+                await loadAgencies();
+
+            } catch (err) {
+                console.error("Error al validar sesión:", err);
+                alert("Error al verificar tus credenciales.");
+                window.location.replace("login.html");
             }
         });
 
+        // Logout
         btnLogout.addEventListener("click", async () => {
+            if (!confirm("¿Seguro que deseas cerrar sesión?")) return;
             await signOut(auth);
-            window.location.href = "login.html";
+            window.location.replace("login.html");
         });
 
+        // ────────────────────────────────────────────────
+        // CARGA DE AGENCIAS
+        // ────────────────────────────────────────────────
         async function loadAgencies() {
             try {
                 loading.style.display = "block";
@@ -277,19 +425,27 @@
                 allAgencies = [];
 
                 snapshot.forEach((docSnap) => {
-                    allAgencies.push({
-                        id: docSnap.id,
-                        ...docSnap.data()
-                    });
+                    allAgencies.push({ id: docSnap.id, ...docSnap.data() });
                 });
 
+                // Ordenar por idReal ascendente
+                allAgencies.sort((a, b) => {
+                    const aKey = String(a.idReal ?? "").toLowerCase();
+                    const bKey = String(b.idReal ?? "").toLowerCase();
+                    return aKey.localeCompare(bKey, undefined, { numeric: true });
+                });
+
+                populateZonesDatalist();
                 renderAgencies(allAgencies);
+
             } catch (error) {
                 console.error("Error Firestore:", error);
+                const denied = error.code === "permission-denied";
                 agenciesList.innerHTML = `
                     <div class="col-span-full text-center py-12 bg-rose-500/5 rounded-2xl border border-rose-500/20 text-rose-400">
                         <i class="fa fa-triangle-exclamation text-3xl mb-2"></i>
-                        <p class="font-bold text-sm">Error de conexión con la base de datos.</p>
+                        <p class="font-bold text-sm">${denied ? "Permisos insuficientes para leer agencias." : "Error de conexión con la base de datos."}</p>
+                        <p class="text-[11px] text-rose-300/70 mt-1">Revisa las reglas de Firestore o tu conexión.</p>
                     </div>
                 `;
             } finally {
@@ -297,16 +453,18 @@
             }
         }
 
+        // ────────────────────────────────────────────────
+        // RENDER DE LISTA
+        // ────────────────────────────────────────────────
         function renderAgencies(agencies) {
             agenciesList.innerHTML = "";
-            
-            // Métricas
-            const activeCount = agencies.filter(a => a.enabled !== false).length;
-            const inactiveCount = agencies.length - activeCount;
 
-            totalBadge.innerText = agencies.length;
+            // KPIs siempre sobre el total, no sobre lo filtrado
+            const total = allAgencies.length;
+            const activeCount = allAgencies.filter(a => a.enabled !== false).length;
+            totalBadge.innerText = total;
             activeBadge.innerText = activeCount;
-            inactiveBadge.innerText = inactiveCount;
+            inactiveBadge.innerText = total - activeCount;
 
             if (agencies.length === 0) {
                 agenciesList.innerHTML = `
@@ -320,130 +478,315 @@
             }
 
             agencies.forEach((agency) => {
-                const isEnabled = agency.enabled !== false;
-                const name = agency.idReal || agency.name || "Sin Nombre";
-                const zone = agency.zona || "Sin Zona";
-                const initial = zone.length >= 2 ? zone.substring(0, 2).toUpperCase() : "AG";
-
-                const lat = agency.lat || agency.latitud;
-                const lng = agency.lng || agency.longitud;
-                const address = agency.direccion || agency.address;
-
-                let mapUrl = null;
-                if (lat && lng) {
-                    mapUrl = `https://www.google.com/maps?q=${lat},${lng}`;
-                } else if (address) {
-                    mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address + " " + name)}`;
-                }
-
-                const card = document.createElement("div");
-                card.className = `group relative p-4 rounded-2xl border transition-all duration-300 flex flex-col justify-between gap-3 ${
-                    !isEnabled 
-                        ? 'bg-slate-900/30 border-slate-800/50 opacity-60' 
-                        : 'bg-slate-900/70 border-slate-800/80 hover:border-brand-500/40 hover:shadow-xl hover:shadow-brand-500/5 hover:-translate-y-1'
-                }`;
-
-                card.innerHTML = `
-                    <div>
-                        <!-- HEAD CARD -->
-                        <div class="flex items-start justify-between gap-2 mb-3">
-                            <div class="flex items-center gap-3 min-w-0">
-                                <div class="w-10 h-10 rounded-xl flex items-center justify-center font-black text-xs tracking-wider shrink-0 ${
-                                    isEnabled 
-                                        ? 'bg-gradient-to-br from-brand-600 to-indigo-600 text-white shadow-md shadow-brand-500/20' 
-                                        : 'bg-slate-800 text-slate-500'
-                                }">
-                                    ${initial}
-                                </div>
-                                <div class="min-w-0">
-                                    <h4 class="font-bold text-sm text-slate-100 truncate group-hover:text-brand-400 transition-colors">
-                                        ${name}
-                                    </h4>
-                                    <span class="inline-block text-[10px] font-mono text-slate-400 bg-slate-800/80 px-2 py-0.5 rounded-md border border-slate-700/50 mt-0.5">
-                                        ${zone}
-                                    </span>
-                                </div>
-                            </div>
-
-                            <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase tracking-wider shrink-0 ${
-                                isEnabled 
-                                    ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' 
-                                    : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
-                            }">
-                                <span class="w-1.5 h-1.5 rounded-full ${isEnabled ? 'bg-emerald-400 animate-pulse' : 'bg-rose-400'}"></span>
-                                ${isEnabled ? 'Activa' : 'Inactiva'}
-                            </span>
-                        </div>
-
-                        <!-- DETALLES -->
-                        ${address || agency.telefono ? `
-                            <div class="space-y-1.5 pt-2.5 border-t border-slate-800/60 text-xs text-slate-400">
-                                ${address ? `
-                                    <p class="flex items-center gap-2 truncate text-[11px]">
-                                        <i class="fa fa-location-dot text-brand-400 w-3.5 text-center shrink-0"></i>
-                                        <span class="truncate">${address}</span>
-                                    </p>
-                                ` : ''}
-                                ${agency.telefono ? `
-                                    <p class="flex items-center gap-2 text-[11px]">
-                                        <i class="fa fa-phone text-brand-400 w-3.5 text-center shrink-0"></i>
-                                        <span>${agency.telefono}</span>
-                                    </p>
-                                ` : ''}
-                            </div>
-                        ` : ''}
-                    </div>
-
-                    <!-- FOOTER ACTIONS -->
-                    <div class="flex items-center justify-between gap-2 pt-2.5 border-t border-slate-800/60">
-                        <span class="text-[9px] font-mono text-slate-500 truncate">
-                            ID: ${agency.id}
-                        </span>
-
-                        <div class="flex items-center gap-1 shrink-0">
-                            ${mapUrl ? `
-                                <a href="${mapUrl}" target="_blank" class="w-7 h-7 rounded-lg bg-slate-800 text-slate-300 hover:bg-brand-600 hover:text-white flex items-center justify-center transition-all text-xs" title="Ver en Mapa">
-                                    <i class="fa fa-map-location-dot"></i>
-                                </a>
-                            ` : ''}
-
-                            <button data-id="${agency.id}" class="edit-btn w-7 h-7 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 flex items-center justify-center transition-all text-xs" title="Editar">
-                                <i class="fa fa-pen"></i>
-                            </button>
-
-                            <button data-id="${agency.id}" data-enabled="${isEnabled}" class="toggle-btn w-7 h-7 rounded-lg flex items-center justify-center transition-all text-xs ${
-                                isEnabled ? 'bg-slate-800 text-amber-400 hover:bg-amber-500/20' : 'bg-slate-800 text-emerald-400 hover:bg-emerald-500/20'
-                            }" title="${isEnabled ? 'Inhabilitar' : 'Habilitar'}">
-                                <i class="fa ${isEnabled ? 'fa-ban' : 'fa-check'}"></i>
-                            </button>
-
-                            <button data-id="${agency.id}" class="delete-btn w-7 h-7 rounded-lg bg-slate-800 text-slate-400 hover:bg-rose-500/20 hover:text-rose-400 flex items-center justify-center transition-all text-xs" title="Eliminar">
-                                <i class="fa fa-trash-can"></i>
-                            </button>
-                        </div>
-                    </div>
-                `;
-
-                agenciesList.appendChild(card);
+                agenciesList.appendChild(createAgencyCard(agency));
             });
         }
 
-        // Evento Búsqueda
+        function createAgencyCard(agency) {
+            const isEnabled = agency.enabled !== false;
+            const name = agency.idReal || "Sin ID";
+            const zone = agency.zona || "Sin Zona";
+            const initial = zone.length >= 2 ? zone.substring(0, 2).toUpperCase() : "AG";
+            const lat = agency.lat;
+            const lng = agency.lng;
+            const address = agency.direccion || "";
+
+            let mapUrl = null;
+            if (lat && lng) {
+                mapUrl = `https://www.google.com/maps?q=${lat},${lng}`;
+            } else if (address) {
+                mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address + " " + name)}`;
+            }
+
+            const card = document.createElement("div");
+            card.className = `group relative p-4 rounded-2xl border transition-all duration-300 flex flex-col justify-between gap-3 ${
+                !isEnabled
+                    ? "bg-slate-900/30 border-slate-800/50 opacity-60"
+                    : "bg-slate-900/70 border-slate-800/80 hover:border-brand-500/40 hover:shadow-xl hover:shadow-brand-500/5 hover:-translate-y-1"
+            }`;
+
+            card.innerHTML = `
+                <div>
+                    <div class="flex items-start justify-between gap-2 mb-3">
+                        <div class="flex items-center gap-3 min-w-0">
+                            <div class="w-10 h-10 rounded-xl flex items-center justify-center font-black text-xs tracking-wider shrink-0 ${
+                                isEnabled
+                                    ? "bg-gradient-to-br from-brand-600 to-indigo-600 text-white shadow-md shadow-brand-500/20"
+                                    : "bg-slate-800 text-slate-500"
+                            }">
+                                ${escapeHtml(initial)}
+                            </div>
+                            <div class="min-w-0">
+                                <h4 class="font-bold text-sm text-slate-100 truncate group-hover:text-brand-400 transition-colors">
+                                    ${escapeHtml(String(name))}
+                                </h4>
+                                <span class="inline-block text-[10px] font-mono text-slate-400 bg-slate-800/80 px-2 py-0.5 rounded-md border border-slate-700/50 mt-0.5">
+                                    ${escapeHtml(zone)}
+                                </span>
+                            </div>
+                        </div>
+
+                        <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase tracking-wider shrink-0 ${
+                            isEnabled
+                                ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                                : "bg-rose-500/10 text-rose-400 border border-rose-500/20"
+                        }">
+                            <span class="w-1.5 h-1.5 rounded-full ${isEnabled ? "bg-emerald-400 animate-pulse" : "bg-rose-400"}"></span>
+                            ${isEnabled ? "Activa" : "Inactiva"}
+                        </span>
+                    </div>
+
+                    ${address || agency.telefono ? `
+                        <div class="space-y-1.5 pt-2.5 border-t border-slate-800/60 text-xs text-slate-400">
+                            ${address ? `
+                                <p class="flex items-center gap-2 truncate text-[11px]">
+                                    <i class="fa fa-location-dot text-brand-400 w-3.5 text-center shrink-0"></i>
+                                    <span class="truncate">${escapeHtml(address)}</span>
+                                </p>
+                            ` : ""}
+                            ${agency.telefono ? `
+                                <p class="flex items-center gap-2 text-[11px]">
+                                    <i class="fa fa-phone text-brand-400 w-3.5 text-center shrink-0"></i>
+                                    <span>${escapeHtml(String(agency.telefono))}</span>
+                                </p>
+                            ` : ""}
+                        </div>
+                    ` : ""}
+                </div>
+
+                <div class="flex items-center justify-between gap-2 pt-2.5 border-t border-slate-800/60">
+                    <span class="text-[9px] font-mono text-slate-500 truncate" title="${escapeHtml(agency.id)}">
+                        ID: ${escapeHtml(agency.id.substring(0, 10))}…
+                    </span>
+
+                    <div class="flex items-center gap-1 shrink-0">
+                        ${mapUrl ? `
+                            <a href="${mapUrl}" target="_blank" rel="noopener"
+                               class="w-7 h-7 rounded-lg bg-slate-800 text-slate-300 hover:bg-brand-600 hover:text-white flex items-center justify-center transition-all text-xs"
+                               title="Ver en Mapa">
+                                <i class="fa fa-map-location-dot"></i>
+                            </a>
+                        ` : ""}
+                        ${isAdmin ? `
+                            <button data-action="edit" data-id="${escapeHtml(agency.id)}"
+                                class="w-7 h-7 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 flex items-center justify-center transition-all text-xs"
+                                title="Editar">
+                                <i class="fa fa-pen"></i>
+                            </button>
+                            <button data-action="toggle" data-id="${escapeHtml(agency.id)}"
+                                class="w-7 h-7 rounded-lg flex items-center justify-center transition-all text-xs ${
+                                    isEnabled
+                                        ? "bg-slate-800 text-amber-400 hover:bg-amber-500/20"
+                                        : "bg-slate-800 text-emerald-400 hover:bg-emerald-500/20"
+                                }"
+                                title="${isEnabled ? "Inhabilitar" : "Habilitar"}">
+                                <i class="fa ${isEnabled ? "fa-ban" : "fa-check"}"></i>
+                            </button>
+                            <button data-action="delete" data-id="${escapeHtml(agency.id)}"
+                                class="w-7 h-7 rounded-lg bg-slate-800 text-slate-400 hover:bg-rose-500/20 hover:text-rose-400 flex items-center justify-center transition-all text-xs"
+                                title="Eliminar">
+                                <i class="fa fa-trash-can"></i>
+                            </button>
+                        ` : ""}
+                    </div>
+                </div>
+            `;
+
+            return card;
+        }
+
+        // ────────────────────────────────────────────────
+        // DELEGACIÓN DE EVENTOS (Edit / Toggle / Delete)
+        // ────────────────────────────────────────────────
+        agenciesList.addEventListener("click", (e) => {
+            const btn = e.target.closest("button[data-action]");
+            if (!btn) return;
+
+            const action = btn.dataset.action;
+            const id     = btn.dataset.id;
+            const agency = allAgencies.find(a => a.id === id);
+            if (!agency) return;
+
+            if (action === "edit")   openEditModal(agency);
+            if (action === "toggle") toggleAgencyStatus(agency);
+            if (action === "delete") deleteAgency(agency);
+        });
+
+        // ────────────────────────────────────────────────
+        // EDITAR
+        // ────────────────────────────────────────────────
+        function openEditModal(agency) {
+            editDocId.value     = agency.id;
+            editIdReal.value    = agency.idReal || "";
+            editZona.value      = agency.zona || "";
+            editDireccion.value = agency.direccion || "";
+            editLat.value       = agency.lat ?? "";
+            editLng.value       = agency.lng ?? "";
+            editModal.classList.remove("hidden");
+            setTimeout(() => editIdReal.focus(), 50);
+        }
+
+        function closeEditModal() {
+            editModal.classList.add("hidden");
+            editForm.reset();
+            editDocId.value = "";
+        }
+
+        document.getElementById("btnCloseEditModal").addEventListener("click", closeEditModal);
+        document.getElementById("btnCancelEdit").addEventListener("click", closeEditModal);
+        editModal.addEventListener("click", (e) => {
+            if (e.target === editModal) closeEditModal();
+        });
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape" && !editModal.classList.contains("hidden")) closeEditModal();
+        });
+
+        editForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            if (btnSaveEdit.disabled) return;
+
+            const id = editDocId.value;
+            if (!id) return;
+
+            const payload = {
+                idReal:    editIdReal.value.trim(),
+                zona:      editZona.value.trim().toUpperCase(),
+                direccion: editDireccion.value.trim(),
+                lat:       parseFloat(editLat.value) || 0,
+                lng:       parseFloat(editLng.value) || 0,
+                updatedAt: serverTimestamp()
+            };
+
+            if (!payload.idReal || !payload.zona) {
+                alert("ID Real y Zona son obligatorios.");
+                return;
+            }
+
+            btnSaveEdit.disabled = true;
+            btnSaveEditText.textContent = "Guardando...";
+            btnSaveEditIcon.className = "fa fa-circle-notch fa-spin";
+
+            try {
+                await updateDoc(doc(db, "agencias", id), payload);
+
+                // Actualizar array local
+                const idx = allAgencies.findIndex(a => a.id === id);
+                if (idx !== -1) {
+                    allAgencies[idx] = { ...allAgencies[idx], ...payload };
+                }
+
+                closeEditModal();
+                applyFilters();
+            } catch (err) {
+                console.error("Error al editar:", err);
+                alert("No se pudieron guardar los cambios.");
+            } finally {
+                btnSaveEdit.disabled = false;
+                btnSaveEditText.textContent = "Guardar Cambios";
+                btnSaveEditIcon.className = "fa fa-floppy-disk";
+            }
+        });
+
+        // ────────────────────────────────────────────────
+        // HABILITAR / INHABILITAR
+        // ────────────────────────────────────────────────
+        async function toggleAgencyStatus(agency) {
+            const isEnabled = agency.enabled !== false;
+            const action = isEnabled ? "inhabilitar" : "habilitar";
+
+            if (!confirm(`¿Seguro que deseas ${action} la agencia "${agency.idReal || agency.id}"?`)) return;
+
+            try {
+                const newStatus = !isEnabled;
+                await updateDoc(doc(db, "agencias", agency.id), {
+                    enabled: newStatus,
+                    updatedAt: serverTimestamp()
+                });
+
+                const idx = allAgencies.findIndex(a => a.id === agency.id);
+                if (idx !== -1) allAgencies[idx].enabled = newStatus;
+
+                applyFilters();
+            } catch (err) {
+                console.error("Error al cambiar estado:", err);
+                alert("No se pudo cambiar el estado de la agencia.");
+            }
+        }
+
+        // ────────────────────────────────────────────────
+        // ELIMINAR
+        // ────────────────────────────────────────────────
+        async function deleteAgency(agency) {
+            const label = agency.idReal || agency.id;
+            if (!confirm(`¿Eliminar DEFINITIVAMENTE la agencia "${label}"?\n\nEsta acción no se puede deshacer.`)) return;
+
+            try {
+                await deleteDoc(doc(db, "agencias", agency.id));
+                allAgencies = allAgencies.filter(a => a.id !== agency.id);
+                applyFilters();
+            } catch (err) {
+                console.error("Error al eliminar:", err);
+                alert("No se pudo eliminar la agencia.");
+            }
+        }
+
+        // ────────────────────────────────────────────────
+        // BÚSQUEDA CON DEBOUNCE
+        // ────────────────────────────────────────────────
+        let searchTimer = null;
         searchInput.addEventListener("input", () => {
+            clearTimeout(searchTimer);
+            searchTimer = setTimeout(applyFilters, 220);
+        });
+
+        function applyFilters() {
             const query = searchInput.value.toLowerCase().trim();
 
+            if (!query) {
+                renderAgencies(allAgencies);
+                return;
+            }
+
             const filtered = allAgencies.filter((agency) => {
-                const code = String(agency.idReal || agency.id || "").toLowerCase();
-                const address = String(agency.direccion || agency.address || "").toLowerCase();
-                const zone = String(agency.zona || "").toLowerCase();
+                const code    = String(agency.idReal ?? agency.id ?? "").toLowerCase();
+                const address = String(agency.direccion ?? "").toLowerCase();
+                const zone    = String(agency.zona ?? "").toLowerCase();
 
                 return code.includes(query) || address.includes(query) || zone.includes(query);
             });
 
             renderAgencies(filtered);
-        });
+        }
 
-        loadAgencies();
+        // ────────────────────────────────────────────────
+        // DATALIST DE ZONAS PARA EL MODAL
+        // ────────────────────────────────────────────────
+        function populateZonesDatalist() {
+            const zones = new Set();
+            allAgencies.forEach(a => {
+                if (a.zona) zones.add(String(a.zona).toUpperCase().trim());
+            });
+
+            zonesDatalist.innerHTML = "";
+            Array.from(zones).sort().forEach(z => {
+                const opt = document.createElement("option");
+                opt.value = z;
+                zonesDatalist.appendChild(opt);
+            });
+        }
+
+        // ────────────────────────────────────────────────
+        // UTILIDAD: ESCAPE HTML (anti-XSS)
+        // ────────────────────────────────────────────────
+        function escapeHtml(str) {
+            return String(str ?? "").replace(/[&<>"']/g, (c) => ({
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                '"': "&quot;",
+                "'": "&#39;"
+            }[c]));
+        }
     </script>
 </body>
 </html>
