@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
@@ -204,7 +205,12 @@
                 const userSnap = await getDoc(doc(db, "users", user.uid));
 
                 if (!userSnap.exists()) {
-                    alert("Tu cuenta no está registrada en el sistema. Contacta al administrador.");
+                    Swal.fire({
+                        icon: 'error',
+                        title: '¡Error!',
+                        text: 'Tu cuenta no está registrada en el sistema. Contacta al administrador.',
+                        confirmButtonText: 'Aceptar'
+                    });
                     await signOut(auth);
                     window.location.replace("login.html");
                     return;
@@ -213,14 +219,24 @@
                 const userData = userSnap.data();
 
                 if (userData.enabled === false) {
-                    alert("Tu usuario ha sido inhabilitado.");
+                    Swal.fire({
+                        icon: 'error',
+                        title: '¡Error!',
+                        text: 'Tu usuario ha sido inhabilitado.',
+                        confirmButtonText: 'Aceptar'
+                    });
                     await signOut(auth);
                     window.location.replace("login.html");
                     return;
                 }
 
                 if (userData.role !== "admin") {
-                    alert("Acceso denegado: Solo los administradores pueden gestionar usuarios.");
+                    Swal.fire({
+                        icon: 'error',
+                        title: '¡Error!',
+                        text: 'Acceso denegado: Solo los administradores pueden gestionar usuarios.',
+                        confirmButtonText: 'Aceptar'
+                    });
                     window.location.replace("index.html");
                     return;
                 }
@@ -236,7 +252,12 @@
 
             } catch (err) {
                 console.error("Error al validar permisos:", err);
-                alert("Ocurrió un error al verificar tus credenciales.");
+                Swal.fire({
+                        icon: 'error',
+                        title: '¡Error!',
+                        text: 'Ocurrió un error al verificar tus credenciales.',
+                        confirmButtonText: 'Aceptar'
+                    });
                 window.location.replace("index.html");
             }
         });
@@ -430,50 +451,188 @@
         // 5. ACCIONES SOBRE USUARIOS
         // ────────────────────────────────────────────────
 
-        async function toggleUserStatus(uid, currentStatus, username) {
-            const action = currentStatus ? "inhabilitar" : "habilitar";
-            if (!confirm(`¿Seguro que deseas ${action} a "${username}"?`)) return;
+        
+async function toggleUserStatus(uid, currentStatus, username) {
+    const action = currentStatus ? "inhabilitar" : "habilitar";
 
-            try {
-                await updateDoc(doc(db, "users", uid), {
-                    enabled: !currentStatus,
-                    updatedAt: serverTimestamp()
-                });
-            } catch (error) {
-                console.error("Error al cambiar estado:", error);
-                alert("No se pudo cambiar el estado del usuario.");
-            }
-        }
+    const result = await Swal.fire({
+        title: `¿${currentStatus ? "Inhabilitar" : "Habilitar"} usuario?`,
+        html: `¿Seguro que deseas ${action} al usuario <strong>"${username}"</strong>?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: currentStatus ? '#dc2626' : '#16a34a',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: currentStatus
+            ? 'Sí, inhabilitar'
+            : 'Sí, habilitar',
+        cancelButtonText: 'Cancelar',
+        reverseButtons: true,
+        focusCancel: true
+    });
 
-        async function changeUserRole(uid, currentRole, username) {
-            const newRole = currentRole === "admin" ? "viewer" : "admin";
-            const label = newRole === "admin" ? "Administrador" : "Visualizador";
+    if (!result.isConfirmed) return;
 
-            if (!confirm(`¿Cambiar el rol de "${username}" a ${label}?`)) return;
+    try {
+        Swal.fire({
+            title: 'Actualizando estado...',
+            text: 'Por favor, espera.',
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            didOpen: () => Swal.showLoading()
+        });
 
-            try {
-                await updateDoc(doc(db, "users", uid), {
-                    role: newRole,
-                    updatedAt: serverTimestamp()
-                });
-            } catch (error) {
-                console.error("Error al cambiar rol:", error);
-                alert("No se pudo cambiar el rol del usuario.");
-            }
-        }
+        await updateDoc(doc(db, "users", uid), {
+            enabled: !currentStatus,
+            updatedAt: serverTimestamp()
+        });
 
-        async function deleteUserRecord(uid, username, email) {
-            const confirmText = `¿Seguro que deseas eliminar a "${username}" del sistema?\n\n⚠️ IMPORTANTE:\n- Se elimina su perfil y permisos de Firestore.\n- Su cuenta de Firebase Auth seguirá existiendo, pero NO podrá acceder (login lo bloqueará porque no tendrá perfil).\n- Si necesitas eliminar la cuenta de Auth por completo, hazlo desde la consola de Firebase.`;
+        await Swal.fire({
+            icon: 'success',
+            title: currentStatus ? '¡Usuario inhabilitado!' : '¡Usuario habilitado!',
+            text: currentStatus
+                ? `El usuario "${username}" ha sido inhabilitado correctamente.`
+                : `El usuario "${username}" ha sido habilitado correctamente.`,
+            confirmButtonText: 'Aceptar',
+            confirmButtonColor: '#2563eb',
+            timer: 2500,
+            timerProgressBar: true
+        });
 
-            if (!confirm(confirmText)) return;
+    } catch (error) {
+        console.error('Error al cambiar el estado del usuario:', error);
 
-            try {
-                await deleteDoc(doc(db, "users", uid));
-            } catch (error) {
-                console.error("Error al eliminar registro:", error);
-                alert("Error al intentar eliminar el registro.");
-            }
-        }
+        Swal.fire({
+            icon: 'error',
+            title: '¡Error!',
+            text: 'No se pudo cambiar el estado del usuario.',
+            confirmButtonText: 'Aceptar',
+            confirmButtonColor: '#2563eb'
+        });
+    }
+}
+
+
+
+async function changeUserRole(uid, currentRole, username) {
+    const newRole = currentRole === "admin" ? "viewer" : "admin";
+    const label = newRole === "admin" ? "Administrador" : "Visualizador";
+
+    const result = await Swal.fire({
+        title: '¿Cambiar rol de usuario?',
+        html: `¿Deseas cambiar el rol de <strong>"${username}"</strong> a <strong>${label}</strong>?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: newRole === "admin" ? '#16a34a' : '#2563eb',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: `Sí, cambiar a ${label}`,
+        cancelButtonText: 'Cancelar',
+        reverseButtons: true,
+        focusCancel: true
+    });
+
+    if (!result.isConfirmed) return;
+
+    try {
+        Swal.fire({
+            title: 'Actualizando rol...',
+            text: 'Por favor, espera.',
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            didOpen: () => Swal.showLoading()
+        });
+
+        await updateDoc(doc(db, "users", uid), {
+            role: newRole,
+            updatedAt: serverTimestamp()
+        });
+
+        await Swal.fire({
+            icon: 'success',
+            title: '¡Rol actualizado!',
+            html: `El usuario <strong>"${username}"</strong> ahora tiene el rol de <strong>${label}</strong>.`,
+            confirmButtonText: 'Aceptar',
+            confirmButtonColor: '#2563eb',
+            timer: 2500,
+            timerProgressBar: true
+        });
+
+    } catch (error) {
+        console.error('Error al cambiar el rol del usuario:', error);
+
+        Swal.fire({
+            icon: 'error',
+            title: '¡Error!',
+            text: 'No se pudo cambiar el rol del usuario. Inténtalo nuevamente.',
+            confirmButtonText: 'Aceptar',
+            confirmButtonColor: '#2563eb'
+        });
+    }
+}
+
+
+
+async function deleteUserRecord(uid, username, email) {
+    const result = await Swal.fire({
+        title: '¿Eliminar usuario?',
+        html: `
+            <p>¿Seguro que deseas eliminar a <strong>"${username}"</strong> del sistema?</p><br>
+            <p style="text-align: left; color: #dc2626; font-weight: bold;">
+                
+            IMPORTANTE:
+            </p><br>
+            <ul style="text-align: left; padding-left: 20px;">
+                <li>Se eliminará su perfil y sus permisos de Firestore.</li>
+                <li>Su cuenta de Firebase Authentication seguirá existiendo, pero no podrá acceder si tu sistema bloquea los usuarios sin perfil.</li>
+                <li>Para eliminar completamente su cuenta de Authentication, debes hacerlo desde Firebase Console o mediante un backend autorizado.</li>
+            </ul>
+            <p style="color: #dc2626;">Esta acción no se puede deshacer fácilmente.</p>
+        `,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc2626',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: '<i class="fa-solid fa-trash"></i> Sí, eliminar',
+        cancelButtonText: 'Cancelar',
+        reverseButtons: true,
+        focusCancel: true
+    });
+
+    if (!result.isConfirmed) return;
+
+    try {
+        Swal.fire({
+            title: 'Eliminando usuario...',
+            text: 'Por favor, espera.',
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            didOpen: () => Swal.showLoading()
+        });
+
+        await deleteDoc(doc(db, "users", uid));
+
+        await Swal.fire({
+            icon: 'success',
+            title: '¡Registro eliminado!',
+            text: `El perfil de "${username}" se eliminó correctamente.`,
+            confirmButtonText: 'Aceptar',
+            confirmButtonColor: '#2563eb',
+            timer: 2500,
+            timerProgressBar: true
+        });
+
+    } catch (error) {
+        console.error('Error al eliminar el registro del usuario:', error);
+
+        Swal.fire({
+            icon: 'error',
+            title: '¡Error!',
+            text: 'No se pudo eliminar el registro del usuario. Inténtalo nuevamente.',
+            confirmButtonText: 'Aceptar',
+            confirmButtonColor: '#2563eb'
+        });
+    }
+}
+
 
         // ────────────────────────────────────────────────
         // 6. UTILIDADES

@@ -10,6 +10,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
     </style>
@@ -41,7 +42,7 @@
             </div>
 
             <h1 class="text-2xl font-black text-white tracking-tight">Bienvenido</h1>
-            <p class="text-xs font-medium text-slate-400 mt-1">Dev. Pedro E. Garcia R. V2.1 2026</p>
+            <p class="text-xs font-medium text-slate-400 mt-1">Sistema de gestion de agencias GESAG V3.0.1</p>
         </div>
 
         <!-- FORMULARIO -->
@@ -144,33 +145,15 @@
         // ────────────────────────────────────────────────
         // OLVIDÉ MI CONTRASEÑA
         // ────────────────────────────────────────────────
+        
         btnForgotPassword.addEventListener("click", async () => {
-            const email = emailInput.value.trim();
-
-            if (!email) {
-                showError("Escribe tu correo arriba y vuelve a presionar este botón.", true, "warning");
-                emailInput.focus();
-                return;
-            }
-
-            btnForgotPassword.disabled = true;
-            const originalText = btnForgotPassword.textContent;
-            btnForgotPassword.textContent = "Enviando...";
-
-            try {
-                await sendPasswordResetEmail(auth, email);
-                showError(`Se envió un enlace de recuperación a ${email}. Revisa tu bandeja (y spam).`, true, "success");
-            } catch (err) {
-                console.error("Error enviando reset:", err);
-                if (err.code === "auth/user-not-found") {
-                    showError("No existe una cuenta con ese correo.", true, "error");
-                } else {
-                    showError("No se pudo enviar el correo de recuperación. Intenta más tarde.", true, "error");
-                }
-            } finally {
-                btnForgotPassword.disabled = false;
-                btnForgotPassword.textContent = originalText;
-            }
+            await Swal.fire({
+                icon: "info",
+                title: "¿Olvidaste tu contraseña?",
+                text: "Por favor, comunícate con el administrador del sistema para recuperar tu acceso.",
+                confirmButtonText: "Entendido",
+                confirmButtonColor: "#2563eb"
+            });
         });
 
         // ────────────────────────────────────────────────

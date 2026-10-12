@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AGENCYPRO | Mapa Interactivo</title>
+    <title>GesagPro | Mapa Interactivo</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -505,7 +505,12 @@
                 const userSnap = await getDoc(doc(db, "users", user.uid));
 
                 if (!userSnap.exists()) {
-                    alert("Tu cuenta no está registrada. Contacta al administrador.");
+                    Swal.fire({
+                        icon: 'error',
+                        title: '¡Error!',
+                        text: 'Tu cuenta no está registrada. Contacta al administrador.',
+                        confirmButtonText: 'Aceptar'
+                    });
                     await signOut(auth);
                     window.location.replace("login.html");
                     return;
@@ -514,7 +519,12 @@
                 const userData = userSnap.data();
 
                 if (userData.enabled === false) {
-                    alert("Tu usuario ha sido inhabilitado.");
+                    Swal.fire({
+                        icon: 'error',
+                        title: '¡Error!',
+                        text: 'Tu usuario ha sido inhabilitado.',
+                        confirmButtonText: 'Aceptar'
+                    });
                     await signOut(auth);
                     window.location.replace("login.html");
                     return;
@@ -540,17 +550,55 @@
                 loadingOverlay.classList.add("hidden");
 
             } catch (err) {
-                console.error("Error al validar sesión:", err);
-                alert("Error al verificar tus credenciales.");
+                Swal.fire({
+                        icon: 'error',
+                        title: '¡Error!',
+                        text: 'Error al verificar tus credenciales.',
+                        confirmButtonText: 'Aceptar'
+                    });
                 window.location.replace("login.html");
             }
         });
 
-        btnLogout.addEventListener("click", async () => {
-            if (!confirm("¿Seguro que deseas cerrar sesión?")) return;
-            await signOut(auth);
-            window.location.replace("login.html");
+        
+btnLogout.addEventListener("click", async () => {
+    const result = await Swal.fire({
+        title: "¿Cerrar sesión?",
+        text: "¿Seguro que deseas cerrar sesión?",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#6c757d",
+        confirmButtonText: "Sí, cerrar sesión",
+        cancelButtonText: "Cancelar",
+        reverseButtons: true
+    });
+
+    if (!result.isConfirmed) return;
+
+    try {
+        await signOut(auth);
+
+        await Swal.fire({
+            title: "¡Sesión cerrada!",
+            text: "Has cerrado sesión correctamente.",
+            icon: "success",
+            timer: 1200,
+            showConfirmButton: false,
+            allowOutsideClick: false
         });
+
+        window.location.replace("login.html");
+    } catch (error) {
+        Swal.fire({
+            title: "Error",
+            text: "No se pudo cerrar la sesión. Inténtalo nuevamente.",
+            icon: "error",
+            confirmButtonText: "Aceptar"
+        });
+    }
+});
+
 
         // ────────────────────────────────────────────────
         // INICIALIZACIÓN DEL MAPA

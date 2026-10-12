@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#020617">
-    <title>Reportes y Analítica - Agencias | AGENCYPRO</title>
+    <title>Reportes y Analítica - Agencias | GesagPro</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
@@ -79,7 +79,7 @@
                         </svg>
                     </div>
                     <div>
-                        <h1 class="font-bold text-sm tracking-wide text-white">AGENCY<span class="text-brand-500">PRO</span></h1>
+                        <h1 class="font-bold text-sm tracking-wide text-white">Gesag<span class="text-brand-500">PRO</span></h1>
                         <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Pedro Garcia 2026</p>
                     </div>
                 </div>
@@ -333,7 +333,7 @@
 
             <!-- Footer de impresión -->
             <div class="hidden print:block text-center text-xs text-slate-500 mt-8">
-                <p>Reporte generado el <span id="printDate"></span> — Sistema AGENCYPRO</p>
+                <p>Reporte generado el <span id="printDate"></span> — Sistema GesagPro</p>
             </div>
 
         </div>
@@ -443,11 +443,49 @@
             }
         });
 
-        btnLogout.addEventListener("click", async () => {
-            if (!confirm("¿Cerrar sesión?")) return;
-            await signOut(auth);
-            window.location.replace("login.html");
+        
+btnLogout.addEventListener("click", async () => {
+    const result = await Swal.fire({
+        title: '¿Cerrar sesión?',
+        text: '¿Estás seguro de que deseas salir de tu cuenta?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#dc2626',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Sí, cerrar sesión',
+        cancelButtonText: 'Cancelar',
+        reverseButtons: true,
+        focusCancel: true
+    });
+
+    if (!result.isConfirmed) return;
+
+    try {
+        Swal.fire({
+            title: 'Cerrando sesión...',
+            text: 'Por favor, espera.',
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            didOpen: () => Swal.showLoading()
         });
+
+        await signOut(auth);
+
+        window.location.replace("login.html");
+
+    } catch (error) {
+        console.error('Error al cerrar sesión:', error);
+
+        Swal.fire({
+            icon: 'error',
+            title: '¡Error!',
+            text: 'No se pudo cerrar la sesión. Inténtalo nuevamente.',
+            confirmButtonText: 'Aceptar',
+            confirmButtonColor: '#2563eb'
+        });
+    }
+});
+
 
         async function loadReportData() {
             try {

@@ -26,7 +26,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
         .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -370,7 +370,12 @@
                 const userSnap = await getDoc(doc(db, "users", user.uid));
 
                 if (!userSnap.exists()) {
-                    alert("Tu cuenta no está registrada. Contacta al administrador.");
+                    Swal.fire({
+                        icon: 'error',
+                        title: '¡Error!',
+                        text: 'Tu cuenta no está registrada. Contacta al administrador.',
+                        confirmButtonText: 'Aceptar'
+                    });
                     await signOut(auth);
                     window.location.replace("login.html");
                     return;
@@ -379,7 +384,12 @@
                 const userData = userSnap.data();
 
                 if (userData.enabled === false) {
-                    alert("Tu usuario ha sido inhabilitado.");
+                    Swal.fire({
+                        icon: 'error',
+                        title: '¡Error!',
+                        text: 'Tu usuario ha sido inhabilitado.',
+                        confirmButtonText: 'Aceptar'
+                    });
                     await signOut(auth);
                     window.location.replace("login.html");
                     return;
@@ -403,18 +413,56 @@
                 await loadAgencies();
 
             } catch (err) {
-                console.error("Error al validar sesión:", err);
-                alert("Error al verificar tus credenciales.");
+                Swal.fire({
+                        icon: 'error',
+                        title: '¡Error!',
+                        text: 'Error al verificar tus credenciales.',
+                        confirmButtonText: 'Aceptar'
+                    });
                 window.location.replace("login.html");
             }
         });
 
         // Logout
-        btnLogout.addEventListener("click", async () => {
-            if (!confirm("¿Seguro que deseas cerrar sesión?")) return;
-            await signOut(auth);
-            window.location.replace("login.html");
+        
+btnLogout.addEventListener("click", async () => {
+    const result = await Swal.fire({
+        title: "¿Cerrar sesión?",
+        text: "¿Seguro que deseas cerrar sesión?",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#6c757d",
+        confirmButtonText: "Sí, cerrar sesión",
+        cancelButtonText: "Cancelar",
+        reverseButtons: true
+    });
+
+    if (!result.isConfirmed) return;
+
+    try {
+        await signOut(auth);
+
+        await Swal.fire({
+            title: "¡Sesión cerrada!",
+            text: "Has cerrado sesión correctamente.",
+            icon: "success",
+            timer: 1200,
+            showConfirmButton: false,
+            allowOutsideClick: false
         });
+
+        window.location.replace("login.html");
+    } catch (error) {
+        Swal.fire({
+            title: "Error",
+            text: "No se pudo cerrar la sesión. Inténtalo nuevamente.",
+            icon: "error",
+            confirmButtonText: "Aceptar"
+        });
+    }
+});
+
 
         // ────────────────────────────────────────────────
         // CARGA DE AGENCIAS
@@ -661,7 +709,12 @@
             };
 
             if (!payload.idReal || !payload.zona) {
-                alert("ID Real y Zona son obligatorios.");
+                Swal.fire({
+                        icon: 'warning',
+                        title: 'warning!',
+                        text: 'ID Real y Zona son obligatorios.',
+                        confirmButtonText: 'Aceptar'
+                    });
                 return;
             }
 
@@ -681,8 +734,12 @@
                 closeEditModal();
                 applyFilters();
             } catch (err) {
-                console.error("Error al editar:", err);
-                alert("No se pudieron guardar los cambios.");
+                Swal.fire({
+                        icon: 'error',
+                        title: '¡Error!',
+                        text: 'No se pudieron guardar los cambios.',
+                        confirmButtonText: 'Aceptar'
+                    });
             } finally {
                 btnSaveEdit.disabled = false;
                 btnSaveEditText.textContent = "Guardar Cambios";
@@ -693,45 +750,139 @@
         // ────────────────────────────────────────────────
         // HABILITAR / INHABILITAR
         // ────────────────────────────────────────────────
+
         async function toggleAgencyStatus(agency) {
-            const isEnabled = agency.enabled !== false;
-            const action = isEnabled ? "inhabilitar" : "habilitar";
+    const isEnabled = agency.enabled !== false;
+    const action = isEnabled ? "inhabilitar" : "habilitar";
+    const label = agency.idReal || agency.id;
 
-            if (!confirm(`¿Seguro que deseas ${action} la agencia "${agency.idReal || agency.id}"?`)) return;
+    const result = await Swal.fire({
+        title: `¿${isEnabled ? "Inhabilitar" : "Habilitar"} agencia?`,
+        html: `¿Seguro que deseas ${action} la agencia <strong>"${label}"</strong>?`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: isEnabled ? '#dc2626' : '#16a34a',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: isEnabled
+            ? 'Sí, inhabilitar'
+            : 'Sí, habilitar',
+        cancelButtonText: 'Cancelar',
+        reverseButtons: true,
+        focusCancel: true
+    });
 
-            try {
-                const newStatus = !isEnabled;
-                await updateDoc(doc(db, "agencias", agency.id), {
-                    enabled: newStatus,
-                    updatedAt: serverTimestamp()
-                });
+    if (!result.isConfirmed) return;
 
-                const idx = allAgencies.findIndex(a => a.id === agency.id);
-                if (idx !== -1) allAgencies[idx].enabled = newStatus;
+    try {
+        Swal.fire({
+            title: 'Actualizando estado...',
+            text: 'Por favor, espera.',
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            didOpen: () => Swal.showLoading()
+        });
 
-                applyFilters();
-            } catch (err) {
-                console.error("Error al cambiar estado:", err);
-                alert("No se pudo cambiar el estado de la agencia.");
-            }
+        const newStatus = !isEnabled;
+
+        await updateDoc(doc(db, "agencias", agency.id), {
+            enabled: newStatus,
+            updatedAt: serverTimestamp()
+        });
+
+        const idx = allAgencies.findIndex(a => a.id === agency.id);
+
+        if (idx !== -1) {
+            allAgencies[idx].enabled = newStatus;
         }
+
+        applyFilters();
+
+        await Swal.fire({
+            icon: 'success',
+            title: newStatus ? '¡Agencia habilitada!' : '¡Agencia inhabilitada!',
+            text: newStatus
+                ? `La agencia "${label}" está habilitada nuevamente.`
+                : `La agencia "${label}" ha sido inhabilitada correctamente.`,
+            confirmButtonText: 'Aceptar',
+            confirmButtonColor: '#2563eb',
+            timer: 2500,
+            timerProgressBar: true
+        });
+
+    } catch (err) {
+        console.error('Error al cambiar el estado de la agencia:', err);
+
+        Swal.fire({
+            icon: 'error',
+            title: '¡Error!',
+            text: 'No se pudo cambiar el estado de la agencia. Inténtalo nuevamente.',
+            confirmButtonText: 'Aceptar',
+            confirmButtonColor: '#2563eb'
+        });
+    }
+}
+
 
         // ────────────────────────────────────────────────
         // ELIMINAR
         // ────────────────────────────────────────────────
-        async function deleteAgency(agency) {
-            const label = agency.idReal || agency.id;
-            if (!confirm(`¿Eliminar DEFINITIVAMENTE la agencia "${label}"?\n\nEsta acción no se puede deshacer.`)) return;
+       
+async function deleteAgency(agency) {
+    const label = agency.idReal || agency.id;
 
-            try {
-                await deleteDoc(doc(db, "agencias", agency.id));
-                allAgencies = allAgencies.filter(a => a.id !== agency.id);
-                applyFilters();
-            } catch (err) {
-                console.error("Error al eliminar:", err);
-                alert("No se pudo eliminar la agencia.");
-            }
-        }
+    const result = await Swal.fire({
+        title: '¿Eliminar agencia?',
+        html: `¿Deseas eliminar definitivamente la agencia <strong>"${label}"</strong>?<br><br>
+               <span style="color: #dc2626;">Esta acción no se puede deshacer.</span>`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc2626',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: '<i class="fa-solid fa-trash"></i> Sí, eliminar',
+        cancelButtonText: 'Cancelar',
+        reverseButtons: true,
+        focusCancel: true
+    });
+
+    if (!result.isConfirmed) return;
+
+    try {
+        Swal.fire({
+            title: 'Eliminando...',
+            text: 'Por favor, espera.',
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            didOpen: () => Swal.showLoading()
+        });
+
+        await deleteDoc(doc(db, "agencias", agency.id));
+
+        allAgencies = allAgencies.filter(a => a.id !== agency.id);
+        applyFilters();
+
+        await Swal.fire({
+            icon: 'success',
+            title: '¡Agencia eliminada!',
+            text: `La agencia "${label}" se eliminó correctamente.`,
+            confirmButtonText: 'Aceptar',
+            confirmButtonColor: '#2563eb',
+            timer: 2500,
+            timerProgressBar: true
+        });
+
+    } catch (err) {
+        console.error("Error al eliminar la agencia:", err);
+
+        Swal.fire({
+            icon: 'error',
+            title: '¡Error!',
+            text: 'No se pudo eliminar la agencia. Inténtalo nuevamente.',
+            confirmButtonText: 'Aceptar',
+            confirmButtonColor: '#2563eb'
+        });
+    }
+}
+
 
         // ────────────────────────────────────────────────
         // BÚSQUEDA CON DEBOUNCE
