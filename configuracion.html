@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="h-full bg-slate-950">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Configuración - Carga de Agencias</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#020617">
+    <title>Configuración - Carga de Agencias | AGENCYPRO</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
@@ -16,8 +17,8 @@
                 extend: {
                     colors: {
                         brand: {
-                            50: '#f0f7ff', 100: '#e0effe', 500: '#0284c7',
-                            600: '#0369a1', 700: '#075985',
+                            50: '#eef2ff', 100: '#e0e7ff', 500: '#6366f1',
+                            600: '#4f46e5', 700: '#4338ca', 800: '#3730a3', 900: '#312e81',
                         }
                     }
                 }
@@ -26,56 +27,142 @@
     </script>
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 8px; }
+        .custom-scroll::-webkit-scrollbar-thumb:hover { background: #475569; }
     </style>
 </head>
-<body class="bg-slate-50 font-sans text-slate-800 antialiased min-h-screen">
+<body class="h-full bg-slate-950 text-slate-100 flex overflow-hidden antialiased">
 
     <!-- OVERLAY DE VERIFICACIÓN -->
-    <div id="bootOverlay" class="fixed inset-0 bg-white z-[100] flex flex-col items-center justify-center space-y-3">
+    <div id="bootOverlay" class="fixed inset-0 bg-slate-950 z-[100] flex flex-col items-center justify-center space-y-3">
         <div class="w-10 h-10 border-4 border-brand-500 border-t-transparent rounded-full animate-spin"></div>
-        <p class="text-xs font-bold text-slate-500 tracking-wider uppercase">Verificando Permisos...</p>
+        <p class="text-xs font-bold text-slate-400 tracking-wider uppercase">Verificando Permisos...</p>
     </div>
 
-    <div id="mainContent" class="max-w-6xl mx-auto px-4 py-8 hidden">
+    <!-- BACKDROP MOBILE (sidebar) -->
+    <div id="mobileBackdrop" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-40 hidden lg:hidden"></div>
 
-        <!-- Header -->
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8 pb-4 border-b border-slate-200">
-            <div>
-                <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight flex items-center gap-3">
-                    <span class="p-2 bg-brand-500 text-white rounded-xl shadow-md">
-                        <i class="fa-solid fa-gear text-xl"></i>
-                    </span>
-                    Configuración de Agencias
-                </h1>
-                <p class="text-slate-500 mt-1 text-sm">Gestiona e importa tus agencias a la base de datos de Firestore.</p>
+    <!-- SIDEBAR -->
+    <aside id="sidebar" class="fixed lg:static inset-y-0 left-0 z-50 w-72 bg-slate-900/90 border-r border-slate-800/80 flex flex-col justify-between -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out backdrop-blur-xl shrink-0">
+        <div>
+            <div class="h-16 px-6 flex items-center justify-between border-b border-slate-800/80">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-600/20 to-indigo-500/20 border border-brand-500/30 flex items-center justify-center text-white shadow-lg shadow-brand-500/10">
+                        <svg class="w-5 h-6 text-brand-400 fill-current" viewBox="0 0 100 130" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                            <g>
+                                <rect x="0" y="0" width="18" height="130" rx="4" />
+                                <rect x="26" y="0" width="18" height="70" rx="4" />
+                                <rect x="52" y="0" width="18" height="130" rx="4" />
+                                <rect x="78" y="0" width="18" height="38" rx="4" />
+                                <rect x="78" y="68" width="18" height="62" rx="4" />
+                            </g>
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-sm tracking-wide text-white">AGENCY<span class="text-brand-500">PRO</span></h1>
+                        <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Pedro Garcia 2026</p>
+                    </div>
+                </div>
+                <button id="closeSidebarMobile" class="lg:hidden text-slate-400 hover:text-white text-lg" aria-label="Cerrar menú">
+                    <i class="fa fa-xmark"></i>
+                </button>
             </div>
-            <div class="mt-4 md:mt-0 flex items-center gap-3">
-                <a href="index.html" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-xl shadow-sm transition-all flex items-center gap-2">
-                    <i class="fa-solid fa-arrow-left text-sm"></i> Volver
+
+            <nav class="p-4 space-y-1.5 custom-scroll overflow-y-auto max-h-[calc(100vh-140px)]">
+                <p class="px-3 pt-2 pb-1 text-[10px] font-bold uppercase tracking-widest text-slate-500">Menú Principal</p>
+
+                <a href="index.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 text-xs font-medium transition-all">
+                    <i class="fa fa-house w-4 text-center text-sm"></i>
+                    <span>Inicio</span>
                 </a>
-                <button id="btnOpenSingleModal" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md transition-all flex items-center gap-2">
-                    <i class="fa-solid fa-plus text-sm"></i> Agregar Individual
+                <a href="mapa.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 text-xs font-medium transition-all">
+                    <i class="fa fa-map-location-dot w-4 text-center text-sm"></i>
+                    <span>Mapa de Agencias</span>
+                </a>
+                <a href="rutas.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 text-xs font-medium transition-all">
+                    <i class="fa fa-route w-4 text-center text-sm"></i>
+                    <span>Optimizador de Rutas</span>
+                </a>
+                <a href="zonas.html" data-admin-only class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 text-xs font-medium transition-all">
+                    <i class="fa fa-layer-group w-4 text-center text-sm"></i>
+                    <span>Gestión de Zonas</span>
+                </a>
+
+                <p class="px-3 pt-4 pb-1 text-[10px] font-bold uppercase tracking-widest text-slate-500" data-admin-only>Administración</p>
+
+                <a href="users.html" data-admin-only class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 text-xs font-medium transition-all">
+                    <i class="fa fa-users-gear w-4 text-center text-sm"></i>
+                    <span>Usuarios y Permisos</span>
+                </a>
+                <a href="reportes.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 text-xs font-medium transition-all">
+                    <i class="fa fa-chart-pie w-4 text-center text-sm"></i>
+                    <span>Reportes</span>
+                </a>
+                <a href="configuracion.html" data-admin-only class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl bg-brand-600/10 text-brand-400 font-semibold text-xs border border-brand-500/20 shadow-sm transition-all">
+                    <i class="fa fa-sliders w-4 text-center text-sm"></i>
+                    <span>Configuración</span>
+                </a>
+
+                <p class="px-3 pt-4 pb-1 text-[10px] font-bold uppercase tracking-widest text-slate-500">Sistema</p>
+                <a href="acerca.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 text-xs font-medium transition-all">
+                    <i class="fa fa-circle-info w-4 text-center text-sm"></i>
+                    <span>Acerca de</span>
+                </a>
+            </nav>
+        </div>
+
+        <div class="p-4 border-t border-slate-800/80 bg-slate-900/50">
+            <div class="flex items-center justify-between gap-2">
+                <div class="flex items-center gap-2.5 min-w-0">
+                    <div class="w-8 h-8 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center text-brand-400 font-bold text-xs shrink-0">
+                        <i class="fa fa-user"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <p id="userEmail" class="text-xs font-semibold text-slate-200 truncate">Cargando...</p>
+                        <p id="userRole" class="text-[10px] text-slate-500">Sesión Activa</p>
+                    </div>
+                </div>
+                <button id="btnLogout" class="text-slate-400 hover:text-rose-400 p-2 rounded-lg hover:bg-rose-500/10 transition-colors" title="Cerrar Sesión" aria-label="Cerrar Sesión">
+                    <i class="fa fa-arrow-right-from-bracket"></i>
                 </button>
             </div>
         </div>
+    </aside>
 
-        <!-- Main Card -->
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-8">
-            <div class="p-6 md:p-8">
+    <!-- ÁREA PRINCIPAL -->
+    <div class="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
 
-                <h2 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                    <i class="fa-solid fa-file-import text-brand-500"></i>
+        <header class="h-16 bg-slate-900/80 border-b border-slate-800/80 px-4 sm:px-6 flex items-center justify-between gap-3 shrink-0 backdrop-blur-md z-20">
+            <div class="flex items-center gap-3 min-w-0">
+                <button id="openSidebarMobile" class="lg:hidden text-slate-400 hover:text-white p-2 shrink-0" aria-label="Abrir menú">
+                    <i class="fa fa-bars"></i>
+                </button>
+                <h2 class="text-base font-bold text-slate-100 truncate">Configuración de Agencias</h2>
+            </div>
+            <button id="btnOpenSingleModal" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl shadow-md transition-all flex items-center gap-2">
+                <i class="fa-solid fa-plus text-sm"></i> Agregar Individual
+            </button>
+        </header>
+
+        <div id="mainContent" class="flex-1 overflow-y-auto p-4 sm:p-8 custom-scroll hidden space-y-6">
+
+            <!-- Main Card -->
+            <div class="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-xl backdrop-blur-xl">
+                <h2 class="text-base font-bold text-slate-200 mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-file-import text-brand-400"></i>
                     Método de Entrada Masiva de Datos
                 </h2>
 
                 <!-- Tabs -->
-                <div class="flex border-b border-slate-200 mb-6" role="tablist">
+                <div class="flex border-b border-slate-800 mb-6" role="tablist">
                     <button id="tabExcelBtn" role="tab" aria-selected="true"
-                        class="tab-btn active flex items-center gap-2 py-3 px-5 text-sm font-semibold border-b-2 transition-all">
+                        class="tab-btn flex items-center gap-2 py-3 px-5 text-xs font-bold border-b-2 border-brand-500 text-brand-400 transition-all">
                         <i class="fa-solid fa-file-excel"></i> Subir Archivo Excel
                     </button>
                     <button id="tabTextareaBtn" role="tab" aria-selected="false"
-                        class="tab-btn flex items-center gap-2 py-3 px-5 text-sm font-semibold border-b-2 transition-all">
+                        class="tab-btn flex items-center gap-2 py-3 px-5 text-xs font-bold border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-all">
                         <i class="fa-solid fa-align-left"></i> Área de Texto Copiar/Pegar
                     </button>
                 </div>
@@ -84,21 +171,21 @@
                 <div class="mb-6">
                     <!-- Excel -->
                     <div id="tabExcel">
-                        <div id="dropZone" class="border-2 border-dashed border-brand-500/40 hover:border-brand-500 bg-brand-50/50 hover:bg-brand-50 transition-all duration-200 rounded-xl p-8 text-center cursor-pointer group">
-                            <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-3 shadow-sm group-hover:scale-110 transition-transform">
-                                <i class="fa-solid fa-cloud-arrow-up text-2xl text-brand-500"></i>
+                        <div id="dropZone" class="border-2 border-dashed border-slate-700 hover:border-brand-500 bg-slate-950/50 hover:bg-slate-950 transition-all duration-200 rounded-2xl p-8 text-center cursor-pointer group">
+                            <div class="w-16 h-16 bg-slate-900 border border-slate-800 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-inner group-hover:scale-110 transition-transform">
+                                <i class="fa-solid fa-cloud-arrow-up text-2xl text-brand-400"></i>
                             </div>
-                            <p class="text-sm font-semibold text-slate-700">
+                            <p class="text-xs font-semibold text-slate-300">
                                 Arrastra y suelta tu archivo Excel aquí, o
-                                <span class="text-brand-600 underline">haz clic para examinar</span>
+                                <span class="text-brand-400 underline">haz clic para examinar</span>
                             </p>
-                            <p class="text-xs text-slate-400 mt-1">Formatos soportados: .xlsx, .xls</p>
+                            <p class="text-[10px] text-slate-500 mt-1">Formatos soportados: .xlsx, .xls</p>
                             <input type="file" id="excelFileInput" accept=".xlsx, .xls" class="hidden">
                         </div>
-                        <div id="fileNameDisplay" class="mt-2 text-xs font-medium text-slate-600 hidden items-center gap-2">
-                            <i class="fa-solid fa-paperclip text-brand-500"></i>
+                        <div id="fileNameDisplay" class="mt-2 text-xs font-medium text-slate-300 hidden items-center gap-2">
+                            <i class="fa-solid fa-paperclip text-brand-400"></i>
                             <span id="fileNameText"></span>
-                            <button id="btnClearFile" class="text-rose-500 hover:text-rose-700 ml-2" title="Quitar archivo">
+                            <button id="btnClearFile" class="text-rose-400 hover:text-rose-300 ml-2" title="Quitar archivo">
                                 <i class="fa-solid fa-xmark"></i>
                             </button>
                         </div>
@@ -106,34 +193,33 @@
 
                     <!-- Textarea -->
                     <div id="tabTextarea" class="hidden">
-                        <label for="rawTextarea" class="block text-xs font-semibold text-slate-600 mb-2">
+                        <label for="rawTextarea" class="block text-xs font-semibold text-slate-400 mb-2">
                             Ingresa datos separados por comas o tabulaciones.
-                            <span class="text-slate-400 font-normal">Formato: <code class="bg-slate-100 px-1 rounded">idReal, dirección, latitud, longitud</code> (la zona se toma del selector de arriba).</span>
+                            <span class="text-slate-500 font-normal">Formato: <code class="bg-slate-950 border border-slate-800 px-1.5 py-0.5 rounded text-brand-400">idReal, dirección, latitud, longitud</code>.</span>
                         </label>
                         <textarea id="rawTextarea" rows="7"
                             placeholder="Ejemplo:&#10;8125840, Av. Independencia 123, 18.4861, -69.9312&#10;8125841, Calle Principal 45, 18.4875, -69.9320"
-                            class="w-full font-mono text-xs p-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all"></textarea>
-                        <p class="text-xs text-slate-400 mt-1">Puedes copiar directamente múltiples filas y columnas de un Excel y pegarlas aquí.</p>
+                            class="w-full font-mono text-xs p-4 bg-slate-950 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:border-brand-500 transition-all"></textarea>
                     </div>
                 </div>
 
                 <!-- Parámetros -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200 mb-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-950/60 p-4 rounded-2xl border border-slate-800 mb-6 text-xs">
                     <div>
-                        <label for="selectZona" class="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">
-                            <i class="fa-solid fa-map-location-dot mr-1 text-brand-500"></i> Zona por Defecto
+                        <label for="selectZona" class="block font-bold text-slate-400 mb-1.5 uppercase tracking-wider">
+                            <i class="fa-solid fa-map-location-dot mr-1 text-brand-400"></i> Zona por Defecto
                         </label>
-                        <select id="selectZona" class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        <select id="selectZona" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2.5 text-slate-200 focus:outline-none focus:border-brand-500 font-semibold">
                             <option value="">-- Sin zona global (usa columna) --</option>
                         </select>
-                        <p class="text-[10px] text-slate-500 mt-1">Si el Excel/tabla no trae columna "zona", se aplicará esta a todas las filas.</p>
+                        <p class="text-[10px] text-slate-500 mt-1">Si el Excel no trae columna "zona", se aplicará esta a todas las filas.</p>
                     </div>
 
                     <div>
-                        <label for="importStrategy" class="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">
-                            <i class="fa-solid fa-arrows-rotate mr-1 text-brand-500"></i> Estrategia de Duplicados
+                        <label for="importStrategy" class="block font-bold text-slate-400 mb-1.5 uppercase tracking-wider">
+                            <i class="fa-solid fa-arrows-rotate mr-1 text-brand-400"></i> Estrategia de Duplicados
                         </label>
-                        <select id="importStrategy" class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        <select id="importStrategy" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2.5 text-slate-200 focus:outline-none focus:border-brand-500 font-semibold">
                             <option value="skip">Omitir duplicados (mantiene existente)</option>
                             <option value="upsert">Actualizar / Sobrescribir existentes</option>
                         </select>
@@ -143,116 +229,114 @@
 
                 <!-- Acciones -->
                 <div class="flex flex-col sm:flex-row justify-end items-center gap-3">
-                    <button id="btnProcessData" class="w-full sm:w-auto px-5 py-2.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-sm font-semibold rounded-xl shadow-sm transition-all flex items-center justify-center gap-2">
+                    <button id="btnProcessData" class="w-full sm:w-auto px-5 py-3 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold rounded-xl border border-slate-700 transition-all flex items-center justify-center gap-2">
                         <i class="fa-solid fa-magnifying-glass text-slate-400"></i> Procesar y Previsualizar
                     </button>
                     <button id="btnSaveAgencies" disabled
-                        class="w-full sm:w-auto px-6 py-2.5 bg-brand-500 hover:bg-brand-600 disabled:bg-slate-300 text-white text-sm font-semibold rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer disabled:cursor-not-allowed">
+                        class="w-full sm:w-auto px-6 py-3 bg-brand-600 hover:bg-brand-500 disabled:bg-slate-800 disabled:text-slate-600 disabled:border-slate-800 text-white text-xs font-bold rounded-xl shadow-lg shadow-brand-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:cursor-not-allowed">
                         <i class="fa-solid fa-cloud-arrow-up"></i> Guardar en Firestore
                     </button>
                 </div>
 
                 <!-- Progress -->
                 <div id="progressContainer" class="hidden mt-6">
-                    <div class="flex justify-between text-xs font-semibold text-slate-600 mb-1">
+                    <div class="flex justify-between text-xs font-semibold text-slate-400 mb-1">
                         <span id="progressLabel">Procesando registros...</span>
                         <span id="progressText">0%</span>
                     </div>
-                    <div class="w-full bg-slate-200 rounded-full h-3 overflow-hidden">
+                    <div class="w-full bg-slate-950 border border-slate-800 rounded-full h-3 overflow-hidden">
                         <div id="progressBar" class="bg-brand-500 h-3 rounded-full transition-all duration-300" style="width: 0%"></div>
                     </div>
                 </div>
-
             </div>
-        </div>
 
-        <!-- Preview Card -->
-        <div id="previewCard" class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden hidden">
-            <div class="px-6 py-4 border-b border-slate-200 bg-slate-50/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-                <div class="flex items-center gap-2">
-                    <h3 class="font-bold text-slate-800 text-sm uppercase tracking-wider">
-                        Previsualización de Datos
-                    </h3>
-                    <span id="recordCountBadge" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-brand-100 text-brand-700">0 registros</span>
+            <!-- Preview Card -->
+            <div id="previewCard" class="bg-slate-900/90 border border-slate-800 rounded-3xl overflow-hidden shadow-xl backdrop-blur-xl hidden">
+                <div class="px-6 py-4 border-b border-slate-800 bg-slate-950/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                    <div class="flex items-center gap-2">
+                        <h3 class="font-bold text-slate-200 text-xs uppercase tracking-wider">
+                            Previsualización de Datos
+                        </h3>
+                        <span id="recordCountBadge" class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-brand-500/10 text-brand-400 border border-brand-500/20">0 registros</span>
+                    </div>
+                    <span class="text-[11px] text-slate-500">Estructura: <b>ID autogenerado</b> + <code>enabled:true</code></span>
                 </div>
-                <span class="text-xs text-slate-400">Estructura: <b>ID autogenerado</b> + <code>enabled:true</code></span>
-            </div>
 
-            <div class="overflow-x-auto max-h-96">
-                <table class="w-full text-left text-xs border-collapse">
-                    <thead class="bg-slate-100/70 text-slate-500 font-semibold uppercase tracking-wider sticky top-0 border-b border-slate-200">
-                        <tr>
-                            <th class="py-3 px-4">#</th>
-                            <th class="py-3 px-4">idReal</th>
-                            <th class="py-3 px-4">Zona</th>
-                            <th class="py-3 px-4">Dirección</th>
-                            <th class="py-3 px-4">Latitud</th>
-                            <th class="py-3 px-4">Longitud</th>
-                            <th class="py-3 px-4">Estado</th>
-                        </tr>
-                    </thead>
-                    <tbody id="previewTableBody" class="divide-y divide-slate-100 text-slate-700">
-                        <!-- Dinámico -->
-                    </tbody>
-                </table>
+                <div class="overflow-x-auto max-h-96 custom-scroll">
+                    <table class="w-full text-left text-xs border-collapse">
+                        <thead class="bg-slate-950/80 text-slate-400 font-bold uppercase tracking-wider sticky top-0 border-b border-slate-800">
+                            <tr>
+                                <th class="py-3 px-4">#</th>
+                                <th class="py-3 px-4">idReal</th>
+                                <th class="py-3 px-4">Zona</th>
+                                <th class="py-3 px-4">Dirección</th>
+                                <th class="py-3 px-4">Latitud</th>
+                                <th class="py-3 px-4">Longitud</th>
+                                <th class="py-3 px-4">Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody id="previewTableBody" class="divide-y divide-slate-800/60 text-slate-300">
+                            <!-- Dinámico -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
-
     </div>
 
     <!-- Modal Agencia Individual -->
-    <div id="singleAgencyModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
-        <div class="bg-white rounded-2xl shadow-xl border border-slate-200 w-full max-w-lg overflow-hidden max-h-[90vh] overflow-y-auto">
-            <div class="px-6 py-4 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
-                <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
-                    <i class="fa-solid fa-building-circle-check text-emerald-600"></i>
+    <div id="singleAgencyModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[9998] flex items-center justify-center hidden p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl max-h-[90vh] overflow-y-auto custom-scroll">
+            <div class="px-6 py-4 border-b border-slate-800 flex justify-between items-center">
+                <h3 class="text-sm font-bold text-slate-100 flex items-center gap-2">
+                    <i class="fa-solid fa-building-circle-check text-emerald-400"></i>
                     Agregar Agencia Individual
                 </h3>
-                <button id="btnCloseModal" class="text-slate-400 hover:text-slate-600 transition-colors" aria-label="Cerrar">
+                <button id="btnCloseModal" class="text-slate-400 hover:text-white transition-colors" aria-label="Cerrar">
                     <i class="fa-solid fa-xmark text-lg"></i>
                 </button>
             </div>
-            <form id="singleAgencyForm" class="p-6 space-y-4" novalidate>
+            <form id="singleAgencyForm" class="p-6 space-y-4 text-xs" novalidate>
                 <div>
-                    <label for="singleIdReal" class="block text-xs font-bold text-slate-700 mb-1">ID Real *</label>
+                    <label for="singleIdReal" class="block font-bold text-slate-400 mb-1 uppercase">ID Real *</label>
                     <input type="text" id="singleIdReal" required placeholder="Ej: 8125840"
-                        class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-slate-200 focus:outline-none focus:border-brand-500 font-mono">
                 </div>
 
                 <div>
-                    <label for="singleSelectZona" class="block text-xs font-bold text-slate-700 mb-1">Zona *</label>
+                    <label for="singleSelectZona" class="block font-bold text-slate-400 mb-1 uppercase">Zona *</label>
                     <select id="singleSelectZona" required
-                        class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-slate-200 focus:outline-none focus:border-brand-500 font-semibold">
                         <option value="">-- Seleccionar Zona --</option>
                     </select>
                 </div>
 
                 <div>
-                    <label for="singleDireccion" class="block text-xs font-bold text-slate-700 mb-1">Dirección</label>
+                    <label for="singleDireccion" class="block font-bold text-slate-400 mb-1 uppercase">Dirección</label>
                     <input type="text" id="singleDireccion" placeholder="Ej: Av. Independencia 123"
-                        class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-slate-200 focus:outline-none focus:border-brand-500">
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label for="singleLat" class="block text-xs font-bold text-slate-700 mb-1">Latitud</label>
+                        <label for="singleLat" class="block font-bold text-slate-400 mb-1 uppercase">Latitud</label>
                         <input type="number" step="any" id="singleLat" placeholder="18.4861"
-                            class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-slate-200 focus:outline-none focus:border-brand-500 font-mono">
                     </div>
                     <div>
-                        <label for="singleLng" class="block text-xs font-bold text-slate-700 mb-1">Longitud</label>
+                        <label for="singleLng" class="block font-bold text-slate-400 mb-1 uppercase">Longitud</label>
                         <input type="number" step="any" id="singleLng" placeholder="-69.9312"
-                            class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-slate-200 focus:outline-none focus:border-brand-500 font-mono">
                     </div>
                 </div>
 
-                <div class="pt-4 flex justify-end gap-2 border-t border-slate-100">
+                <div class="pt-4 flex justify-end gap-2 border-t border-slate-800">
                     <button type="button" id="btnCancelModal"
-                        class="px-4 py-2 border border-slate-300 text-slate-600 text-xs font-bold rounded-lg hover:bg-slate-50 transition-all">
+                        class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold rounded-xl">
                         Cancelar
                     </button>
                     <button type="submit" id="btnSaveSingle"
-                        class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-400 text-white text-xs font-bold rounded-lg shadow transition-all flex items-center gap-2">
+                        class="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-700 text-white font-bold rounded-xl shadow transition-all flex items-center gap-2">
                         <i class="fa-solid fa-floppy-disk" id="btnSaveSingleIcon"></i>
                         <span id="btnSaveSingleText">Guardar Agencia</span>
                     </button>
@@ -284,9 +368,7 @@
 
         import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-        // ────────────────────────────────────────────────
         // DOM
-        // ────────────────────────────────────────────────
         const bootOverlay        = document.getElementById("bootOverlay");
         const mainContent        = document.getElementById("mainContent");
         const dropZone           = document.getElementById("dropZone");
@@ -318,20 +400,34 @@
         const btnSaveSingleIcon  = document.getElementById("btnSaveSingleIcon");
         const btnSaveSingleText  = document.getElementById("btnSaveSingleText");
 
-        // ────────────────────────────────────────────────
-        // ESTADO
-        // ────────────────────────────────────────────────
+        // Sidebar mobile
+        const sidebar            = document.getElementById("sidebar");
+        const openSidebarMobile  = document.getElementById("openSidebarMobile");
+        const closeSidebarMobile = document.getElementById("closeSidebarMobile");
+        const mobileBackdrop     = document.getElementById("mobileBackdrop");
+        const userEmailSpan      = document.getElementById("userEmail");
+        const userRoleSpan       = document.getElementById("userRole");
+        const btnLogout          = document.getElementById("btnLogout");
+
+        openSidebarMobile?.addEventListener("click", () => {
+            sidebar.classList.remove("-translate-x-full");
+            mobileBackdrop.classList.remove("hidden");
+        });
+        const closeSidebar = () => {
+            sidebar.classList.add("-translate-x-full");
+            mobileBackdrop.classList.add("hidden");
+        };
+        closeSidebarMobile?.addEventListener("click", closeSidebar);
+        mobileBackdrop?.addEventListener("click", closeSidebar);
+
         let parsedAgencies = [];
         let selectedFile = null;
         let activeTab = "excel";
         let existingZones = [];
         let isAdmin = false;
 
-        // ────────────────────────────────────────────────
-        // TABS (sin window global)
-        // ────────────────────────────────────────────────
-        const TAB_ACTIVE = "flex items-center gap-2 py-3 px-5 text-sm font-semibold border-b-2 border-brand-500 text-brand-600 transition-all";
-        const TAB_INACTIVE = "flex items-center gap-2 py-3 px-5 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-700 transition-all";
+        const TAB_ACTIVE = "tab-btn flex items-center gap-2 py-3 px-5 text-xs font-bold border-b-2 border-brand-500 text-brand-400 transition-all";
+        const TAB_INACTIVE = "tab-btn flex items-center gap-2 py-3 px-5 text-xs font-bold border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-all";
 
         function setActiveTab(type) {
             activeTab = type;
@@ -354,18 +450,16 @@
         tabExcelBtn.addEventListener("click", () => setActiveTab("excel"));
         tabTextareaBtn.addEventListener("click", () => setActiveTab("textarea"));
 
-        // ────────────────────────────────────────────────
-        // AUTENTICACIÓN Y ROL
-        // ────────────────────────────────────────────────
         onAuthStateChanged(auth, async (user) => {
             if (!user) {
                 window.location.replace("login.html");
                 return;
             }
 
+            userEmailSpan.innerText = user.email;
+
             try {
                 const userSnap = await getDoc(doc(db, "users", user.uid));
-
                 if (!userSnap.exists()) {
                     alert("Tu cuenta no está registrada. Contacta al administrador.");
                     await signOut(auth);
@@ -374,7 +468,6 @@
                 }
 
                 const userData = userSnap.data();
-
                 if (userData.enabled === false) {
                     alert("Tu usuario ha sido inhabilitado.");
                     await signOut(auth);
@@ -382,13 +475,18 @@
                     return;
                 }
 
-                if (userData.role !== "admin") {
+                isAdmin = userData.role === "admin";
+                userRoleSpan.innerText = isAdmin ? "Administrador" : "Visualizador";
+                userRoleSpan.className = isAdmin
+                    ? "text-[10px] font-bold text-indigo-400 uppercase tracking-wider"
+                    : "text-[10px] font-bold text-slate-500 uppercase tracking-wider";
+
+                if (!isAdmin) {
                     alert("Acceso denegado: solo administradores pueden importar datos.");
                     window.location.replace("index.html");
                     return;
                 }
 
-                isAdmin = true;
                 bootOverlay.classList.add("hidden");
                 mainContent.classList.remove("hidden");
 
@@ -396,59 +494,47 @@
 
             } catch (err) {
                 console.error("Error al validar sesión:", err);
-                alert("Error al verificar tus credenciales.");
                 window.location.replace("index.html");
             }
         });
 
-        // ────────────────────────────────────────────────
-        // CARGAR ZONAS (solo colección "zonas")
-        // ────────────────────────────────────────────────
+        btnLogout.addEventListener("click", async () => {
+            if (!confirm("¿Seguro que deseas cerrar sesión?")) return;
+            await signOut(auth);
+            window.location.replace("login.html");
+        });
+
         async function loadZones() {
             try {
                 const zonasSnap = await getDocs(collection(db, "zonas"));
                 const zonesSet = new Set();
-
                 zonasSnap.forEach(d => {
-                    // El ID ya viene en mayúsculas por zonas.html
                     const id = String(d.id || "").toUpperCase().trim();
                     const nombre = d.data().nombre ? String(d.data().nombre).toUpperCase().trim() : "";
                     if (id) zonesSet.add(id);
                     if (nombre) zonesSet.add(nombre);
                 });
-
                 existingZones = Array.from(zonesSet).sort();
-
-                if (existingZones.length === 0) {
-                    existingZones = ["GENERAL"];
-                }
-
+                if (existingZones.length === 0) existingZones = ["GENERAL"];
                 populateZoneDropdowns(existingZones);
-
             } catch (err) {
-                console.error("Error al cargar zonas:", err);
                 existingZones = ["GENERAL"];
                 populateZoneDropdowns(existingZones);
             }
         }
 
         function populateZoneDropdowns(zones) {
-            // Select del bulk
             selectZona.innerHTML = `<option value="">-- Sin zona global (usa columna) --</option>`;
             zones.forEach(z => {
                 selectZona.innerHTML += `<option value="${escapeHtml(z)}">${escapeHtml(z)}</option>`;
             });
 
-            // Select del modal individual
             singleSelectZona.innerHTML = `<option value="">-- Seleccionar Zona --</option>`;
             zones.forEach(z => {
                 singleSelectZona.innerHTML += `<option value="${escapeHtml(z)}">${escapeHtml(z)}</option>`;
             });
         }
 
-        // ────────────────────────────────────────────────
-        // MODAL INDIVIDUAL
-        // ────────────────────────────────────────────────
         document.getElementById("btnOpenSingleModal").addEventListener("click", () => {
             singleAgencyForm.reset();
             singleAgencyModal.classList.remove("hidden");
@@ -507,33 +593,18 @@
 
                     const existingDocId = snap.docs[0].id;
                     await updateDoc(doc(db, "agencias", existingDocId), {
-                        zona,
-                        direccion,
-                        lat,
-                        lng,
-                        updatedAt: serverTimestamp()
+                        zona, direccion, lat, lng, updatedAt: serverTimestamp()
                     });
-
                     Swal.fire("Actualizado", "La agencia ha sido actualizada correctamente.", "success");
                 } else {
                     await setDoc(doc(collection(db, "agencias")), {
-                        idReal,
-                        zona,
-                        direccion,
-                        lat,
-                        lng,
-                        enabled: true,        // 👈 nuevo
-                        createdAt: serverTimestamp(),
-                        updatedAt: serverTimestamp()
+                        idReal, zona, direccion, lat, lng, enabled: true,
+                        createdAt: serverTimestamp(), updatedAt: serverTimestamp()
                     });
-
                     Swal.fire("¡Guardado!", "La agencia ha sido registrada con éxito.", "success");
                 }
-
                 closeModal();
-
             } catch (err) {
-                console.error("Error guardando agencia individual:", err);
                 Swal.fire("Error", "Ocurrió un error al guardar: " + err.message, "error");
             } finally {
                 btnSaveSingle.disabled = false;
@@ -542,25 +613,15 @@
             }
         });
 
-        // ────────────────────────────────────────────────
-        // DRAG & DROP
-        // ────────────────────────────────────────────────
         dropZone.addEventListener("click", () => excelFileInput.click());
-        dropZone.addEventListener("dragover", (e) => {
-            e.preventDefault();
-            dropZone.classList.add("border-brand-500", "bg-brand-50");
-        });
-        ["dragleave", "dragend"].forEach(t =>
-            dropZone.addEventListener(t, () => dropZone.classList.remove("border-brand-500", "bg-brand-50"))
-        );
+        dropZone.addEventListener("dragover", (e) => { e.preventDefault(); dropZone.classList.add("border-brand-500", "bg-slate-900"); });
+        ["dragleave", "dragend"].forEach(t => dropZone.addEventListener(t, () => dropZone.classList.remove("border-brand-500", "bg-slate-900")));
         dropZone.addEventListener("drop", (e) => {
             e.preventDefault();
-            dropZone.classList.remove("border-brand-500", "bg-brand-50");
+            dropZone.classList.remove("border-brand-500", "bg-slate-900");
             if (e.dataTransfer.files.length > 0) handleFileSelection(e.dataTransfer.files[0]);
         });
-        excelFileInput.addEventListener("change", (e) => {
-            if (e.target.files.length > 0) handleFileSelection(e.target.files[0]);
-        });
+        excelFileInput.addEventListener("change", (e) => { if (e.target.files.length > 0) handleFileSelection(e.target.files[0]); });
         btnClearFile.addEventListener("click", (e) => {
             e.stopPropagation();
             selectedFile = null;
@@ -580,12 +641,8 @@
             fileNameDisplay.classList.add("flex");
         }
 
-        // ────────────────────────────────────────────────
-        // PROCESAR DATOS
-        // ────────────────────────────────────────────────
         btnProcessData.addEventListener("click", () => {
             const selectedZone = selectZona.value.trim().toUpperCase();
-
             if (activeTab === "excel") {
                 if (!selectedFile) {
                     Swal.fire("Atención", "Selecciona un archivo Excel primero.", "warning");
@@ -602,9 +659,6 @@
             }
         });
 
-        /**
-         * Procesa un archivo Excel. Detecta columnas de forma flexible.
-         */
         function processExcelFile(file, globalZone) {
             const reader = new FileReader();
             reader.onload = (e) => {
@@ -613,86 +667,48 @@
                     const workbook = XLSX.read(data, { type: "array" });
                     const worksheet = workbook.Sheets[workbook.SheetNames[0]];
                     const rawData = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
-
                     parsedAgencies = rawData.map(row => normalizeRow(row, globalZone)).filter(a => a.idReal !== "");
-
                     validateAndShowPreview();
                 } catch (err) {
-                    console.error("Error leyendo Excel:", err);
-                    Swal.fire("Error", "No se pudo leer el archivo Excel. Verifica su formato.", "error");
+                    Swal.fire("Error", "No se pudo leer el archivo Excel.", "error");
                 }
             };
-            reader.onerror = () => Swal.fire("Error", "No se pudo leer el archivo.", "error");
             reader.readAsArrayBuffer(file);
         }
 
-        /**
-         * Normaliza una fila de Excel a nuestro modelo interno.
-         * Detecta headers case-insensitive.
-         */
         function normalizeRow(row, globalZone) {
-            // Construir versión lowercase de las claves
             const lower = {};
-            Object.keys(row).forEach(k => {
-                lower[String(k).trim().toLowerCase()] = row[k];
-            });
-
-            const idReal = String(
-                lower["idreal"] ?? lower["id real"] ?? lower["id"] ?? lower["codigo"] ?? ""
-            ).trim();
-
+            Object.keys(row).forEach(k => { lower[String(k).trim().toLowerCase()] = row[k]; });
+            const idReal = String(lower["idreal"] ?? lower["id real"] ?? lower["id"] ?? lower["codigo"] ?? "").trim();
             const rowZone = String(lower["zona"] ?? "").trim().toUpperCase();
             const zona = globalZone || rowZone || "GENERAL";
-
-            const direccion = String(
-                lower["direccion"] ?? lower["dirección"] ?? lower["address"] ?? ""
-            ).trim();
-
+            const direccion = String(lower["direccion"] ?? lower["dirección"] ?? lower["address"] ?? "").trim();
             const lat = parseFloat(lower["lat"] ?? lower["latitud"] ?? 0) || 0;
             const lng = parseFloat(lower["lng"] ?? lower["longitud"] ?? lower["lon"] ?? 0) || 0;
-
             return { idReal, zona, direccion, lat, lng };
         }
 
-        /**
-         * Procesa el contenido del textarea.
-         * Formato esperado:
-         *   4 columnas: idReal, direccion, lat, lng
-         *   5 columnas: idReal, zona, direccion, lat, lng
-         */
         function processTextareaContent(text, globalZone) {
             const lines = text.split("\n");
             parsedAgencies = [];
-
-            lines.forEach((line, idx) => {
+            lines.forEach((line) => {
                 if (!line.trim()) return;
-
-                // Detectar delimitador (tab tiene prioridad porque viene de Excel)
                 const delimiter = line.includes("\t") ? "\t" : ",";
                 const parts = line.split(delimiter).map(p => p.trim());
-
                 if (parts.length === 0 || !parts[0]) return;
-
-                // Saltar header
                 const first = parts[0].toLowerCase();
                 if (first === "idreal" || first === "id" || first === "codigo") return;
-
                 let idReal, zona, direccion, lat, lng;
-
                 if (parts.length >= 5) {
-                    // idReal, zona, direccion, lat, lng
                     [idReal, zona, direccion, lat, lng] = parts;
                 } else {
-                    // idReal, direccion, lat, lng
                     idReal = parts[0];
                     direccion = parts[1] || "";
                     lat = parts[2] || 0;
                     lng = parts[3] || 0;
                     zona = "";
                 }
-
                 zona = (globalZone || String(zona || "").toUpperCase().trim()) || "GENERAL";
-
                 parsedAgencies.push({
                     idReal: String(idReal).trim(),
                     zona,
@@ -701,22 +717,16 @@
                     lng: parseFloat(lng) || 0
                 });
             });
-
             validateAndShowPreview();
         }
 
-        // ────────────────────────────────────────────────
-        // PREVISUALIZACIÓN
-        // ────────────────────────────────────────────────
         function validateAndShowPreview() {
             if (parsedAgencies.length === 0) {
-                Swal.fire("Sin Registros", "No se encontraron filas válidas con la columna 'idReal'.", "error");
+                Swal.fire("Sin Registros", "No se encontraron filas válidas.", "error");
                 btnSaveAgencies.disabled = true;
                 previewCard.classList.add("hidden");
                 return;
             }
-
-            // Deduplicar por idReal (quedarse con el último)
             const dedupMap = new Map();
             parsedAgencies.forEach(a => dedupMap.set(a.idReal, a));
             const beforeDedup = parsedAgencies.length;
@@ -729,7 +739,7 @@
             Swal.fire({
                 title: "Previsualización Lista",
                 html: `Se cargaron <b>${parsedAgencies.length}</b> registros únicos.` +
-                    (dupsRemoved > 0 ? `<br><small class="text-amber-600">(${dupsRemoved} duplicados internos eliminados)</small>` : ""),
+                    (dupsRemoved > 0 ? `<br><small class="text-amber-400">(${dupsRemoved} duplicados internos eliminados)</small>` : ""),
                 icon: "success",
                 timer: 2500,
                 showConfirmButton: false
@@ -739,22 +749,17 @@
         function renderPreviewTable(data) {
             previewTableBody.innerHTML = "";
             recordCountBadge.textContent = `${data.length} registros`;
-
-            // Mostrar máximo 200 en preview para no colgar el DOM
             const LIMIT = 200;
-            const visible = data.slice(0, LIMIT);
-
-            visible.forEach((item, index) => {
+            data.slice(0, LIMIT).forEach((item, index) => {
                 const tr = document.createElement("tr");
-                tr.className = "hover:bg-slate-50 transition-colors";
+                tr.className = "hover:bg-slate-800/40 transition-colors";
 
-                // Construcción segura (sin innerHTML con datos)
-                tr.appendChild(createCell(String(index + 1), "py-3 px-4 font-mono text-slate-400"));
+                tr.appendChild(createCell(String(index + 1), "py-3 px-4 font-mono text-slate-500"));
 
                 const tdId = document.createElement("td");
                 tdId.className = "py-3 px-4";
                 const spanId = document.createElement("span");
-                spanId.className = "px-2 py-1 rounded bg-sky-50 text-sky-700 font-mono font-bold";
+                spanId.className = "px-2 py-0.5 rounded bg-brand-500/10 text-brand-400 font-mono font-bold border border-brand-500/20";
                 spanId.textContent = item.idReal;
                 tdId.appendChild(spanId);
                 tr.appendChild(tdId);
@@ -762,30 +767,18 @@
                 const tdZona = document.createElement("td");
                 tdZona.className = "py-3 px-4";
                 const spanZona = document.createElement("span");
-                spanZona.className = "px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 font-medium";
+                spanZona.className = "px-2 py-0.5 rounded-md bg-slate-800 text-slate-300 font-medium text-[10px]";
                 spanZona.textContent = item.zona;
                 tdZona.appendChild(spanZona);
                 tr.appendChild(tdZona);
 
-                tr.appendChild(createCell(item.direccion || "—", "py-3 px-4 font-medium"));
-                tr.appendChild(createCell(String(item.lat), "py-3 px-4 font-mono text-slate-500"));
-                tr.appendChild(createCell(String(item.lng), "py-3 px-4 font-mono text-slate-500"));
-                tr.appendChild(createCell("Nueva", "py-3 px-4 text-xs font-bold text-emerald-600"));
+                tr.appendChild(createCell(item.direccion || "—", "py-3 px-4 font-medium text-slate-200"));
+                tr.appendChild(createCell(String(item.lat), "py-3 px-4 font-mono text-slate-400"));
+                tr.appendChild(createCell(String(item.lng), "py-3 px-4 font-mono text-slate-400"));
+                tr.appendChild(createCell("Nueva", "py-3 px-4 text-xs font-bold text-emerald-400"));
 
                 previewTableBody.appendChild(tr);
             });
-
-            // Aviso si hay más
-            if (data.length > LIMIT) {
-                const tr = document.createElement("tr");
-                const td = document.createElement("td");
-                td.colSpan = 7;
-                td.className = "py-3 px-4 text-center text-xs text-slate-400 italic";
-                td.textContent = `… y ${data.length - LIMIT} registros más (no se muestran en preview).`;
-                tr.appendChild(td);
-                previewTableBody.appendChild(tr);
-            }
-
             previewCard.classList.remove("hidden");
         }
 
@@ -796,24 +789,17 @@
             return td;
         }
 
-        // ────────────────────────────────────────────────
-        // GUARDAR EN FIRESTORE (optimizado, sin N+1)
-        // ────────────────────────────────────────────────
         btnSaveAgencies.addEventListener("click", async () => {
             if (parsedAgencies.length === 0) return;
-
             const strategy = importStrategy.value;
-            const strategyText = strategy === "skip"
-                ? "Se omitirán los <code>idReal</code> que ya existan."
-                : "Se <b>actualizarán</b> los <code>idReal</code> que ya existan.";
 
             const confirmResult = await Swal.fire({
                 title: "¿Guardar Agencias?",
-                html: `Se procesarán <b>${parsedAgencies.length}</b> registros.<br><small>${strategyText}</small>`,
+                html: `Se procesarán <b>${parsedAgencies.length}</b> registros.`,
                 icon: "question",
                 showCancelButton: true,
-                confirmButtonColor: "#0284c7",
-                cancelButtonColor: "#64748b",
+                confirmButtonColor: "#6366f1",
+                cancelButtonColor: "#475569",
                 confirmButtonText: "Sí, guardar ahora",
                 cancelButtonText: "Cancelar"
             });
@@ -827,21 +813,14 @@
             updateProgress(5);
 
             try {
-                // ── 1. Pre-cargar los ID existentes en UNA SOLA pasada ──
-                // Usa whereIn en chunks de 30 (límite de Firestore).
                 const allIds = parsedAgencies.map(a => a.idReal);
                 const existingMap = await fetchExistingIdMap(allIds);
 
                 progressLabel.textContent = "Guardando en Firestore...";
                 updateProgress(15);
 
-                // ── 2. Guardar en lotes ──
                 const agenciasRef = collection(db, "agencias");
-                let processed = 0;
-                let created = 0;
-                let updated = 0;
-                let skipped = 0;
-
+                let processed = 0, created = 0, updated = 0, skipped = 0;
                 let batch = writeBatch(db);
                 let opCount = 0;
 
@@ -855,18 +834,14 @@
 
                 for (const agency of parsedAgencies) {
                     const existingDocId = existingMap.get(agency.idReal);
-
                     if (existingDocId) {
                         if (strategy === "skip") {
                             skipped++;
                         } else {
                             const ref = doc(db, "agencias", existingDocId);
                             batch.update(ref, {
-                                zona: agency.zona,
-                                direccion: agency.direccion,
-                                lat: agency.lat,
-                                lng: agency.lng,
-                                updatedAt: serverTimestamp()
+                                zona: agency.zona, direccion: agency.direccion,
+                                lat: agency.lat, lng: agency.lng, updatedAt: serverTimestamp()
                             });
                             opCount++;
                             updated++;
@@ -874,28 +849,19 @@
                     } else {
                         const newRef = doc(agenciasRef);
                         batch.set(newRef, {
-                            idReal: agency.idReal,
-                            zona: agency.zona,
-                            direccion: agency.direccion,
-                            lat: agency.lat,
-                            lng: agency.lng,
-                            enabled: true,          // 👈 consistencia con el resto
-                            createdAt: serverTimestamp(),
-                            updatedAt: serverTimestamp()
+                            idReal: agency.idReal, zona: agency.zona, direccion: agency.direccion,
+                            lat: agency.lat, lng: agency.lng, enabled: true,
+                            createdAt: serverTimestamp(), updatedAt: serverTimestamp()
                         });
                         opCount++;
                         created++;
                     }
-
                     processed++;
-                    const pct = 15 + Math.round((processed / parsedAgencies.length) * 80);
-                    updateProgress(pct);
-
+                    updateProgress(15 + Math.round((processed / parsedAgencies.length) * 80));
                     await commitIfNeeded();
                 }
 
                 await commitIfNeeded(true);
-
                 updateProgress(100);
 
                 await Swal.fire({
@@ -904,73 +870,43 @@
                         <div class="text-left text-sm space-y-1">
                             <p>✅ <b>${created}</b> agencias creadas</p>
                             <p>🔄 <b>${updated}</b> agencias actualizadas</p>
-                            <p>⏭️ <b>${skipped}</b> agencias omitidas (duplicados)</p>
-                            <hr class="my-2">
-                            <p class="text-slate-500">Total procesadas: <b>${processed}</b></p>
+                            <p>⏭️ <b>${skipped}</b> agencias omitidas</p>
                         </div>
                     `,
                     icon: "success",
-                    confirmButtonColor: "#0284c7"
+                    confirmButtonColor: "#6366f1"
                 });
 
-                // Reset UI
                 parsedAgencies = [];
                 previewCard.classList.add("hidden");
                 btnSaveAgencies.disabled = true;
                 progressContainer.classList.add("hidden");
                 updateProgress(0);
-
-                // Recargar zonas por si aparecieron nuevas
                 await loadZones();
 
             } catch (error) {
-                console.error("Firestore Error:", error);
-                let msg = "Error al procesar la carga.";
-                if (error.code === "permission-denied") {
-                    msg = "Sin permisos. Revisa las reglas de Firestore.";
-                } else if (error.code === "resource-exhausted") {
-                    msg = "Cuota de Firestore agotada. Intenta más tarde.";
-                }
-                Swal.fire("Error", msg + "\n\n" + error.message, "error");
+                Swal.fire("Error", error.message, "error");
             } finally {
                 btnSaveAgencies.disabled = false;
                 btnProcessData.disabled = false;
             }
         });
 
-        /**
-         * Consulta Firestore en chunks de 30 para encontrar los docs existentes
-         * de un array de idReal. Devuelve un Map { idReal -> docId }.
-         *
-         * Esto reemplaza el bug N+1 (una query por fila) por ~N/30 queries.
-         */
         async function fetchExistingIdMap(idRealArray) {
             const unique = Array.from(new Set(idRealArray.filter(Boolean)));
-            const CHUNK = 30; // límite de whereIn en Firestore
-
+            const CHUNK = 30;
             const existingMap = new Map();
-
             const chunks = [];
-            for (let i = 0; i < unique.length; i += CHUNK) {
-                chunks.push(unique.slice(i, i + CHUNK));
-            }
+            for (let i = 0; i < unique.length; i += CHUNK) chunks.push(unique.slice(i, i + CHUNK));
 
-            // Ejecutar en paralelo (máx. 10 simultáneas para no saturar)
-            const CONCURRENCY = 10;
-            for (let i = 0; i < chunks.length; i += CONCURRENCY) {
-                const slice = chunks.slice(i, i + CONCURRENCY);
-                await Promise.all(slice.map(async (chunk) => {
-                    const q = query(collection(db, "agencias"), where("idReal", "in", chunk));
-                    const snap = await getDocs(q);
-                    snap.forEach(d => {
-                        const idr = d.data().idReal;
-                        if (idr !== undefined && idr !== null) {
-                            existingMap.set(String(idr), d.id);
-                        }
-                    });
-                }));
+            for (const chunk of chunks) {
+                const q = query(collection(db, "agencias"), where("idReal", "in", chunk));
+                const snap = await getDocs(q);
+                snap.forEach(d => {
+                    const idr = d.data().idReal;
+                    if (idr !== undefined && idr !== null) existingMap.set(String(idr), d.id);
+                });
             }
-
             return existingMap;
         }
 
@@ -980,9 +916,6 @@
             progressText.textContent = `${clamped}%`;
         }
 
-        // ────────────────────────────────────────────────
-        // UTILIDADES
-        // ────────────────────────────────────────────────
         function escapeHtml(str) {
             return String(str ?? "").replace(/[&<>"']/g, (c) => ({
                 "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
