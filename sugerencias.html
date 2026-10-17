@@ -5,6 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sugerencias e Integraciones - GesagPro</title>
+<link rel="icon" type="image/svg+xml" href="./img/favicon.svg">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
@@ -30,7 +31,7 @@
 </head>
 
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col relative selection:bg-indigo-500 selection:text-white">
-
+    
     <!-- LUCES DE FONDO -->
     <div class="absolute top-0 left-1/4 w-[500px] h-[300px] bg-indigo-600/10 rounded-full blur-[120px] pointer-events-none"></div>
     <div class="absolute bottom-10 right-10 w-[400px] h-[400px] bg-emerald-600/5 rounded-full blur-[100px] pointer-events-none"></div>
@@ -40,7 +41,6 @@
         <div class="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
         <p class="text-xs font-bold text-slate-400 tracking-wider uppercase">Verificando Sesión...</p>
     </div>
-
     <!-- CONTENIDO -->
     <div id="mainContent" class="flex-1 flex flex-col relative z-10 hidden">
 
@@ -203,6 +203,7 @@
 
     <!-- Lógica -->
     <script type="module">
+
         import { db, auth } from "./js/firebase/firebase.init.js";
 
         import {

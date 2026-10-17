@@ -263,3 +263,96 @@ export async function logout() {
     }
     goToLogin();
 }
+
+// ────────────────────────────────────────────────
+// MÓDULOS DISPONIBLES + DEFAULTS
+// ────────────────────────────────────────────────
+export const AVAILABLE_MODULES = [
+    { key: "index",       label: "Dashboard",   icon: "fa-house" },
+    { key: "mapa",        label: "Mapa",        icon: "fa-map-location-dot" },
+    { key: "cercana",     label: "Cercanas",    icon: "fa-location-dot" },
+    { key: "rutas",       label: "Rutas",       icon: "fa-route" },
+    { key: "reportes",    label: "Reportes",    icon: "fa-chart-pie" },
+    { key: "imprimir",    label: "Imprimir",    icon: "fa-print" },
+    { key: "sugerencias", label: "Sugerencias", icon: "fa-lightbulb" },
+    { key: "acerca",      label: "Acerca de",   icon: "fa-circle-info" }
+];
+
+export const DEFAULT_VIEWER_MODULES = ["index", "mapa", "reportes"];
+
+// ────────────────────────────────────────────────
+// GUARD POR MÓDULO
+// ────────────────────────────────────────────────
+/**
+ * Verifica que el usuario tenga permiso al módulo indicado.
+ * - Si es admin → siempre permitido
+ * - Si es viewer → debe tener el módulo en `modulos[]`
+ * - Si no tiene doc `modulos`, se usa DEFAULT_VIEWER_MODULES
+ *
+ * @param {string} moduleKey - clave del módulo (ej. "imprimir", "mapa")
+ * @returns {Promise<{user, profile}|null>}
+ */
+export async function requireModule(moduleKey) {
+    const session = await requireAuth();
+    if (!session) return null;
+
+    const { profile } = session;
+
+    // Admin: acceso total
+    if (profile.role === "admin") return session;
+
+    // Módulos del usuario (con fallback para usuarios viejos sin campo modulos)
+    const userModules = Array.isArray(profile.modulos) && profile.modulos.length > 0
+        ? profile.modulos
+        : DEFAULT_VIEWER_MODULES;
+
+    // Sin permiso → avisar y redirigir
+    if (!userModules.includes(moduleKey)) {
+        if (typeof Swal !== "undefined") {
+            await Swal.fire({
+                icon: "error",
+                title: "Acceso denegado",
+                text: "No tienes permiso para acceder a este módulo. Contacta al administrador.",
+                confirmButtonText: "Volver al inicio",
+                confirmButtonColor: "#4f46e5"
+            });
+        } else {
+            alert("Acceso denegado: no tienes permiso para este módulo.");
+        }
+        goToHome();
+        return null;
+    }
+
+    return session;
+}
+
+/**
+ * Helper sincrónico: ¿el perfil tiene acceso a este módulo?
+ * Útil para ocultar botones o secciones sin redirigir.
+ *
+ * IMPORTANTE: requiere haber llamado antes a waitForAuth() o requireAuth().
+ */
+export function hasModule(moduleKey) {
+    const profile = getCurrentProfile();
+    if (!profile) return false;
+    if (profile.role === "admin") return true;
+
+    const userModules = Array.isArray(profile.modulos) && profile.modulos.length > 0
+        ? profile.modulos
+        : DEFAULT_VIEWER_MODULES;
+
+    return userModules.includes(moduleKey);
+}
+
+/**
+ * Devuelve la lista de módulos del usuario actual (con fallback).
+ */
+export function getCurrentModules() {
+    const profile = getCurrentProfile();
+    if (!profile) return [];
+    if (profile.role === "admin") return AVAILABLE_MODULES.map(m => m.key);
+
+    return Array.isArray(profile.modulos) && profile.modulos.length > 0
+        ? profile.modulos
+        : DEFAULT_VIEWER_MODULES;
+}
