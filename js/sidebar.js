@@ -66,10 +66,13 @@ export function initSidebar(containerId = "sidebar-container") {
                         <i class="fa fa-route w-4 text-center text-sm"></i>
                         <span>Agencias cercana</span>
                     </a>
+<<<<<<< HEAD
                     <a href="imprimir.html" class="${linkClass('imprimir.html')}">
                         <i class="fa fa-route w-4 text-center text-sm"></i>
                         <span>Imprimir</span>
                     </a>
+=======
+>>>>>>> 749c1dbecb51a722fc718e89f4d9e5886b3aa7e3
                     <a href="zonas.html" data-admin-only class="${linkClass('zonas.html')}">
                         <i class="fa fa-layer-group w-4 text-center text-sm"></i>
                         <span>Gestión de Zonas</span>
