@@ -5,36 +5,54 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Iniciar Sesión - Consulta de Agencias</title>
-<link rel="icon" type="image/svg+xml" href="./img/favicon.svg">
+    <link rel="icon" type="image/svg+xml" href="./img/favicon.svg">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+
+        @keyframes svgRainbow {
+    0%   { filter: hue-rotate(0deg) drop-shadow(0 4px 3px rgba(0,0,0,0.3)); }
+    100% { filter: hue-rotate(360deg) drop-shadow(0 4px 3px rgba(0,0,0,0.3)); }
+}
+
+.animate-svg-rainbow {
+    fill: #6366f1; /* Color base para iniciar la rotación */
+    animation: svgRainbow 5s infinite linear;
+}
     </style>
+
+
 </head>
 
-<body class="bg-slate-950 min-h-screen flex items-center justify-center p-4 text-slate-100 selection:bg-indigo-500 selection:text-white">
+<body
+    class="bg-slate-950 min-h-screen flex items-center justify-center p-4 text-slate-100 selection:bg-indigo-500 selection:text-white">
 
     <!-- CONTENEDOR PRINCIPAL -->
-    <div class="bg-slate-900/80 border border-slate-800/90 w-full max-w-md p-8 rounded-3xl shadow-2xl backdrop-blur-xl relative overflow-hidden">
+    <div
+        class="bg-slate-900/80 border border-slate-800/90 w-full max-w-md p-8 rounded-3xl shadow-2xl backdrop-blur-xl relative overflow-hidden">
 
         <!-- ELEMENTOS DECORATIVOS DE FONDO -->
-        <div class="absolute -top-16 -right-16 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl pointer-events-none"></div>
-        <div class="absolute -bottom-16 -left-16 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl pointer-events-none"></div>
+        <div class="absolute -top-16 -right-16 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl pointer-events-none">
+        </div>
+        <div class="absolute -bottom-16 -left-16 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl pointer-events-none">
+        </div>
 
         <!-- ENCABEZADO -->
         <div class="text-center mb-8 relative">
-            <div class="w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-4 p-3 shadow-inner transition-transform hover:scale-105">
-                <svg class="w-10 h-14 text-white fill-current" viewBox="0 0 100 130" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <div class="w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-4 p-3 bg-white/4 shadow-inner transition-transform hover:scale-105">
+                <svg class="w-10 h-14 animate-svg-rainbow" viewBox="0 0 100 130" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                     <g>
-                        <!-- P -->
                         <rect x="0" y="0" width="18" height="130" rx="4" />
                         <rect x="26" y="0" width="18" height="70" rx="4" />
-                        <!-- G -->
                         <rect x="52" y="0" width="18" height="130" rx="4" />
                         <rect x="78" y="0" width="18" height="38" rx="4" />
                         <rect x="78" y="68" width="18" height="62" rx="4" />
@@ -54,8 +72,7 @@
                 </label>
                 <div class="relative">
                     <i class="fa fa-envelope absolute left-3.5 top-3.5 text-slate-500 text-xs pointer-events-none"></i>
-                    <input type="email" id="email" name="email" required
-                        autocomplete="email" spellcheck="false"
+                    <input type="email" id="email" name="email" required autocomplete="email" spellcheck="false"
                         placeholder="usuario@app.com"
                         class="w-full bg-slate-800/60 border border-slate-700/70 text-white pl-9 pr-4 py-3 rounded-xl text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all placeholder:text-slate-600">
                 </div>
@@ -67,12 +84,10 @@
                 </label>
                 <div class="relative">
                     <i class="fa fa-key absolute left-3.5 top-3.5 text-slate-500 text-xs pointer-events-none"></i>
-                    <input type="password" id="password" name="password" required
-                        autocomplete="current-password"
+                    <input type="password" id="password" name="password" required autocomplete="current-password"
                         placeholder="••••••••"
                         class="w-full bg-slate-800/60 border border-slate-700/70 text-white pl-9 pr-10 py-3 rounded-xl text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all placeholder:text-slate-600">
-                    <button type="button" id="togglePassword"
-                        aria-label="Mostrar u ocultar contraseña"
+                    <button type="button" id="togglePassword" aria-label="Mostrar u ocultar contraseña"
                         class="absolute right-3.5 top-3.5 text-slate-500 hover:text-slate-300 transition-colors focus:outline-none focus:text-indigo-400">
                         <i class="fa fa-eye text-xs" aria-hidden="true"></i>
                     </button>
@@ -146,7 +161,7 @@
         // ────────────────────────────────────────────────
         // OLVIDÉ MI CONTRASEÑA
         // ────────────────────────────────────────────────
-        
+
         btnForgotPassword.addEventListener("click", async () => {
             await Swal.fire({
                 icon: "info",
@@ -251,7 +266,7 @@
          */
         function showError(msg, visible, type = "error") {
             const styles = {
-                error:   "bg-rose-500/10 text-rose-400 border-rose-500/20",
+                error: "bg-rose-500/10 text-rose-400 border-rose-500/20",
                 warning: "bg-amber-500/10 text-amber-400 border-amber-500/20",
                 success: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
             };
@@ -272,4 +287,5 @@
         }
     </script>
 </body>
+
 </html>
