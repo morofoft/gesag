@@ -1,29 +1,49 @@
 <!DOCTYPE html>
 <html lang="es" class="h-full bg-slate-950 text-slate-100">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Usuarios - Admin Panel</title>
+    <link rel="icon" type="image/svg+xml" href="./img/favicon.svg">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 8px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #475569; }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 8px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
     </style>
 </head>
-<body class="h-full flex flex-col font-sans antialiased bg-slate-950 text-slate-200">
 
+<body class="h-full flex flex-col font-sans antialiased bg-slate-950 text-slate-200">
     <!-- OVERLAY DE VERIFICACIÓN DE SEGURIDAD -->
-    <div id="securityOverlay" class="fixed inset-0 bg-slate-950 z-50 flex flex-col items-center justify-center space-y-3">
+    <div id="securityOverlay"
+        class="fixed inset-0 bg-slate-950 z-50 flex flex-col items-center justify-center space-y-3">
         <div class="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
-        <p class="text-xs font-bold text-slate-400 tracking-wider uppercase">Verificando Permisos de Administrador...</p>
+        <p class="text-xs font-bold text-slate-400 tracking-wider uppercase">Verificando Permisos de Administrador...
+        </p>
     </div>
 
     <div id="mainContent" class="max-w-6xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-8 hidden">
@@ -39,10 +59,11 @@
             </div>
             <div class="flex items-center gap-3">
                 <a href="index.html"
-                   class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl transition-all flex items-center gap-2">
+                    class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl transition-all flex items-center gap-2">
                     <i class="fa-solid fa-arrow-left text-xs"></i> Volver
                 </a>
-                <div class="flex items-center gap-3 bg-slate-900/80 border border-slate-800 px-4 py-2 rounded-xl text-xs">
+                <div
+                    class="flex items-center gap-3 bg-slate-900/80 border border-slate-800 px-4 py-2 rounded-xl text-xs">
                     <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
                     <span id="admin-email" class="font-mono text-slate-300">Cargando...</span>
                 </div>
@@ -52,7 +73,8 @@
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
 
             <!-- FORMULARIO DE REGISTRO -->
-            <div class="lg:col-span-5 bg-slate-900/60 border border-slate-800/80 rounded-2xl p-6 shadow-xl backdrop-blur-sm self-start">
+            <div
+                class="lg:col-span-5 bg-slate-900/60 border border-slate-800/80 rounded-2xl p-6 shadow-xl backdrop-blur-sm self-start">
                 <h2 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
                     <i class="fa-solid fa-user-plus text-indigo-400"></i>
                     Registrar Nuevo Usuario
@@ -61,30 +83,32 @@
                 <form id="create-user-form" class="space-y-4" novalidate>
 
                     <div>
-                        <label for="reg-username" class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
+                        <label for="reg-username"
+                            class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
                             Nombre de Usuario
                         </label>
-                        <input type="text" id="reg-username" required placeholder="ej. mmontero"
-                            autocomplete="off"
+                        <input type="text" id="reg-username" required placeholder="ej. mmontero" autocomplete="off"
                             class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition">
                     </div>
 
                     <div>
-                        <label for="reg-email" class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
+                        <label for="reg-email"
+                            class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
                             Correo Electrónico
                         </label>
-                        <input type="email" id="reg-email" required placeholder="usuario@correo.com"
-                            autocomplete="off" spellcheck="false"
+                        <input type="email" id="reg-email" required placeholder="usuario@correo.com" autocomplete="off"
+                            spellcheck="false"
                             class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition">
                     </div>
 
                     <div>
-                        <label for="reg-password" class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
+                        <label for="reg-password"
+                            class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
                             Contraseña Inicial
                         </label>
                         <div class="relative">
-                            <input type="password" id="reg-password" required placeholder="••••••••"
-                                minlength="6" autocomplete="new-password"
+                            <input type="password" id="reg-password" required placeholder="••••••••" minlength="6"
+                                autocomplete="new-password"
                                 class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 pr-10 text-sm text-slate-100 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition">
                             <button type="button" id="toggleRegPassword" aria-label="Mostrar u ocultar contraseña"
                                 class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors">
@@ -95,7 +119,8 @@
                     </div>
 
                     <div>
-                        <label for="reg-role" class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
+                        <label for="reg-role"
+                            class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
                             Rol del Usuario
                         </label>
                         <select id="reg-role" required
@@ -103,7 +128,23 @@
                             <option value="viewer">👁️ Visualizador (solo lectura)</option>
                             <option value="admin">🛡️ Administrador (acceso total)</option>
                         </select>
-                        <p class="text-[10px] text-slate-500 mt-1">Los administradores pueden gestionar zonas, usuarios e importar datos.</p>
+                        <p class="text-[10px] text-slate-500 mt-1">Los administradores pueden gestionar zonas, usuarios
+                            e importar datos.</p>
+                    </div>
+
+                    <!-- 👇 AGREGAR: Módulos permitidos -->
+                    <div id="modules-section">
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
+                            Módulos Permitidos
+                        </label>
+                        <div id="modules-grid"
+                            class="grid grid-cols-2 gap-2 bg-slate-950 border border-slate-800 rounded-xl p-3 max-h-56 overflow-y-auto custom-scrollbar">
+                            <!-- Dinámico -->
+                        </div>
+                        <p class="text-[10px] text-slate-500 mt-1">
+                            Los <b class="text-indigo-400">administradores</b> siempre tienen acceso a todos los
+                            módulos.
+                        </p>
                     </div>
 
                     <div id="form-message" class="hidden text-xs p-3 rounded-xl" role="alert" aria-live="polite"></div>
@@ -117,13 +158,15 @@
             </div>
 
             <!-- LISTADO DE USUARIOS -->
-            <div class="lg:col-span-7 bg-slate-900/60 border border-slate-800/80 rounded-2xl p-6 shadow-xl backdrop-blur-sm">
+            <div
+                class="lg:col-span-7 bg-slate-900/60 border border-slate-800/80 rounded-2xl p-6 shadow-xl backdrop-blur-sm">
                 <div class="flex items-center justify-between mb-4">
                     <h2 class="text-lg font-bold text-white flex items-center gap-2">
                         <i class="fa-solid fa-list text-indigo-400"></i>
                         Usuarios Registrados
                     </h2>
-                    <span id="user-count" class="text-xs font-mono bg-slate-800 text-slate-300 px-2.5 py-1 rounded-lg border border-slate-700/50">
+                    <span id="user-count"
+                        class="text-xs font-mono bg-slate-800 text-slate-300 px-2.5 py-1 rounded-lg border border-slate-700/50">
                         0 usuarios
                     </span>
                 </div>
@@ -137,6 +180,50 @@
 
         </div>
     </div>
+
+    <!-- MODAL PERMISOS DE MÓDULOS -->
+<div id="permsModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[9998] flex items-center justify-center hidden p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl max-h-[90vh] overflow-y-auto custom-scrollbar">
+
+        <div class="px-6 py-4 border-b border-slate-800 flex justify-between items-center">
+            <h3 class="text-sm font-bold text-slate-100 flex items-center gap-2">
+                <i class="fa-solid fa-sliders text-purple-400"></i>
+                Editar Módulos —
+                <span id="permsUser" class="text-indigo-400 truncate max-w-[180px]"></span>
+            </h3>
+            <button id="btnClosePerms" class="text-slate-400 hover:text-white" aria-label="Cerrar">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+        </div>
+
+        <div class="p-6 space-y-4">
+            <p class="text-xs text-slate-400 leading-relaxed">
+                Selecciona los módulos a los que este usuario puede acceder.
+                Si es <b class="text-indigo-400">administrador</b>, los módulos se ignoran
+                (siempre tiene acceso a todo).
+            </p>
+
+            <input type="hidden" id="permsUid">
+
+            <div id="permsGrid"
+                class="grid grid-cols-2 gap-2 bg-slate-950 border border-slate-800 rounded-xl p-3">
+                <!-- Dinámico -->
+            </div>
+
+            <div class="flex justify-end gap-2 pt-3 border-t border-slate-800">
+                <button id="btnCancelPerms"
+                    class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl">
+                    Cancelar
+                </button>
+                <button id="btnSavePerms"
+                    class="px-5 py-2 bg-purple-600 hover:bg-purple-500 disabled:bg-slate-700 disabled:cursor-not-allowed text-white text-xs font-bold rounded-xl flex items-center gap-2">
+                    <i class="fa-solid fa-floppy-disk" id="btnSavePermsIcon"></i>
+                    <span id="btnSavePermsText">Guardar Permisos</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 
     <!-- SCRIPT PRINCIPAL -->
     <script type="module">
@@ -160,6 +247,25 @@
             orderBy,
             serverTimestamp
         } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        // ────────────────────────────────────────────────
+        // MÓDULOS DISPONIBLES EN EL SISTEMA
+        // ────────────────────────────────────────────────
+        const AVAILABLE_MODULES = [
+            { key: "index", label: "Dashboard", icon: "fa-house" },
+            { key: "mapa", label: "Mapa", icon: "fa-map-location-dot" },
+            { key: "cercana", label: "Cercanas", icon: "fa-location-dot" },
+            { key: "rutas", label: "Rutas", icon: "fa-route" },
+            { key: "reportes", label: "Reportes", icon: "fa-chart-pie" },
+            { key: "imprimir", label: "Imprimir", icon: "fa-print" },
+            { key: "sugerencias", label: "Sugerencias", icon: "fa-lightbulb" },
+            { key: "acerca", label: "Acerca de", icon: "fa-circle-info" }
+        ];
+
+        // Módulos por defecto para un viewer sin configuración previa
+        const DEFAULT_VIEWER_MODULES = ["index", "mapa", "reportes", "rutas", "sugerencias", "cercana"];
+
+
 
         // ────────────────────────────────────────────────
         // ELEMENTOS DOM
@@ -189,6 +295,47 @@
             toggleRegPassword.innerHTML = `<i class="fa-solid fa-eye${isPassword ? "-slash" : ""} text-xs" aria-hidden="true"></i>`;
             regPasswordInput.focus();
         });
+
+        // ────────────────────────────────────────────────
+        // RENDER CHECKBOXES DE MÓDULOS (FORM CREAR)
+        // ────────────────────────────────────────────────
+        function renderModulesGrid() {
+            const grid = document.getElementById("modules-grid");
+            if (!grid) return;
+            grid.innerHTML = "";
+
+            AVAILABLE_MODULES.forEach(mod => {
+                const label = document.createElement("label");
+                label.className = "flex items-center gap-2 text-[11px] font-semibold text-slate-300 cursor-pointer p-2 rounded-lg hover:bg-slate-900/60 transition";
+
+                const cb = document.createElement("input");
+                cb.type = "checkbox";
+                cb.value = mod.key;
+                cb.className = "accent-indigo-500 w-4 h-4";
+                cb.checked = DEFAULT_VIEWER_MODULES.includes(mod.key);
+
+                const icon = document.createElement("i");
+                icon.className = `fa-solid ${mod.icon} text-[10px] text-indigo-400 w-3.5 text-center`;
+
+                const txt = document.createElement("span");
+                txt.textContent = mod.label;
+
+                label.appendChild(cb);
+                label.appendChild(icon);
+                label.appendChild(txt);
+                grid.appendChild(label);
+            });
+        }
+
+        function getSelectedModules() {
+            const grid = document.getElementById("modules-grid");
+            if (!grid) return [];
+            return Array.from(grid.querySelectorAll('input[type="checkbox"]:checked'))
+                .map(cb => cb.value);
+        }
+
+        // Render al cargar
+        renderModulesGrid();
 
         // ────────────────────────────────────────────────
         // 1. VERIFICACIÓN DE SESIÓN Y ROL ADMIN
@@ -253,11 +400,11 @@
             } catch (err) {
                 console.error("Error al validar permisos:", err);
                 Swal.fire({
-                        icon: 'error',
-                        title: '¡Error!',
-                        text: 'Ocurrió un error al verificar tus credenciales.',
-                        confirmButtonText: 'Aceptar'
-                    });
+                    icon: 'error',
+                    title: '¡Error!',
+                    text: 'Ocurrió un error al verificar tus credenciales.',
+                    confirmButtonText: 'Aceptar'
+                });
                 window.location.replace("index.html");
             }
         });
@@ -304,97 +451,158 @@
             );
         }
 
-        // ────────────────────────────────────────────────
-        // 3. CREAR CARD DE USUARIO
-        // ────────────────────────────────────────────────
-        function createUserCard(id, data) {
-            const card = document.createElement("div");
-            card.className = "flex items-center justify-between p-3.5 bg-slate-950/60 border border-slate-800/80 rounded-xl hover:border-slate-700/80 transition gap-4";
+// ────────────────────────────────────────────────
+// 3. CREAR CARD DE USUARIO
+// ────────────────────────────────────────────────
+function createUserCard(id, data) {
+    const card = document.createElement("div");
+    card.className = "flex items-center justify-between p-3.5 bg-slate-950/60 border border-slate-800/80 rounded-xl hover:border-slate-700/80 transition gap-4";
 
-            const isEnabled = data.enabled !== false;
-            const isCurrentUser = id === currentAdminUid;
-            const displayName = data.username || "Sin Nombre";
-            const email = data.email || "Sin correo";
-            const role = data.role === "admin" ? "admin" : "viewer";
+    const isEnabled = data.enabled !== false;
+    const isCurrentUser = id === currentAdminUid;
+    const displayName = data.username || "Sin Nombre";
+    const email = data.email || "Sin correo";
+    const role = data.role === "admin" ? "admin" : "viewer";
 
-            const roleBadge = role === "admin"
-                ? `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-indigo-500/10 text-indigo-400 ring-1 ring-inset ring-indigo-500/20">
-                       <i class="fa-solid fa-shield-halved text-[9px]"></i> Admin
-                   </span>`
-                : `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-700/40 text-slate-300 ring-1 ring-inset ring-slate-600/40">
-                       <i class="fa-solid fa-eye text-[9px]"></i> Viewer
-                   </span>`;
+    // ── Módulos del usuario (con fallback) ──
+    const userModules = Array.isArray(data.modulos)
+        ? data.modulos
+        : (role === "admin" ? AVAILABLE_MODULES.map(m => m.key) : DEFAULT_VIEWER_MODULES);
 
-            const statusBadge = isEnabled
-                ? `<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-400 ring-1 ring-inset ring-emerald-500/20">
-                       <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Activo
-                   </span>`
-                : `<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-rose-500/10 text-rose-400 ring-1 ring-inset ring-rose-500/20">
-                       <span class="w-1.5 h-1.5 rounded-full bg-rose-400"></span> Inactivo
-                   </span>`;
+    const canPrint = userModules.includes("imprimir");
 
-            const selfBadge = isCurrentUser
-                ? `<span class="text-[10px] font-bold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full ring-1 ring-inset ring-amber-500/20">Tú</span>`
-                : "";
+    const roleBadge = role === "admin"
+        ? `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-indigo-500/10 text-indigo-400 ring-1 ring-inset ring-indigo-500/20">
+               <i class="fa-solid fa-shield-halved text-[9px]"></i> Admin
+           </span>`
+        : `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-700/40 text-slate-300 ring-1 ring-inset ring-slate-600/40">
+               <i class="fa-solid fa-eye text-[9px]"></i> Viewer
+           </span>`;
 
-            card.innerHTML = `
-                <div class="min-w-0 flex-1">
-                    <div class="flex items-center gap-2 flex-wrap">
-                        <h3 class="font-bold text-sm text-slate-100 truncate">${escapeHtml(displayName)}</h3>
-                        ${roleBadge}
-                        ${statusBadge}
-                        ${selfBadge}
-                    </div>
+    const statusBadge = isEnabled
+        ? `<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-400 ring-1 ring-inset ring-emerald-500/20">
+               <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Activo
+           </span>`
+        : `<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-rose-500/10 text-rose-400 ring-1 ring-inset ring-rose-500/20">
+               <span class="w-1.5 h-1.5 rounded-full bg-rose-400"></span> Inactivo
+           </span>`;
 
-                    <p class="text-xs text-slate-400 truncate mt-0.5">${escapeHtml(email)}</p>
+    const selfBadge = isCurrentUser
+        ? `<span class="text-[10px] font-bold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full ring-1 ring-inset ring-amber-500/20">Tú</span>`
+        : "";
 
-                    <div class="flex items-center gap-2 mt-1">
-                        <span class="text-[10px] font-mono text-slate-500 bg-slate-900 border border-slate-800 px-1.5 py-0.5 rounded" title="UID">
-                            ${id.substring(0, 12)}…
-                        </span>
-                    </div>
-                </div>
+    const printBadge = canPrint
+        ? `<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-emerald-500/10 text-emerald-400 ring-1 ring-inset ring-emerald-500/20" title="Puede imprimir">
+               <i class="fa-solid fa-print text-[8px]"></i>
+           </span>`
+        : "";
 
-                <div class="flex items-center gap-2 shrink-0">
-                    <button data-action="role" data-id="${id}" data-role="${role}"
-                        title="Cambiar rol"
-                        class="p-2 rounded-lg border text-xs transition bg-indigo-500/10 border-indigo-500/20 text-indigo-400 hover:bg-indigo-500/20">
-                        <i class="fa-solid fa-shield-halved"></i>
-                    </button>
+    // Etiquetas cortas de módulos (máximo 3 visibles)
+    const moduleLabels = userModules.slice(0, 3).map(key => {
+        const mod = AVAILABLE_MODULES.find(m => m.key === key);
+        return mod ? mod.label : key;
+    });
+    const moreCount = userModules.length - moduleLabels.length;
 
-                    <button data-action="toggle" data-id="${id}" data-status="${isEnabled}"
-                        title="${isEnabled ? "Inhabilitar" : "Habilitar"}"
-                        ${isCurrentUser ? "disabled" : ""}
-                        class="p-2 rounded-lg border text-xs transition disabled:opacity-30 disabled:cursor-not-allowed ${
-                            isEnabled
-                                ? "bg-amber-500/10 border-amber-500/20 text-amber-400 hover:bg-amber-500/20"
-                                : "bg-emerald-500/10 border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20"
-                        }">
-                        <i class="fa-solid ${isEnabled ? "fa-user-slash" : "fa-user-check"}"></i>
-                    </button>
+    const modulesTooltip = userModules
+        .map(key => {
+            const mod = AVAILABLE_MODULES.find(m => m.key === key);
+            return mod ? mod.label : key;
+        })
+        .join(", ");
 
-                    <button data-action="delete" data-id="${id}"
-                        title="Eliminar usuario del sistema"
-                        ${isCurrentUser ? "disabled" : ""}
-                        class="p-2 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-400 hover:bg-rose-500/20 text-xs transition disabled:opacity-30 disabled:cursor-not-allowed">
-                        <i class="fa-solid fa-trash-can"></i>
-                    </button>
-                </div>
-            `;
+    card.innerHTML = `
+        <div class="min-w-0 flex-1">
+            <div class="flex items-center gap-2 flex-wrap">
+                <h3 class="font-bold text-sm text-slate-100 truncate">${escapeHtml(displayName)}</h3>
+                ${roleBadge}
+                ${statusBadge}
+                ${selfBadge}
+            </div>
 
-            // ── Event listeners ──
-            card.querySelector('[data-action="role"]').addEventListener("click", () => changeUserRole(id, role, displayName));
-            card.querySelector('[data-action="toggle"]').addEventListener("click", (e) => {
-                if (e.currentTarget.disabled) return;
-                toggleUserStatus(id, isEnabled, displayName);
-            });
-            card.querySelector('[data-action="delete"]').addEventListener("click", (e) => {
-                if (e.currentTarget.disabled) return;
-                deleteUserRecord(id, displayName, email);
-            });
+            <p class="text-xs text-slate-400 truncate mt-0.5">${escapeHtml(email)}</p>
 
-            return card;
-        }
+            <div class="flex items-center gap-2 mt-1 flex-wrap">
+                <span class="text-[10px] font-mono text-slate-500 bg-slate-900 border border-slate-800 px-1.5 py-0.5 rounded" title="UID">
+                    ${id.substring(0, 12)}…
+                </span>
+
+                <span class="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Módulos:</span>
+                <span class="text-[10px] font-bold text-slate-300 bg-slate-800 px-1.5 py-0.5 rounded" title="${escapeHtml(modulesTooltip)}">
+                    ${userModules.length}
+                </span>
+
+                ${moduleLabels.map(lbl => `
+                    <span class="text-[9px] font-semibold text-slate-400 bg-slate-800/60 px-1.5 py-0.5 rounded">
+                        ${escapeHtml(lbl)}
+                    </span>
+                `).join("")}
+
+                ${moreCount > 0 ? `
+                    <span class="text-[9px] font-semibold text-slate-500 bg-slate-800/40 px-1.5 py-0.5 rounded" title="${escapeHtml(modulesTooltip)}">
+                        +${moreCount}
+                    </span>
+                ` : ""}
+
+                ${printBadge}
+            </div>
+        </div>
+
+        <div class="flex items-center gap-2 shrink-0">
+            <button data-action="perms" data-id="${id}"
+                title="Editar módulos permitidos"
+                class="p-2 rounded-lg bg-purple-500/10 border border-purple-500/20 text-purple-400 hover:bg-purple-500/20 text-xs transition">
+                <i class="fa-solid fa-sliders"></i>
+            </button>
+
+            <button data-action="role" data-id="${id}" data-role="${role}"
+                title="Cambiar rol"
+                class="p-2 rounded-lg border text-xs transition bg-indigo-500/10 border-indigo-500/20 text-indigo-400 hover:bg-indigo-500/20">
+                <i class="fa-solid fa-shield-halved"></i>
+            </button>
+
+            <button data-action="toggle" data-id="${id}" data-status="${isEnabled}"
+                title="${isEnabled ? "Inhabilitar" : "Habilitar"}"
+                ${isCurrentUser ? "disabled" : ""}
+                class="p-2 rounded-lg border text-xs transition disabled:opacity-30 disabled:cursor-not-allowed ${
+                    isEnabled
+                        ? "bg-amber-500/10 border-amber-500/20 text-amber-400 hover:bg-amber-500/20"
+                        : "bg-emerald-500/10 border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20"
+                }">
+                <i class="fa-solid ${isEnabled ? "fa-user-slash" : "fa-user-check"}"></i>
+            </button>
+
+            <button data-action="delete" data-id="${id}"
+                title="Eliminar usuario del sistema"
+                ${isCurrentUser ? "disabled" : ""}
+                class="p-2 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-400 hover:bg-rose-500/20 text-xs transition disabled:opacity-30 disabled:cursor-not-allowed">
+                <i class="fa-solid fa-trash-can"></i>
+            </button>
+        </div>
+    `;
+
+    // ── Event listeners ──
+    card.querySelector('[data-action="perms"]').addEventListener("click", () => {
+        openPermissionsModal(id, displayName, userModules);
+    });
+
+    card.querySelector('[data-action="role"]').addEventListener("click", () => {
+        changeUserRole(id, role, displayName);
+    });
+
+    card.querySelector('[data-action="toggle"]').addEventListener("click", (e) => {
+        if (e.currentTarget.disabled) return;
+        toggleUserStatus(id, isEnabled, displayName);
+    });
+
+    card.querySelector('[data-action="delete"]').addEventListener("click", (e) => {
+        if (e.currentTarget.disabled) return;
+        deleteUserRecord(id, displayName, email);
+    });
+
+    return card;
+}
+
 
         // ────────────────────────────────────────────────
         // 4. CREAR NUEVO USUARIO
@@ -430,7 +638,8 @@
                 await setDoc(doc(db, "users", newUser.uid), {
                     username,
                     email,
-                    role,                     // 👈 ahora sí se asigna
+                    role,
+                    modulos: role === "admin" ? AVAILABLE_MODULES.map(m => m.key) : getSelectedModules(),
                     enabled: true,
                     createdAt: serverTimestamp(),
                     createdBy: currentAdminUid
@@ -451,130 +660,130 @@
         // 5. ACCIONES SOBRE USUARIOS
         // ────────────────────────────────────────────────
 
-        
-async function toggleUserStatus(uid, currentStatus, username) {
-    const action = currentStatus ? "inhabilitar" : "habilitar";
 
-    const result = await Swal.fire({
-        title: `¿${currentStatus ? "Inhabilitar" : "Habilitar"} usuario?`,
-        html: `¿Seguro que deseas ${action} al usuario <strong>"${username}"</strong>?`,
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: currentStatus ? '#dc2626' : '#16a34a',
-        cancelButtonColor: '#6b7280',
-        confirmButtonText: currentStatus
-            ? 'Sí, inhabilitar'
-            : 'Sí, habilitar',
-        cancelButtonText: 'Cancelar',
-        reverseButtons: true,
-        focusCancel: true
-    });
+        async function toggleUserStatus(uid, currentStatus, username) {
+            const action = currentStatus ? "inhabilitar" : "habilitar";
 
-    if (!result.isConfirmed) return;
+            const result = await Swal.fire({
+                title: `¿${currentStatus ? "Inhabilitar" : "Habilitar"} usuario?`,
+                html: `¿Seguro que deseas ${action} al usuario <strong>"${username}"</strong>?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: currentStatus ? '#dc2626' : '#16a34a',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: currentStatus
+                    ? 'Sí, inhabilitar'
+                    : 'Sí, habilitar',
+                cancelButtonText: 'Cancelar',
+                reverseButtons: true,
+                focusCancel: true
+            });
 
-    try {
-        Swal.fire({
-            title: 'Actualizando estado...',
-            text: 'Por favor, espera.',
-            allowOutsideClick: false,
-            allowEscapeKey: false,
-            didOpen: () => Swal.showLoading()
-        });
+            if (!result.isConfirmed) return;
 
-        await updateDoc(doc(db, "users", uid), {
-            enabled: !currentStatus,
-            updatedAt: serverTimestamp()
-        });
+            try {
+                Swal.fire({
+                    title: 'Actualizando estado...',
+                    text: 'Por favor, espera.',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    didOpen: () => Swal.showLoading()
+                });
 
-        await Swal.fire({
-            icon: 'success',
-            title: currentStatus ? '¡Usuario inhabilitado!' : '¡Usuario habilitado!',
-            text: currentStatus
-                ? `El usuario "${username}" ha sido inhabilitado correctamente.`
-                : `El usuario "${username}" ha sido habilitado correctamente.`,
-            confirmButtonText: 'Aceptar',
-            confirmButtonColor: '#2563eb',
-            timer: 2500,
-            timerProgressBar: true
-        });
+                await updateDoc(doc(db, "users", uid), {
+                    enabled: !currentStatus,
+                    updatedAt: serverTimestamp()
+                });
 
-    } catch (error) {
-        console.error('Error al cambiar el estado del usuario:', error);
+                await Swal.fire({
+                    icon: 'success',
+                    title: currentStatus ? '¡Usuario inhabilitado!' : '¡Usuario habilitado!',
+                    text: currentStatus
+                        ? `El usuario "${username}" ha sido inhabilitado correctamente.`
+                        : `El usuario "${username}" ha sido habilitado correctamente.`,
+                    confirmButtonText: 'Aceptar',
+                    confirmButtonColor: '#2563eb',
+                    timer: 2500,
+                    timerProgressBar: true
+                });
 
-        Swal.fire({
-            icon: 'error',
-            title: '¡Error!',
-            text: 'No se pudo cambiar el estado del usuario.',
-            confirmButtonText: 'Aceptar',
-            confirmButtonColor: '#2563eb'
-        });
-    }
-}
+            } catch (error) {
+                console.error('Error al cambiar el estado del usuario:', error);
 
-
-
-async function changeUserRole(uid, currentRole, username) {
-    const newRole = currentRole === "admin" ? "viewer" : "admin";
-    const label = newRole === "admin" ? "Administrador" : "Visualizador";
-
-    const result = await Swal.fire({
-        title: '¿Cambiar rol de usuario?',
-        html: `¿Deseas cambiar el rol de <strong>"${username}"</strong> a <strong>${label}</strong>?`,
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: newRole === "admin" ? '#16a34a' : '#2563eb',
-        cancelButtonColor: '#6b7280',
-        confirmButtonText: `Sí, cambiar a ${label}`,
-        cancelButtonText: 'Cancelar',
-        reverseButtons: true,
-        focusCancel: true
-    });
-
-    if (!result.isConfirmed) return;
-
-    try {
-        Swal.fire({
-            title: 'Actualizando rol...',
-            text: 'Por favor, espera.',
-            allowOutsideClick: false,
-            allowEscapeKey: false,
-            didOpen: () => Swal.showLoading()
-        });
-
-        await updateDoc(doc(db, "users", uid), {
-            role: newRole,
-            updatedAt: serverTimestamp()
-        });
-
-        await Swal.fire({
-            icon: 'success',
-            title: '¡Rol actualizado!',
-            html: `El usuario <strong>"${username}"</strong> ahora tiene el rol de <strong>${label}</strong>.`,
-            confirmButtonText: 'Aceptar',
-            confirmButtonColor: '#2563eb',
-            timer: 2500,
-            timerProgressBar: true
-        });
-
-    } catch (error) {
-        console.error('Error al cambiar el rol del usuario:', error);
-
-        Swal.fire({
-            icon: 'error',
-            title: '¡Error!',
-            text: 'No se pudo cambiar el rol del usuario. Inténtalo nuevamente.',
-            confirmButtonText: 'Aceptar',
-            confirmButtonColor: '#2563eb'
-        });
-    }
-}
+                Swal.fire({
+                    icon: 'error',
+                    title: '¡Error!',
+                    text: 'No se pudo cambiar el estado del usuario.',
+                    confirmButtonText: 'Aceptar',
+                    confirmButtonColor: '#2563eb'
+                });
+            }
+        }
 
 
 
-async function deleteUserRecord(uid, username, email) {
-    const result = await Swal.fire({
-        title: '¿Eliminar usuario?',
-        html: `
+        async function changeUserRole(uid, currentRole, username) {
+            const newRole = currentRole === "admin" ? "viewer" : "admin";
+            const label = newRole === "admin" ? "Administrador" : "Visualizador";
+
+            const result = await Swal.fire({
+                title: '¿Cambiar rol de usuario?',
+                html: `¿Deseas cambiar el rol de <strong>"${username}"</strong> a <strong>${label}</strong>?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: newRole === "admin" ? '#16a34a' : '#2563eb',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: `Sí, cambiar a ${label}`,
+                cancelButtonText: 'Cancelar',
+                reverseButtons: true,
+                focusCancel: true
+            });
+
+            if (!result.isConfirmed) return;
+
+            try {
+                Swal.fire({
+                    title: 'Actualizando rol...',
+                    text: 'Por favor, espera.',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    didOpen: () => Swal.showLoading()
+                });
+
+                await updateDoc(doc(db, "users", uid), {
+                    role: newRole,
+                    updatedAt: serverTimestamp()
+                });
+
+                await Swal.fire({
+                    icon: 'success',
+                    title: '¡Rol actualizado!',
+                    html: `El usuario <strong>"${username}"</strong> ahora tiene el rol de <strong>${label}</strong>.`,
+                    confirmButtonText: 'Aceptar',
+                    confirmButtonColor: '#2563eb',
+                    timer: 2500,
+                    timerProgressBar: true
+                });
+
+            } catch (error) {
+                console.error('Error al cambiar el rol del usuario:', error);
+
+                Swal.fire({
+                    icon: 'error',
+                    title: '¡Error!',
+                    text: 'No se pudo cambiar el rol del usuario. Inténtalo nuevamente.',
+                    confirmButtonText: 'Aceptar',
+                    confirmButtonColor: '#2563eb'
+                });
+            }
+        }
+
+
+
+        async function deleteUserRecord(uid, username, email) {
+            const result = await Swal.fire({
+                title: '¿Eliminar usuario?',
+                html: `
             <p>¿Seguro que deseas eliminar a <strong>"${username}"</strong> del sistema?</p><br>
             <p style="text-align: left; color: #dc2626; font-weight: bold;">
                 
@@ -587,51 +796,161 @@ async function deleteUserRecord(uid, username, email) {
             </ul>
             <p style="color: #dc2626;">Esta acción no se puede deshacer fácilmente.</p>
         `,
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#dc2626',
-        cancelButtonColor: '#6b7280',
-        confirmButtonText: '<i class="fa-solid fa-trash"></i> Sí, eliminar',
-        cancelButtonText: 'Cancelar',
-        reverseButtons: true,
-        focusCancel: true
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc2626',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: '<i class="fa-solid fa-trash"></i> Sí, eliminar',
+                cancelButtonText: 'Cancelar',
+                reverseButtons: true,
+                focusCancel: true
+            });
+
+            if (!result.isConfirmed) return;
+
+            try {
+                Swal.fire({
+                    title: 'Eliminando usuario...',
+                    text: 'Por favor, espera.',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    didOpen: () => Swal.showLoading()
+                });
+
+                await deleteDoc(doc(db, "users", uid));
+
+                await Swal.fire({
+                    icon: 'success',
+                    title: '¡Registro eliminado!',
+                    text: `El perfil de "${username}" se eliminó correctamente.`,
+                    confirmButtonText: 'Aceptar',
+                    confirmButtonColor: '#2563eb',
+                    timer: 2500,
+                    timerProgressBar: true
+                });
+
+            } catch (error) {
+                console.error('Error al eliminar el registro del usuario:', error);
+
+                Swal.fire({
+                    icon: 'error',
+                    title: '¡Error!',
+                    text: 'No se pudo eliminar el registro del usuario. Inténtalo nuevamente.',
+                    confirmButtonText: 'Aceptar',
+                    confirmButtonColor: '#2563eb'
+                });
+            }
+        }
+
+        // ────────────────────────────────────────────────
+// MODAL DE PERMISOS DE MÓDULOS
+// ────────────────────────────────────────────────
+const permsModal        = document.getElementById("permsModal");
+const permsUidInput     = document.getElementById("permsUid");
+const permsUserSpan     = document.getElementById("permsUser");
+const permsGrid         = document.getElementById("permsGrid");
+const btnSavePerms      = document.getElementById("btnSavePerms");
+const btnSavePermsIcon  = document.getElementById("btnSavePermsIcon");
+const btnSavePermsText  = document.getElementById("btnSavePermsText");
+
+/**
+ * Abre el modal de permisos para un usuario.
+ * @param {string} uid           - UID de Firebase Auth del usuario
+ * @param {string} username      - Nombre a mostrar en el título
+ * @param {string[]} activeModules - Módulos actualmente habilitados
+ */
+function openPermissionsModal(uid, username, activeModules) {
+    permsUidInput.value = uid;
+    permsUserSpan.textContent = username;
+    permsGrid.innerHTML = "";
+
+    AVAILABLE_MODULES.forEach(mod => {
+        const label = document.createElement("label");
+        label.className = "flex items-center gap-2 text-[11px] font-semibold text-slate-300 cursor-pointer p-2 rounded-lg hover:bg-slate-900/60 transition";
+
+        const cb = document.createElement("input");
+        cb.type = "checkbox";
+        cb.value = mod.key;
+        cb.className = "accent-purple-500 w-4 h-4";
+        cb.checked = activeModules.includes(mod.key);
+
+        const icon = document.createElement("i");
+        icon.className = `fa-solid ${mod.icon} text-[10px] text-purple-400 w-3.5 text-center`;
+
+        const txt = document.createElement("span");
+        txt.textContent = mod.label;
+
+        label.appendChild(cb);
+        label.appendChild(icon);
+        label.appendChild(txt);
+        permsGrid.appendChild(label);
     });
 
-    if (!result.isConfirmed) return;
+    permsModal.classList.remove("hidden");
+}
+
+function closePermissionsModal() {
+    permsModal.classList.add("hidden");
+    permsUidInput.value = "";
+    permsGrid.innerHTML = "";
+}
+
+// ── Listeners del modal ──
+document.getElementById("btnClosePerms").addEventListener("click", closePermissionsModal);
+document.getElementById("btnCancelPerms").addEventListener("click", closePermissionsModal);
+
+permsModal.addEventListener("click", (e) => {
+    if (e.target === permsModal) closePermissionsModal();
+});
+
+document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !permsModal.classList.contains("hidden")) {
+        closePermissionsModal();
+    }
+});
+
+// ── Guardar permisos ──
+btnSavePerms.addEventListener("click", async () => {
+    if (btnSavePerms.disabled) return;
+
+    const uid = permsUidInput.value;
+    if (!uid) return;
+
+    const selected = Array.from(permsGrid.querySelectorAll('input[type="checkbox"]:checked'))
+        .map(cb => cb.value);
+
+    btnSavePerms.disabled = true;
+    btnSavePermsIcon.className = "fa-solid fa-circle-notch fa-spin";
+    btnSavePermsText.textContent = "Guardando...";
 
     try {
-        Swal.fire({
-            title: 'Eliminando usuario...',
-            text: 'Por favor, espera.',
-            allowOutsideClick: false,
-            allowEscapeKey: false,
-            didOpen: () => Swal.showLoading()
+        await updateDoc(doc(db, "users", uid), {
+            modulos: selected,
+            updatedAt: serverTimestamp()
         });
 
-        await deleteDoc(doc(db, "users", uid));
+        closePermissionsModal();
 
         await Swal.fire({
-            icon: 'success',
-            title: '¡Registro eliminado!',
-            text: `El perfil de "${username}" se eliminó correctamente.`,
-            confirmButtonText: 'Aceptar',
-            confirmButtonColor: '#2563eb',
-            timer: 2500,
+            toast: true,
+            position: "top-end",
+            icon: "success",
+            title: "Permisos actualizados",
+            text: `${selected.length} módulo${selected.length === 1 ? "" : "s"} asignado${selected.length === 1 ? "" : "s"}`,
+            showConfirmButton: false,
+            timer: 2200,
             timerProgressBar: true
         });
 
-    } catch (error) {
-        console.error('Error al eliminar el registro del usuario:', error);
-
-        Swal.fire({
-            icon: 'error',
-            title: '¡Error!',
-            text: 'No se pudo eliminar el registro del usuario. Inténtalo nuevamente.',
-            confirmButtonText: 'Aceptar',
-            confirmButtonColor: '#2563eb'
-        });
+    } catch (err) {
+        console.error("Error al guardar permisos:", err);
+        Swal.fire("Error", "No se pudieron guardar los permisos: " + err.message, "error");
+    } finally {
+        btnSavePerms.disabled = false;
+        btnSavePermsIcon.className = "fa-solid fa-floppy-disk";
+        btnSavePermsText.textContent = "Guardar Permisos";
     }
-}
+});
 
 
         // ────────────────────────────────────────────────
@@ -686,4 +1005,5 @@ async function deleteUserRecord(uid, username, email) {
         }
     </script>
 </body>
+
 </html>

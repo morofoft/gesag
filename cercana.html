@@ -4,6 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <title>GesagPro | Agencias Cercanas</title>
+  <link rel="icon" type="image/svg+xml" href="./img/favicon.svg">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#4f46e5">
   <script src="https://cdn.tailwindcss.com"></script>
@@ -22,7 +23,7 @@
 </head>
 
 <body class="bg-slate-950 min-h-screen flex flex-col text-slate-100 antialiased">
-
+  <div id="sidebar-container" class="h-full flex shrink-0"></div>
   <!-- OVERLAY DE CARGA -->
   <div id="bootOverlay" class="fixed inset-0 bg-slate-950 z-[100] flex flex-col items-center justify-center space-y-3">
     <div class="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
@@ -90,6 +91,8 @@
   <script type="module">
     import { db, auth } from "./js/firebase/firebase.init.js";
     import { requireAuth } from "./js/auth.guard.js";
+    import { initSidebar } from "./js/sidebar.js";              // 👈 AGREGAR
+initSidebar("sidebar-container");                            // 👈 AGREGAR
     import { collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
     import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 

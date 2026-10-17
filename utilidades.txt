@@ -1,0 +1,20 @@
+-------------------------------------------
+    IMPLEMENTAR MODULOS EN PAGINAS
+-------------------------------------------
+
+    import { requireModule } from "./js/auth.guard.js";
+    const session = await requireModule("sugerencias");   // 👈 cambia por el módulo
+    if (!session) throw new Error("Acceso denegado");
+
+Página	Módulo (requireModule(...))
+index.html	    -----  	"index"
+mapa.html	    -----  	"mapa"
+cercana.html	-----  	"cercana"
+rutas.html	    -----  	"rutas"
+reportes.html	-----  	"reportes"
+imprimir.html	-----  	"imprimir"
+sugerencias.html-----  	"sugerencias"
+acerca.html	    -----  	"acerca"
+configuracion.html --  	(admin-only)
+users.html	    -----  	(admin-only)
+zonas.html	    -----   (admin-only)
