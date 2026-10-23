@@ -5,7 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sugerencias e Integraciones - GesagPro</title>
-<link rel="icon" type="image/svg+xml" href="./img/favicon.svg">
+    <link rel="icon" type="image/svg+xml" href="./img/favicon.svg">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
@@ -13,31 +13,63 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
 
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
-        .custom-scroll::-webkit-scrollbar { width: 6px; }
-        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
-        .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
-        .custom-scroll::-webkit-scrollbar-thumb:hover { background: #475569; }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .custom-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .custom-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 10px;
+        }
+
+        .custom-scroll::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(8px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
-        .fade-in { animation: fadeIn 0.3s ease-out; }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease-out;
+        }
     </style>
 </head>
 
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col relative selection:bg-indigo-500 selection:text-white">
-    
+<body
+    class="bg-slate-950 text-slate-100 min-h-screen flex flex-col relative selection:bg-indigo-500 selection:text-white">
+
     <!-- LUCES DE FONDO -->
-    <div class="absolute top-0 left-1/4 w-[500px] h-[300px] bg-indigo-600/10 rounded-full blur-[120px] pointer-events-none"></div>
-    <div class="absolute bottom-10 right-10 w-[400px] h-[400px] bg-emerald-600/5 rounded-full blur-[100px] pointer-events-none"></div>
+    <div
+        class="absolute top-0 left-1/4 w-[500px] h-[300px] bg-indigo-600/10 rounded-full blur-[120px] pointer-events-none">
+    </div>
+    <div
+        class="absolute bottom-10 right-10 w-[400px] h-[400px] bg-emerald-600/5 rounded-full blur-[100px] pointer-events-none">
+    </div>
 
     <!-- OVERLAY DE VERIFICACIÓN -->
-    <div id="bootOverlay" class="fixed inset-0 bg-slate-950 z-[100] flex flex-col items-center justify-center space-y-3">
+    <div id="bootOverlay"
+        class="fixed inset-0 bg-slate-950 z-[100] flex flex-col items-center justify-center space-y-3">
         <div class="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
         <p class="text-xs font-bold text-slate-400 tracking-wider uppercase">Verificando Sesión...</p>
     </div>
@@ -47,7 +79,8 @@
         <!-- HEADER -->
         <header class="max-w-6xl w-full mx-auto px-6 py-6 flex justify-between items-center">
             <div class="flex items-center gap-3">
-                <a href="index.html" class="w-10 h-10 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-2xl flex items-center justify-center text-slate-300 hover:text-white transition-all">
+                <a href="index.html"
+                    class="w-10 h-10 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-2xl flex items-center justify-center text-slate-300 hover:text-white transition-all">
                     <i class="fa-solid fa-arrow-left text-sm"></i>
                 </a>
                 <div>
@@ -56,7 +89,8 @@
                 </div>
             </div>
             <div class="flex items-center gap-2">
-                <span id="roleBadge" class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+                <span id="roleBadge"
+                    class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
                     <i class="fa-solid fa-lightbulb text-xs"></i>
                     <span id="roleBadgeText">...</span>
                 </span>
@@ -93,14 +127,16 @@
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
 
                 <!-- FORMULARIO (7 columnas) -->
-                <div class="lg:col-span-7 bg-slate-900/80 border border-slate-800 p-6 sm:p-8 rounded-3xl shadow-2xl backdrop-blur-xl space-y-6">
+                <div
+                    class="lg:col-span-7 bg-slate-900/80 border border-slate-800 p-6 sm:p-8 rounded-3xl shadow-2xl backdrop-blur-xl space-y-6">
 
                     <div>
                         <h2 class="text-2xl font-black text-white tracking-tight">
                             ¿Tienes una idea o necesitas una integración?
                         </h2>
                         <p class="text-slate-400 text-xs sm:text-sm mt-1 leading-relaxed">
-                            Escribe tus comentarios, herramientas que usas o módulos que te gustaría ver agregados en las próximas versiones.
+                            Escribe tus comentarios, herramientas que usas o módulos que te gustaría ver agregados en
+                            las próximas versiones.
                         </p>
                     </div>
 
@@ -109,7 +145,8 @@
                         <!-- NOMBRE / CORREO -->
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
-                                <label for="sgNombre" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
+                                <label for="sgNombre"
+                                    class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
                                     Tu Nombre <span class="text-rose-400">*</span>
                                 </label>
                                 <input type="text" id="sgNombre" required maxlength="80" autocomplete="name"
@@ -117,7 +154,8 @@
                                     class="w-full bg-slate-800/60 border border-slate-700/80 text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 transition-all placeholder:text-slate-600">
                             </div>
                             <div>
-                                <label for="sgEmail" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
+                                <label for="sgEmail"
+                                    class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
                                     Correo <span class="text-slate-600 font-normal normal-case">(opcional)</span>
                                 </label>
                                 <input type="email" id="sgEmail" maxlength="120" autocomplete="email" spellcheck="false"
@@ -128,13 +166,15 @@
 
                         <!-- CATEGORIA -->
                         <div>
-                            <label for="sgCategoria" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
+                            <label for="sgCategoria"
+                                class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
                                 Categoría <span class="text-rose-400">*</span>
                             </label>
                             <select id="sgCategoria" required
                                 class="w-full bg-slate-800/60 border border-slate-700/80 text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 transition-all cursor-pointer">
                                 <option value="">-- Selecciona una categoría --</option>
-                                <option value="Nueva Integración (API, WhatsApp, ERP, etc.)">Nueva Integración (API, WhatsApp, ERP, etc.)</option>
+                                <option value="Nueva Integración (API, WhatsApp, ERP, etc.)">Nueva Integración (API,
+                                    WhatsApp, ERP, etc.)</option>
                                 <option value="Nuevo Módulo / Sección">Nuevo Módulo / Sección</option>
                                 <option value="Mejora de Función Existente">Mejora de Función Existente</option>
                                 <option value="Reporte o Métrica Personalizada">Reporte o Métrica Personalizada</option>
@@ -145,7 +185,8 @@
                         <!-- MENSAJE -->
                         <div>
                             <div class="flex items-center justify-between mb-2">
-                                <label for="sgMensaje" class="block text-xs font-bold text-slate-400 uppercase tracking-wider">
+                                <label for="sgMensaje"
+                                    class="block text-xs font-bold text-slate-400 uppercase tracking-wider">
                                     Detalles <span class="text-rose-400">*</span>
                                 </label>
                                 <span id="charCounter" class="text-[10px] font-mono text-slate-500">0 / 1000</span>
@@ -155,7 +196,8 @@
                                 class="w-full bg-slate-800/60 border border-slate-700/80 text-white rounded-xl p-4 text-sm focus:outline-none focus:border-indigo-500 transition-all placeholder:text-slate-600 custom-scroll resize-none"></textarea>
                         </div>
 
-                        <div id="formMessage" class="hidden text-xs p-3 rounded-xl" role="alert" aria-live="polite"></div>
+                        <div id="formMessage" class="hidden text-xs p-3 rounded-xl" role="alert" aria-live="polite">
+                        </div>
 
                         <button type="submit" id="btnSubmit"
                             class="w-full bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-700 disabled:cursor-not-allowed text-white font-bold py-3.5 px-6 rounded-xl transition-all shadow-lg shadow-indigo-600/25 active:scale-[0.99] flex items-center justify-center gap-2 text-sm">
@@ -172,15 +214,21 @@
                         <h3 class="text-xs font-extrabold text-slate-400 uppercase tracking-widest">
                             <span id="panelTitle">Sugerencias</span>
                         </h3>
-                        <span id="panelCount" class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full font-bold">0</span>
+                        <span id="panelCount"
+                            class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full font-bold">0</span>
                     </div>
 
                     <!-- Filtros admin -->
-                    <div id="adminFilters" class="hidden bg-slate-900/60 border border-slate-800 rounded-2xl p-1 flex gap-1">
-                        <button data-filter="ALL" class="filter-btn flex-1 px-2 py-1.5 rounded-xl text-[11px] font-bold transition-all">Todas</button>
-                        <button data-filter="pendiente" class="filter-btn flex-1 px-2 py-1.5 rounded-xl text-[11px] font-bold transition-all">Pendientes</button>
-                        <button data-filter="aprobada" class="filter-btn flex-1 px-2 py-1.5 rounded-xl text-[11px] font-bold transition-all">Aprobadas</button>
-                        <button data-filter="rechazada" class="filter-btn flex-1 px-2 py-1.5 rounded-xl text-[11px] font-bold transition-all">Rechazadas</button>
+                    <div id="adminFilters"
+                        class="hidden bg-slate-900/60 border border-slate-800 rounded-2xl p-1 flex gap-1">
+                        <button data-filter="ALL"
+                            class="filter-btn flex-1 px-2 py-1.5 rounded-xl text-[11px] font-bold transition-all">Todas</button>
+                        <button data-filter="pendiente"
+                            class="filter-btn flex-1 px-2 py-1.5 rounded-xl text-[11px] font-bold transition-all">Pendientes</button>
+                        <button data-filter="aprobada"
+                            class="filter-btn flex-1 px-2 py-1.5 rounded-xl text-[11px] font-bold transition-all">Aprobadas</button>
+                        <button data-filter="rechazada"
+                            class="filter-btn flex-1 px-2 py-1.5 rounded-xl text-[11px] font-bold transition-all">Rechazadas</button>
                     </div>
 
                     <!-- LISTA -->
@@ -225,42 +273,42 @@
         // ────────────────────────────────────────────────
         // DOM
         // ────────────────────────────────────────────────
-        const bootOverlay      = document.getElementById("bootOverlay");
-        const mainContent      = document.getElementById("mainContent");
-        const roleBadgeText    = document.getElementById("roleBadgeText");
-        const btnReload        = document.getElementById("btnReload");
-        const adminStats       = document.getElementById("adminStats");
-        const adminFilters     = document.getElementById("adminFilters");
-        const suggestionsList  = document.getElementById("suggestionsList");
-        const panelTitle       = document.getElementById("panelTitle");
-        const panelCount       = document.getElementById("panelCount");
+        const bootOverlay = document.getElementById("bootOverlay");
+        const mainContent = document.getElementById("mainContent");
+        const roleBadgeText = document.getElementById("roleBadgeText");
+        const btnReload = document.getElementById("btnReload");
+        const adminStats = document.getElementById("adminStats");
+        const adminFilters = document.getElementById("adminFilters");
+        const suggestionsList = document.getElementById("suggestionsList");
+        const panelTitle = document.getElementById("panelTitle");
+        const panelCount = document.getElementById("panelCount");
 
-        const suggestionForm   = document.getElementById("suggestionForm");
-        const sgNombre         = document.getElementById("sgNombre");
-        const sgEmail          = document.getElementById("sgEmail");
-        const sgCategoria      = document.getElementById("sgCategoria");
-        const sgMensaje        = document.getElementById("sgMensaje");
-        const charCounter      = document.getElementById("charCounter");
-        const formMessage      = document.getElementById("formMessage");
-        const btnSubmit        = document.getElementById("btnSubmit");
-        const btnSubmitIcon    = document.getElementById("btnSubmitIcon");
-        const btnSubmitText    = document.getElementById("btnSubmitText");
+        const suggestionForm = document.getElementById("suggestionForm");
+        const sgNombre = document.getElementById("sgNombre");
+        const sgEmail = document.getElementById("sgEmail");
+        const sgCategoria = document.getElementById("sgCategoria");
+        const sgMensaje = document.getElementById("sgMensaje");
+        const charCounter = document.getElementById("charCounter");
+        const formMessage = document.getElementById("formMessage");
+        const btnSubmit = document.getElementById("btnSubmit");
+        const btnSubmitIcon = document.getElementById("btnSubmitIcon");
+        const btnSubmitText = document.getElementById("btnSubmitText");
 
-        const statTotal    = document.getElementById("statTotal");
-        const statPending  = document.getElementById("statPending");
+        const statTotal = document.getElementById("statTotal");
+        const statPending = document.getElementById("statPending");
         const statApproved = document.getElementById("statApproved");
         const statRejected = document.getElementById("statRejected");
 
         // ────────────────────────────────────────────────
         // ESTADO
         // ────────────────────────────────────────────────
-        let currentUser    = null;
+        let currentUser = null;
         let currentProfile = null;
-        let isAdmin        = false;
+        let isAdmin = false;
         let allSuggestions = [];        // Solo para admin
-        let mySuggestions  = [];        // Solo para viewer
-        let activeFilter   = "ALL";     // Para admin
-        let unsubscribe    = null;
+        let mySuggestions = [];        // Solo para viewer
+        let activeFilter = "ALL";     // Para admin
+        let unsubscribe = null;
 
         const CATEGORY_ICONS = {
             "Nueva Integración (API, WhatsApp, ERP, etc.)": "fa-plug",
@@ -270,59 +318,103 @@
             "Otro Comentario": "fa-comment-dots"
         };
 
-        // ────────────────────────────────────────────────
+// ────────────────────────────────────────────────
         // AUTENTICACIÓN
         // ────────────────────────────────────────────────
+        console.log("🚀 [1] Iniciando script de autenticación en sugerencias.html");
+
         onAuthStateChanged(auth, async (user) => {
+            console.log("🔄 [2] onAuthStateChanged se disparó. Usuario detectado:", user ? user.uid : "Ninguno (null)");
+
             if (!user) {
+                console.log("🚪 [3] No hay sesión activa. Redirigiendo a login.html...");
+                bootOverlay.classList.add("hidden");
                 window.location.replace("login.html");
                 return;
             }
 
-            currentUser = user;
-
             try {
-                const userSnap = await getDoc(doc(db, "users", user.uid));
+                console.log("📡 [4] Intentando consultar Firestore para UID:", user.uid);
+                
+                const timeoutPromise = new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error("Timeout de conexión a Firestore (8s)")), 8000)
+                );
+
+                const fetchUserDoc = getDoc(doc(db, "users", user.uid));
+                const userSnap = await Promise.race([fetchUserDoc, timeoutPromise]);
+
+                console.log("📥 [5] Firestore respondió. ¿Existe el documento?", userSnap.exists());
 
                 if (!userSnap.exists()) {
-                    await Swal.fire("Cuenta no registrada", "Contacta al administrador.", "error");
+                    bootOverlay.classList.add("hidden");
+                    await Swal.fire({
+                        icon: "error",
+                        title: "Usuario no registrado",
+                        text: "No se encontró un perfil asociado a esta cuenta."
+                    });
                     await signOut(auth);
                     window.location.replace("login.html");
                     return;
                 }
 
+                currentUser = user;
                 currentProfile = userSnap.data();
+                console.log("👤 [6] Perfil cargado correctamente:", currentProfile.role);
 
-                if (currentProfile.enabled === false) {
-                    await Swal.fire("Usuario inhabilitado", "Tu acceso ha sido revocado.", "warning");
+                if (!currentProfile || currentProfile.enabled === false) {
+                    bootOverlay.classList.add("hidden");
+                    await Swal.fire({
+                        icon: "warning",
+                        title: "Acceso denegado",
+                        text: "Tu cuenta está inhabilitada."
+                    });
                     await signOut(auth);
                     window.location.replace("login.html");
                     return;
                 }
 
                 isAdmin = currentProfile.role === "admin";
+                const modulos = Array.isArray(currentProfile.modulos) ? currentProfile.modulos : [];
 
-                // Configurar UI según rol
-                setupUIForRole();
+                if (!isAdmin && !modulos.includes("sugerencias")) {
+                    console.log("⛔ [7] Acceso denegado al módulo sugerencias.");
+                    bootOverlay.classList.add("hidden");
+                    await Swal.fire({
+                        icon: "error",
+                        title: "Acceso denegado",
+                        text: "No tienes permiso para acceder al módulo de sugerencias.",
+                        confirmButtonText: "Aceptar"
+                    });
+                    window.location.replace("index.html");
+                    return;
+                }
 
-                // Pre-llenar formulario
-                sgNombre.value = currentProfile.username || "";
-                sgEmail.value = user.email || "";
-
-                // Cargar sugerencias
-                subscribeToSuggestions();
-
+                console.log("✅ [8] Acceso concedido. Ocultando overlay y mostrando contenido.");
+                
+                // Ocultar pantalla de carga y mostrar el contenido principal
                 bootOverlay.classList.add("hidden");
                 mainContent.classList.remove("hidden");
 
+                // Configurar interfaz y activar la escucha en tiempo real
+                setupUIForRole();
+                subscribeToSuggestions();
+
             } catch (err) {
-                console.error("Error al validar sesión:", err);
-                await Swal.fire("Error", "No se pudieron verificar tus credenciales.", "error");
-                window.location.replace("login.html");
+                console.error("❌ [ERROR CRÍTICO] Capturado en try/catch:", err);
+                bootOverlay.classList.add("hidden");
+                
+                await Swal.fire({
+                    icon: "error",
+                    title: "Error de conexión",
+                    text: "No se pudo validar tu sesión: " + err.message
+                });
+                window.location.replace("index.html");
             }
         });
-
+       
+       
         function setupUIForRole() {
+        
             if (isAdmin) {
                 roleBadgeText.textContent = "Vista Administrador";
                 panelTitle.textContent = "Todas las Sugerencias";
@@ -914,4 +1006,5 @@
         }
     </script>
 </body>
+
 </html>

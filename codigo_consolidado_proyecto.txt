@@ -1574,58 +1574,127 @@ ARCHIVO: imprimir.html
             font-family: 'Plus Jakarta Sans', sans-serif;
         }
 
-        .custom-scroll::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
+        .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 8px; }
+
+        /* Ocultar la flecha por defecto de <details> */
+        details > summary { list-style: none; }
+        details > summary::-webkit-details-marker { display: none; }
+
+        /* ══════════════════════════════════════════════════════════════
+           VARIABLES DE IMPRESIÓN
+           ══════════════════════════════════════════════════════════════ */
+        :root {
+            --print-row-height: 28px;
+            --print-font-size: 8.5pt;
+            --print-firma-width: 180px;
+            --print-sig-height: 22px;
+            --print-firma-font: 7pt;
+            --print-cell-pad-y: 3px;
+            --print-cell-pad-x: 4px;
+            --print-row-line-height: 1.2;
+            --print-col-num: 30px;
+            --print-col-id: 80px;
+            --print-col-zona: 90px;
+            --print-col-obs: 120px;
+            --print-col-custom: 120px;
         }
 
-        .custom-scroll::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        .custom-scroll::-webkit-scrollbar-thumb {
-            background: #334155;
-            border-radius: 8px;
-        }
-
-        /* ── Vista previa en pantalla ── */
         #printArea {
             background: #ffffff;
             color: #000000;
             font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: var(--print-font-size);
         }
 
-        /* ── Estilos de impresión ── */
+        .print-header-block {
+            border: 1px solid #999;
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 12px;
+            transition: padding 0.15s ease, margin 0.15s ease;
+        }
+        :root[data-density="compact"] .print-header-block { padding: 8px; margin-bottom: 8px; }
+        :root[data-density="ultra"]   .print-header-block { padding: 5px 8px; margin-bottom: 5px; }
+
+        .header-inner {
+            margin-top: 12px; padding-top: 10px; border-top: 1px dashed #999;
+            transition: margin-top 0.15s ease, padding-top 0.15s ease;
+        }
+        :root[data-density="compact"] .header-inner { margin-top: 6px; padding-top: 6px; }
+        :root[data-density="ultra"]   .header-inner { margin-top: 4px; padding-top: 4px; }
+
+        /* TABLA */
+        #printTable {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+            font-size: var(--print-font-size);
+        }
+
+        #printTable th,
+        #printTable td {
+            border: 1px solid #888;
+            padding: var(--print-cell-pad-y) var(--print-cell-pad-x);
+            line-height: var(--print-row-line-height);
+            vertical-align: middle;
+        }
+
+        #printTable tbody td { height: var(--print-row-height); }
+        #printTable thead th { 
+            background: #e5e7eb; 
+            font-weight: 700; 
+            text-align: center;
+            white-space: nowrap; 
+            overflow: hidden; 
+            text-overflow: ellipsis;
+        }
+
+        /* Clases para celdas */
+        .cell-num   { text-align: center; font-family: monospace; }
+        .cell-id    { font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: center;}
+        .cell-zona  { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: center;}
+        /* Dirección: permitimos que ocupe el resto y cortamos el texto si es muy largo */
+        .cell-dir   { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: left; }
+        .cell-obs   { text-align: left; }
+        .cell-custom{ text-align: left; }
+        .cell-firma { text-align: center; padding: 0 !important; overflow: hidden; }
+
+        .firma-box {
+            height: var(--print-row-height);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 1px 0;
+            overflow: hidden;
+        }
+        .firma-line {
+            width: 90%;
+            border-top: 1px dashed #666;
+            font-size: var(--print-firma-font);
+            color: #888;
+            padding-top: 1px;
+            line-height: 1;
+            text-align: center;
+        }
+
         @page {
             size: A4;
-            margin: 14mm 10mm 20mm 10mm;
+            margin: 12mm 8mm 10mm 8mm; 
         }
 
         @media print {
-
-            /* 1. Reset total de html/body */
-            html,
-            body {
-                height: auto !important;
-                min-height: 0 !important;
-                max-height: none !important;
-                overflow: visible !important;
-                display: block !important;
-                background: #fff !important;
-                color: #000 !important;
-                margin: 0 !important;
-                padding: 0 !important;
+            html, body {
+                height: auto !important; min-height: 0 !important; max-height: none !important;
+                overflow: visible !important; display: block !important;
+                background: #fff !important; color: #000 !important;
+                margin: 0 !important; padding: 0 !important;
             }
-
-            /* 2. Deshacer flex y overflow en TODOS los ancestros del área imprimible */
-            body>div,
-            body>div.flex-1,
-            .flex-1,
-            .flex-col,
-            .overflow-hidden,
-            .overflow-y-auto,
-            .h-full,
-            main {
+            body > div, body > div.flex-1,
+            .flex-1, .flex-col, .overflow-hidden,
+            .overflow-y-auto, .h-full, main {
                 display: block !important;
                 overflow: visible !important;
                 height: auto !important;
@@ -1633,114 +1702,73 @@ ARCHIVO: imprimir.html
                 max-height: none !important;
                 flex: none !important;
             }
+            main { padding: 0 !important; margin: 0 !important; background: #fff !important; }
+            #sidebar-container, .no-print { display: none !important; }
 
-            /* 3. main sin padding (el @page ya controla márgenes) */
-            main {
-                padding: 0 !important;
-                margin: 0 !important;
-                background: #fff !important;
-            }
-
-            /* 4. Ocultar UI */
-            #sidebar-container,
-            .no-print {
-                display: none !important;
-            }
-
-            /* 5. Área imprimible limpia */
             #printArea {
                 box-shadow: none !important;
                 border-radius: 0 !important;
-                padding: 0 0 8mm 0 !important;
-                /* deja espacio bajo el último renglón */
+                padding: 0 !important;
                 margin: 0 !important;
                 background: #fff !important;
                 width: 100% !important;
                 max-width: none !important;
             }
 
-            /* 6. Footer fijo (se repite en cada página en Chrome/Edge/Firefox) */
-            .print-footer {
-                display: block !important;
-                position: fixed;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                font-size: 8.5pt;
-                color: #333;
-                text-align: center;
-                border-top: 1px solid #999;
-                padding: 3px 0;
-                background: #fff;
+            #printTable {
+                font-size: var(--print-font-size) !important;
+                width: 100%; border-collapse: collapse; table-layout: fixed;
             }
-
-            tfoot { display: table-footer-group; }
-
-            /* 7. Tabla: encabezado y filas sin partir */
-            table {
-                font-size: 8.5pt !important;
-                /* ← !important para ganar al inline 9pt */
-                width: 100%;
-                border-collapse: collapse;
-            }
-
-            th,
-            td {
+            #printTable th,
+            #printTable td {
                 border: 1px solid #888 !important;
-                padding: 4px 6px !important;
+                padding: var(--print-cell-pad-y) var(--print-cell-pad-x) !important;
+                line-height: var(--print-row-line-height) !important;
                 color: #000 !important;
             }
-
-            thead {
-                display: table-header-group;
-                /* repite encabezado en cada página */
-                background: #e5e7eb !important;
-                color: #000 !important;
+            #printTable tbody td {
+                height: var(--print-row-height) !important;
+                vertical-align: middle !important;
             }
-
-            tr,
-            td,
-            th {
-                page-break-inside: avoid;
-                break-inside: avoid;
+            #printTable .cell-firma { padding: 0 !important; }
+            
+            #printTable thead { display: table-header-group; background: #e5e7eb !important; }
+            #printTable tfoot { display: table-footer-group; }
+            
+            #printTable tr, #printTable td, #printTable th {
+                page-break-inside: avoid !important; 
+                break-inside: avoid !important;
             }
-
-            /* Si alguna fila es muy alta y quieres permitir corte: */
-            /* tr { page-break-inside: auto; break-inside: auto; } */
-        }
-
-        .print-footer {
-            display: none;
+            .print-header-block { page-break-inside: avoid; break-inside: avoid; }
         }
 
         .zone-chip {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            padding: 6px 10px;
-            background: #020617;
-            border: 1px solid #334155;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.15s;
-            font-size: 11px;
-            font-weight: 600;
-            color: #cbd5e1;
+            display: flex; align-items: center; gap: 6px;
+            padding: 6px 10px; background: #020617; border: 1px solid #334155;
+            border-radius: 10px; cursor: pointer; transition: all 0.15s;
+            font-size: 11px; font-weight: 600; color: #cbd5e1;
         }
-
-        .zone-chip:hover {
-            border-color: #6366f1;
-        }
-
+        .zone-chip:hover { border-color: #6366f1; }
         .zone-chip.selected {
             background: rgba(99, 102, 241, 0.15);
-            border-color: #6366f1;
+            border-color: #6366f1; color: #a5b4fc;
+        }
+        .zone-chip input { accent-color: #6366f1; }
+
+        .col-chip {
+            display: flex; align-items: center; gap: 6px;
+            padding: 7px 9px;
+            background: #020617; border: 1px solid #334155;
+            border-radius: 10px; cursor: pointer; transition: all 0.15s;
+            font-size: 11px; font-weight: 600; color: #cbd5e1;
+        }
+        .col-chip:hover { border-color: #6366f1; }
+        .col-chip:has(input:checked) {
+            background: rgba(99, 102, 241, 0.12);
+            border-color: rgba(99, 102, 241, 0.5);
             color: #a5b4fc;
         }
-
-        .zone-chip input {
-            accent-color: #6366f1;
-        }
+        .col-chip input { accent-color: #6366f1; width: 14px; height: 14px; }
     </style>
 </head>
 
@@ -1750,33 +1778,26 @@ ARCHIVO: imprimir.html
 
     <div class="flex-1 flex flex-col min-h-screen overflow-hidden">
 
-        <!-- HEADER (no se imprime) -->
-        <header
-            class="no-print h-16 bg-slate-900/80 border-b border-slate-800/80 px-4 sm:px-6 flex items-center justify-between gap-3 shrink-0 backdrop-blur-md">
+        <header class="no-print h-16 bg-slate-900/80 border-b border-slate-800/80 px-4 sm:px-6 flex items-center justify-between gap-3 shrink-0 backdrop-blur-md">
             <div class="flex items-center gap-3 min-w-0">
-                <button id="openSidebarMobile" class="lg:hidden text-slate-400 hover:text-white p-2 shrink-0"
-                    aria-label="Abrir menú">
+                <button id="openSidebarMobile" class="lg:hidden text-slate-400 hover:text-white p-2 shrink-0" aria-label="Abrir menú">
                     <i class="fa fa-bars"></i>
                 </button>
                 <div class="min-w-0">
                     <h1 class="text-base font-bold text-slate-100 truncate">Generador de Impresión</h1>
-                    <p class="text-[11px] text-slate-400 truncate">Selecciona zonas y genera el reporte para imprimir
-                    </p>
+                    <p class="text-[11px] text-slate-400 truncate">Zonas, columnas y formato configurables</p>
                 </div>
             </div>
-            <button id="btnPrint"
-                class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl flex items-center gap-2 shadow-lg shadow-emerald-600/20 transition">
+            <button id="btnPrint" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl flex items-center gap-2 shadow-lg shadow-emerald-600/20 transition">
                 <i class="fa-solid fa-print"></i>
                 <span class="hidden sm:inline">Imprimir</span>
             </button>
         </header>
 
-        <!-- MAIN -->
         <main class="flex-1 overflow-y-auto custom-scroll p-4 sm:p-8 space-y-6 bg-slate-950">
 
-            <!-- PANEL DE CONTROLES (no se imprime) -->
-            <div
-                class="no-print bg-slate-900/70 border border-slate-800 rounded-3xl p-6 space-y-5 shadow-xl backdrop-blur-xl">
+            <!-- PANEL DE CONTROLES -->
+            <div class="no-print bg-slate-900/70 border border-slate-800 rounded-3xl p-6 space-y-5 shadow-xl backdrop-blur-xl">
                 <h2 class="text-sm font-bold text-slate-200 flex items-center gap-2">
                     <i class="fa-solid fa-sliders text-brand-500"></i>
                     Configuración del Reporte
@@ -1788,16 +1809,14 @@ ARCHIVO: imprimir.html
                         ¿Qué deseas imprimir?
                     </label>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <label
-                            class="cursor-pointer bg-slate-950 border-2 border-slate-800 rounded-xl p-4 flex items-center gap-3 hover:border-brand-500/50 transition">
+                        <label class="cursor-pointer bg-slate-950 border-2 border-slate-800 rounded-xl p-4 flex items-center gap-3 hover:border-brand-500/50 transition">
                             <input type="radio" name="printMode" value="all" checked class="accent-brand-500 w-4 h-4">
                             <div>
                                 <div class="text-sm font-bold text-slate-100">Todas las agencias</div>
                                 <div class="text-[11px] text-slate-500">Reporte completo</div>
                             </div>
                         </label>
-                        <label
-                            class="cursor-pointer bg-slate-950 border-2 border-slate-800 rounded-xl p-4 flex items-center gap-3 hover:border-brand-500/50 transition">
+                        <label class="cursor-pointer bg-slate-950 border-2 border-slate-800 rounded-xl p-4 flex items-center gap-3 hover:border-brand-500/50 transition">
                             <input type="radio" name="printMode" value="zones" class="accent-brand-500 w-4 h-4">
                             <div>
                                 <div class="text-sm font-bold text-slate-100">Solo zonas específicas</div>
@@ -1822,8 +1841,7 @@ ARCHIVO: imprimir.html
                             </button>
                         </div>
                     </div>
-                    <div id="zonesGrid"
-                        class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 bg-slate-950/60 border border-slate-800 rounded-2xl p-3 max-h-72 overflow-y-auto custom-scroll">
+                    <div id="zonesGrid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 bg-slate-950/60 border border-slate-800 rounded-2xl p-3 max-h-72 overflow-y-auto custom-scroll">
                         <!-- Dinámico -->
                     </div>
                 </div>
@@ -1833,26 +1851,134 @@ ARCHIVO: imprimir.html
                     <label for="printName" class="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">
                         Nombre en el encabezado (opcional)
                     </label>
-                    <input type="text" id="printName" maxlength="80" placeholder="Ej. Juan Pérez"
-                        class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-200 focus:outline-none focus:border-brand-500">
-                    <p class="text-[10px] text-slate-500 mt-1.5">
-                        <i class="fa-solid fa-circle-info mr-1"></i>
-                        Se imprimirá sobre la línea del encabezado. También puedes escribirlo a mano después de
-                        imprimir.
-                    </p>
+                    <input type="text" id="printName" maxlength="80" placeholder="Ej. Juan Pérez" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-200 focus:outline-none focus:border-brand-500">
                 </div>
 
-                <!-- Footer controles -->
+                <!-- ═══════════ ACORDEÓN: COLUMNAS VISIBLES ═══════════ -->
+                <details class="bg-slate-950/60 border border-slate-800 rounded-2xl group">
+                    <summary class="flex items-center justify-between p-4 cursor-pointer select-none hover:bg-slate-900/50 rounded-2xl transition">
+                        <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+                            <i class="fa-solid fa-table-columns text-brand-400"></i>
+                            Columnas Visibles
+                            <span id="columnsCount" class="text-[10px] bg-brand-500/15 text-brand-400 border border-brand-500/30 px-2 py-0.5 rounded-full font-bold">5/7</span>
+                        </h3>
+                        <i class="fa-solid fa-chevron-down text-slate-500 transition-transform group-open:rotate-180"></i>
+                    </summary>
+                    
+                    <div class="p-4 border-t border-slate-800/80 space-y-3">
+                        <div class="flex justify-end gap-2 text-[11px] font-bold pb-2">
+                            <button id="btnShowAllColumns" class="text-brand-400 hover:text-brand-300">Todas</button>
+                            <span class="text-slate-700">|</span>
+                            <button id="btnDefaultColumns" class="text-slate-400 hover:text-slate-200">Defecto</button>
+                        </div>
+
+                        <div id="columnsGrid" class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                            <!-- Dinámico -->
+                        </div>
+                    </div>
+                </details>
+
+                <!-- ══════════ ACORDEÓN: FORMATO DE IMPRESIÓN ══════════ -->
+                <details class="bg-slate-950/60 border border-slate-800 rounded-2xl group">
+                    <summary class="flex items-center justify-between p-4 cursor-pointer select-none hover:bg-slate-900/50 rounded-2xl transition">
+                        <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+                            <i class="fa-solid fa-text-height text-brand-400"></i>
+                            Formato de Impresión
+                        </h3>
+                        <i class="fa-solid fa-chevron-down text-slate-500 transition-transform group-open:rotate-180"></i>
+                    </summary>
+
+                    <div class="p-4 border-t border-slate-800/80 space-y-4">
+                        <div class="flex justify-end">
+                            <button id="btnResetPrintSettings" class="text-[11px] font-bold text-slate-400 hover:text-amber-400 transition-colors flex items-center gap-1.5 px-2.5 py-1 rounded-lg hover:bg-amber-500/10">
+                                <i class="fa-solid fa-arrow-rotate-left text-[10px]"></i>
+                                Restablecer todo
+                            </button>
+                        </div>
+
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">
+                                Preset rápido (ahorro de hojas)
+                            </label>
+                            <div class="grid grid-cols-3 gap-2">
+                                <button type="button" data-preset="normal" class="preset-btn px-2 py-2.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-brand-500 text-slate-300 text-[11px] font-bold rounded-lg transition-all flex flex-col items-center gap-1">
+                                    <i class="fa-solid fa-expand text-sm"></i> Normal
+                                </button>
+                                <button type="button" data-preset="compact" class="preset-btn px-2 py-2.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-brand-500 text-slate-300 text-[11px] font-bold rounded-lg transition-all flex flex-col items-center gap-1">
+                                    <i class="fa-solid fa-compress text-sm"></i> Compacto
+                                </button>
+                                <button type="button" data-preset="ultra" class="preset-btn px-2 py-2.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-brand-500 text-slate-300 text-[11px] font-bold rounded-lg transition-all flex flex-col items-center gap-1">
+                                    <i class="fa-solid fa-minimize text-sm"></i> Ultra
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Altura de fila</label>
+                                <select id="printRowHeight" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-brand-500 font-semibold cursor-pointer">
+                                    <option value="14">Mínima (14px)</option>
+                                    <option value="16">Muy compacta (16px)</option>
+                                    <option value="18">Compacta (18px)</option>
+                                    <option value="20">Reducida (20px)</option>
+                                    <option value="22">Ajustada (22px)</option>
+                                    <option value="26">Media (26px)</option>
+                                    <option value="28" selected>Normal (28px)</option>
+                                    <option value="34">Amplia (34px)</option>
+                                    <option value="42">Muy amplia (42px)</option>
+                                    <option value="52">Extra amplia (52px)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Tamaño de texto</label>
+                                <select id="printFontSize" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-brand-500 font-semibold cursor-pointer">
+                                    <option value="6">Mínimo (6pt)</option>
+                                    <option value="6.5">Muy pequeño (6.5pt)</option>
+                                    <option value="7">Pequeño (7pt)</option>
+                                    <option value="7.5">Reducido (7.5pt)</option>
+                                    <option value="8">Normal (8pt)</option>
+                                    <option value="8.5" selected>Estándar (8.5pt)</option>
+                                    <option value="9">Mediano (9pt)</option>
+                                    <option value="10">Grande (10pt)</option>
+                                    <option value="11">Extra grande (11pt)</option>
+                                    <option value="12">Muy grande (12pt)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Escala columnas fijas</label>
+                                <select id="printColScale" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-brand-500 font-semibold cursor-pointer">
+                                    <option value="70">Muy estrechas (70%)</option>
+                                    <option value="85">Estrechas (85%)</option>
+                                    <option value="100" selected>Normales (100%)</option>
+                                    <option value="115">Amplias (115%)</option>
+                                    <option value="130">Muy amplias (130%)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Ancho de Firma</label>
+                                <select id="printFirmaWidth" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-brand-500 font-semibold cursor-pointer">
+                                    <option value="110">Compacto (110px)</option>
+                                    <option value="140">Reducido (140px)</option>
+                                    <option value="180" selected>Normal (180px)</option>
+                                    <option value="220">Amplio (220px)</option>
+                                    <option value="280">Extra amplio (280px)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </details>
+
                 <div class="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-800">
                     <p class="text-xs text-slate-400">
                         <i class="fa-solid fa-building text-brand-400 mr-1.5"></i>
-                        Agencias a imprimir:
-                        <span id="countPrint" class="font-black text-white">0</span>
+                        Agencias a imprimir: <span id="countPrint" class="font-black text-white">0</span>
                     </p>
-                    <button id="btnPreviewRefresh"
-                        class="text-xs font-bold text-brand-400 hover:text-brand-300 flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-brand-500/10">
-                        <i class="fa-solid fa-rotate-right"></i> Refrescar vista previa
-                    </button>
+                    <div class="flex items-center gap-3">
+                        <span id="saveStatus" class="text-[10px] text-emerald-400 opacity-0 transition-opacity duration-300">Guardado</span>
+                        <button id="btnPreviewRefresh" class="text-xs font-bold text-brand-400 hover:text-brand-300 flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-brand-500/10">
+                            <i class="fa-solid fa-rotate-right"></i> Refrescar
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -1860,11 +1986,10 @@ ARCHIVO: imprimir.html
             <div id="printArea" class="rounded-2xl p-6 sm:p-10 shadow-2xl">
 
                 <!-- ENCABEZADO -->
-                <div style="border: 1px solid #999; border-radius: 6px; padding: 12px; margin-bottom: 12px;">
+                <div class="print-header-block">
                     <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;">
                         <div style="display: flex; align-items: center; gap: 12px;">
-                            <svg style="width: 32px; height: 42px; fill: #4f46e5;" viewBox="0 0 100 130"
-                                xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                            <svg style="width: 32px; height: 42px; fill: #4f46e5;" viewBox="0 0 100 130" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                                 <g>
                                     <rect x="0" y="0" width="18" height="130" rx="4" />
                                     <rect x="26" y="0" width="18" height="70" rx="4" />
@@ -1885,12 +2010,10 @@ ARCHIVO: imprimir.html
                         </div>
                     </div>
 
-                    <div style="margin-top: 12px; padding-top: 10px; border-top: 1px dashed #999;">
+                    <div class="header-inner">
                         <div style="font-size: 10.5pt; margin-bottom: 6px;">
                             <b>Nombre:</b>
-                            <span id="printNameDisplay"
-                                style="display: inline-block; min-width: 280px; border-bottom: 1px solid #000; padding: 0 6px 2px;">
-                            </span>
+                            <span id="printNameDisplay" style="display: inline-block; min-width: 280px; border-bottom: 1px solid #000; padding: 0 6px 2px;"></span>
                         </div>
                         <div style="font-size: 10pt;">
                             <b>Filtro aplicado:</b>
@@ -1902,35 +2025,26 @@ ARCHIVO: imprimir.html
                     </div>
                 </div>
 
-                <!-- TABLA -->
-                <table id="printTable" style="width: 100%; border-collapse: collapse; font-size: 9pt;">
-                    <thead style="background: #e5e7eb;">
-                        <tr>
-                            <th style="border: 1px solid #999; padding: 5px 6px; width: 30px; text-align: center;">#</th>
-                            <th style="border: 1px solid #999; padding: 5px 6px; width: 80px;">ID Real</th>
-                            <th style="border: 1px solid #999; padding: 5px 6px; width: 90px;">Zona</th>
-                            <th style="border: 1px solid #999; padding: 5px 6px;">Dirección</th>
-                            <th style="border: 1px solid #999; padding: 5px 6px; width: 180px; text-align: center;">Firma<br>Digitadora</th>
-                        </tr>
-                    </thead>
+                <!-- TABLA CON <tfoot> PARA EL PIE DE PÁGINA -->
+                <table id="printTable">
+                    <thead id="printTableHead"></thead>
                     <tbody id="printTableBody">
                         <tr>
-                            <!-- Cambiamos el colspan de 6 a 5 -->
-                            <td colspan="5" style="text-align: center; padding: 24px; color: #666;">
-                                Cargando agencias...
-                            </td>
+                            <td colspan="5" style="text-align: center; padding: 24px; color: #666;">Cargando agencias...</td>
                         </tr>
                     </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="100%" style="border: none !important; padding-top: 15px !important; text-align: center; font-size: 8pt; color: #666;">
+                                Generado por <b>Gesag Dev Pedro Garcia</b> · GesagPro © 2026
+                            </td>
+                        </tr>
+                    </tfoot>
                 </table>
 
             </div>
 
         </main>
-    </div>
-
-    <!-- FOOTER FIJO (se repite en cada página impresa) -->
-    <div class="print-footer">
-        Generado por <b>Gesag Dev Pedro Garcia</b> · GesagPro © 2026
     </div>
 
     <script type="module">
@@ -1957,7 +2071,20 @@ ARCHIVO: imprimir.html
         const btnPreviewRefresh = document.getElementById("btnPreviewRefresh");
         const printDateEl = document.getElementById("printDate");
         const printFilterDisplay = document.getElementById("printFilterDisplay");
+        const printTableHead = document.getElementById("printTableHead");
         const printTableBody = document.getElementById("printTableBody");
+        
+        const printRowHeight  = document.getElementById("printRowHeight");
+        const printFontSize   = document.getElementById("printFontSize");
+        const printColScale   = document.getElementById("printColScale");
+        const printFirmaWidth = document.getElementById("printFirmaWidth");
+        const btnResetPrintSettings = document.getElementById("btnResetPrintSettings");
+        const saveStatus = document.getElementById("saveStatus");
+
+        const columnsGrid = document.getElementById("columnsGrid");
+        const columnsCount = document.getElementById("columnsCount");
+        const btnShowAllColumns = document.getElementById("btnShowAllColumns");
+        const btnDefaultColumns = document.getElementById("btnDefaultColumns");
 
         // ────────────────────────────────────────────────
         // ESTADO
@@ -1965,9 +2092,40 @@ ARCHIVO: imprimir.html
         let allAgencies = [];
         let zonesList = [];
         let selectedZones = new Set();
+        let enabledColumns = new Set();
+
+        const PRINT_SETTINGS_KEY = "gesagpro.printSettings.v4";
+
+        const DEFAULTS = {
+            rowHeight: "28",
+            fontSize: "8.5",
+            colScale: "100",
+            firmaWidth: "180",
+            columns: ["num", "idReal", "zona", "direccion", "firma"]
+        };
+
+        const PRESETS = {
+            normal:  { rowHeight: "28", fontSize: "8.5", colScale: "100", firmaWidth: "180" },
+            compact: { rowHeight: "20", fontSize: "7.5", colScale: "95",  firmaWidth: "150" },
+            ultra:   { rowHeight: "14", fontSize: "6",   colScale: "85",  firmaWidth: "120" }
+        };
+
+        // Columnas actualizadas
+        const COLUMN_DEFS = {
+            num:           { label: "#",                     icon: "fa-hashtag",             width: "var(--print-col-num)",  align: "center" },
+            idReal:        { label: "ID Real",               icon: "fa-barcode",             width: "var(--print-col-id)",   align: "center" },
+            zona:          { label: "Zona",                  icon: "fa-map",                 width: "var(--print-col-zona)", align: "left" },
+            /* Dirección ahora ocupa el 100% del espacio sobrante */
+            direccion:     { label: "Dirección",             icon: "fa-location-dot",        width: "100%",                  align: "left" },
+            observaciones: { label: "Observaciones",         icon: "fa-pen-to-square",       width: "var(--print-col-obs)",  align: "left" },
+            personalizado: { label: "Personalizado",         icon: "fa-square-plus",         width: "var(--print-col-custom)",align: "left" },
+            firma:         { label: "Firma",   icon: "fa-signature",           width: "var(--print-firma-width)",align: "center" }
+        };
+
+        const COLUMN_ORDER = ["num", "idReal", "zona", "direccion", "observaciones", "personalizado", "firma"];
 
         // ────────────────────────────────────────────────
-        // AUTENTICACIÓN + PERMISOS
+        // AUTENTICACIÓN
         // ────────────────────────────────────────────────
         onAuthStateChanged(auth, async (user) => {
             if (!user) { window.location.replace("login.html"); return; }
@@ -1977,43 +2135,31 @@ ARCHIVO: imprimir.html
 
                 if (!userSnap.exists()) {
                     await Swal.fire("Cuenta no registrada", "Contacta al administrador.", "error");
-                    window.location.replace("login.html");
-                    return;
+                    window.location.replace("login.html"); return;
                 }
 
                 const profile = userSnap.data();
-
                 if (profile.enabled === false) {
                     await Swal.fire("Usuario inhabilitado", "Tu acceso ha sido revocado.", "warning");
-                    window.location.replace("login.html");
-                    return;
+                    window.location.replace("login.html"); return;
                 }
 
-                // ── Verificar permiso al módulo "imprimir" ──
                 const isAdmin = profile.role === "admin";
                 const modulos = Array.isArray(profile.modulos) ? profile.modulos : [];
-                const puedeImprimir = isAdmin || modulos.includes("imprimir");
-
-                if (!puedeImprimir) {
-                    await Swal.fire({
-                        icon: "error",
-                        title: "Acceso denegado",
-                        text: "No tienes permiso para acceder al módulo de impresión. Contacta al administrador.",
-                        confirmButtonText: "Aceptar"
-                    });
-                    window.location.replace("index.html");
-                    return;
+                if (!isAdmin && !modulos.includes("imprimir")) {
+                    await Swal.fire({ icon: "error", title: "Acceso denegado", text: "No tienes permiso para acceder al módulo de impresión.", confirmButtonText: "Aceptar" });
+                    window.location.replace("index.html"); return;
                 }
 
-                // ── OK: inicializar ──
                 printDateEl.textContent = new Date().toLocaleString("es-DO", {
-                    day: "2-digit", month: "long", year: "numeric",
-                    hour: "2-digit", minute: "2-digit"
+                    day: "2-digit", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit"
                 });
 
                 await loadAgencies();
                 buildZonesGrid();
                 bindEvents();
+                initPrintSettings();
+                renderColumnsGrid();
                 updatePreview();
 
             } catch (err) {
@@ -2024,7 +2170,7 @@ ARCHIVO: imprimir.html
         });
 
         // ────────────────────────────────────────────────
-        // CARGA DE AGENCIAS
+        // CARGA DE AGENCIAS (Mejorada la lectura de dirección)
         // ────────────────────────────────────────────────
         async function loadAgencies() {
             const snap = await getDocs(collection(db, "agencias"));
@@ -2034,57 +2180,42 @@ ARCHIVO: imprimir.html
             snap.forEach(docSnap => {
                 const data = docSnap.data();
                 const realId = data.idReal ?? data.idreal ?? data.codigo ?? null;
-                const lat = data.lat ?? data.latitud ?? null;
-                const lng = data.lng ?? data.longitud ?? null;
                 const zona = data.zona ? String(data.zona).toUpperCase().trim() : "SIN ZONA";
-
                 if (zona) zonesSet.add(zona);
 
+                // Aseguramos leer el campo aunque tenga variaciones (direccion, dirección, address)
+                const direccionRaw = data.direccion ?? data.dirección ?? data.address ?? "";
+                
                 allAgencies.push({
                     id: docSnap.id,
                     idReal: realId !== null ? String(realId) : "",
                     zona,
-                    direccion: String(data.direccion || "").trim(),
-                    lat: lat !== null ? Number(lat) : 0,
-                    lng: lng !== null ? Number(lng) : 0,
+                    direccion: String(direccionRaw).trim(),
                     enabled: data.enabled !== false
                 });
             });
 
-            allAgencies.sort((a, b) =>
-                a.idReal.localeCompare(b.idReal, undefined, { numeric: true })
-            );
-
+            allAgencies.sort((a, b) => a.idReal.localeCompare(b.idReal, undefined, { numeric: true }));
             zonesList = Array.from(zonesSet).sort();
         }
 
-        // ────────────────────────────────────────────────
-        // GRID DE ZONAS
-        // ────────────────────────────────────────────────
         function buildZonesGrid() {
             zonesGrid.innerHTML = "";
-
             if (zonesList.length === 0) {
-                zonesGrid.innerHTML = `<p class="col-span-full text-center text-xs text-slate-500 py-4">No hay zonas registradas.</p>`;
+                zonesGrid.innerHTML = `<p class="col-span-full text-center text-xs text-slate-500 py-4">No hay zonas.</p>`;
                 return;
             }
 
             zonesList.forEach(zone => {
                 const chip = document.createElement("label");
                 chip.className = "zone-chip";
-                chip.dataset.zone = zone;
-
+                
                 const cb = document.createElement("input");
                 cb.type = "checkbox";
                 cb.value = zone;
                 cb.addEventListener("change", () => {
-                    if (cb.checked) {
-                        selectedZones.add(zone);
-                        chip.classList.add("selected");
-                    } else {
-                        selectedZones.delete(zone);
-                        chip.classList.remove("selected");
-                    }
+                    if (cb.checked) { selectedZones.add(zone); chip.classList.add("selected"); }
+                    else { selectedZones.delete(zone); chip.classList.remove("selected"); }
                     updatePreview();
                 });
 
@@ -2095,11 +2226,55 @@ ARCHIVO: imprimir.html
                 count.className = "ml-auto text-[10px] font-mono text-slate-500";
                 count.textContent = `(${allAgencies.filter(a => a.zona === zone && a.enabled).length})`;
 
-                chip.appendChild(cb);
-                chip.appendChild(txt);
-                chip.appendChild(count);
+                chip.appendChild(cb); chip.appendChild(txt); chip.appendChild(count);
                 zonesGrid.appendChild(chip);
             });
+        }
+
+        function renderColumnsGrid() {
+            columnsGrid.innerHTML = "";
+
+            COLUMN_ORDER.forEach(key => {
+                const def = COLUMN_DEFS[key];
+                const label = document.createElement("label");
+                label.className = "col-chip";
+
+                const cb = document.createElement("input");
+                cb.type = "checkbox";
+                cb.dataset.col = key;
+                cb.checked = enabledColumns.has(key);
+
+                const icon = document.createElement("i");
+                icon.className = `fa-solid ${def.icon} text-[10px] text-brand-400 w-3.5 text-center shrink-0`;
+
+                const span = document.createElement("span");
+                span.className = "truncate";
+                span.innerHTML = def.label;
+
+                label.appendChild(cb); label.appendChild(icon); label.appendChild(span);
+
+                cb.addEventListener("change", () => {
+                    if (cb.checked) enabledColumns.add(key);
+                    else {
+                        if (enabledColumns.size <= 1) {
+                            cb.checked = true;
+                            Swal.fire({ toast: true, position: "top-end", icon: "warning", title: "Debe haber al menos 1 columna", showConfirmButton: false, timer: 1500 });
+                            return;
+                        }
+                        enabledColumns.delete(key);
+                    }
+                    updateColumnsCount();
+                    savePrintSettings();
+                    updatePreview();
+                });
+
+                columnsGrid.appendChild(label);
+            });
+            updateColumnsCount();
+        }
+
+        function updateColumnsCount() {
+            columnsCount.textContent = `${enabledColumns.size}/${COLUMN_ORDER.length}`;
         }
 
         // ────────────────────────────────────────────────
@@ -2112,31 +2287,21 @@ ARCHIVO: imprimir.html
                 updatePreview();
             }));
 
-            btnSelectAllZones.addEventListener("click", () => {
-                zonesList.forEach(z => selectedZones.add(z));
-                syncZoneCheckboxes();
-                updatePreview();
-            });
+            btnSelectAllZones.addEventListener("click", () => { zonesList.forEach(z => selectedZones.add(z)); syncZoneCheckboxes(); updatePreview(); });
+            btnClearZones.addEventListener("click", () => { selectedZones.clear(); syncZoneCheckboxes(); updatePreview(); });
 
-            btnClearZones.addEventListener("click", () => {
-                selectedZones.clear();
-                syncZoneCheckboxes();
-                updatePreview();
-            });
-
-            printNameInput.addEventListener("input", () => {
-                printNameDisplay.textContent = printNameInput.value.trim();
-            });
-
+            printNameInput.addEventListener("input", () => { printNameDisplay.textContent = printNameInput.value.trim(); });
             btnPreviewRefresh.addEventListener("click", updatePreview);
 
             btnPrint.addEventListener("click", () => {
                 if (getFilteredAgencies().length === 0) {
-                    Swal.fire("Sin datos", "No hay agencias para imprimir con los filtros seleccionados.", "warning");
-                    return;
+                    Swal.fire("Sin datos", "No hay agencias para imprimir.", "warning"); return;
                 }
                 window.print();
             });
+
+            btnShowAllColumns.addEventListener("click", () => { enabledColumns = new Set(COLUMN_ORDER); syncColumnCheckboxes(); savePrintSettings(); updatePreview(); });
+            btnDefaultColumns.addEventListener("click", () => { enabledColumns = new Set(DEFAULTS.columns); syncColumnCheckboxes(); savePrintSettings(); updatePreview(); });
         }
 
         function syncZoneCheckboxes() {
@@ -2147,77 +2312,191 @@ ARCHIVO: imprimir.html
             });
         }
 
-        // ────────────────────────────────────────────────
-        // FILTRO
-        // ────────────────────────────────────────────────
+        function syncColumnCheckboxes() {
+            columnsGrid.querySelectorAll('input[type="checkbox"]').forEach(cb => { cb.checked = enabledColumns.has(cb.dataset.col); });
+            updateColumnsCount();
+        }
+
         function getFilteredAgencies() {
-    const mode = document.querySelector('input[name="printMode"]:checked').value;
-    
-    // Filtrar SOLO las agencias activas
-    const activeAgencies = allAgencies.filter(a => a.enabled === true);
+            const mode = document.querySelector('input[name="printMode"]:checked').value;
+            const activeAgencies = allAgencies.filter(a => a.enabled === true);
+            if (mode === "all") return activeAgencies;
+            return activeAgencies.filter(a => selectedZones.has(a.zona));
+        }
 
-    if (mode === "all") return activeAgencies;
-    return activeAgencies.filter(a => selectedZones.has(a.zona));
-}
+        // ════════════════════════════════════════════════
+        // AJUSTES Y LOCALSTORAGE
+        // ════════════════════════════════════════════════
+        function initPrintSettings() {
+            try {
+                const saved = JSON.parse(localStorage.getItem(PRINT_SETTINGS_KEY) || "{}");
+                if (saved.rowHeight) printRowHeight.value = saved.rowHeight;
+                if (saved.fontSize) printFontSize.value = saved.fontSize;
+                if (saved.colScale) printColScale.value = saved.colScale;
+                if (saved.firmaWidth) printFirmaWidth.value = saved.firmaWidth;
+
+                if (Array.isArray(saved.columns) && saved.columns.length > 0) {
+                    const valid = saved.columns.filter(c => COLUMN_ORDER.includes(c));
+                    enabledColumns = new Set(valid.length > 0 ? valid : DEFAULTS.columns);
+                } else {
+                    enabledColumns = new Set(DEFAULTS.columns);
+                }
+            } catch (err) {
+                enabledColumns = new Set(DEFAULTS.columns);
+            }
+
+            applyPrintSettings();
+
+            [printRowHeight, printFontSize, printColScale, printFirmaWidth].forEach(el => {
+                el.addEventListener("change", () => { applyPrintSettings(); savePrintSettings(); updatePreview(); });
+            });
+
+            document.querySelectorAll(".preset-btn").forEach(btn => {
+                btn.addEventListener("click", () => {
+                    const conf = PRESETS[btn.dataset.preset];
+                    if (!conf) return;
+                    printRowHeight.value = conf.rowHeight;
+                    printFontSize.value = conf.fontSize;
+                    printColScale.value = conf.colScale;
+                    printFirmaWidth.value = conf.firmaWidth;
+                    applyPrintSettings(); savePrintSettings(); updatePreview();
+                });
+            });
+
+            btnResetPrintSettings.addEventListener("click", async () => {
+                const res = await Swal.fire({ title: "¿Restablecer todo?", text: "Tamaños y columnas volverán a por defecto.", icon: "question", showCancelButton: true, confirmButtonText: "Sí", cancelButtonText: "No", confirmButtonColor: "#6366f1", cancelButtonColor: "#475569" });
+                if (!res.isConfirmed) return;
+
+                printRowHeight.value = DEFAULTS.rowHeight;
+                printFontSize.value = DEFAULTS.fontSize;
+                printColScale.value = DEFAULTS.colScale;
+                printFirmaWidth.value = DEFAULTS.firmaWidth;
+                enabledColumns = new Set(DEFAULTS.columns);
+
+                applyPrintSettings(); syncColumnCheckboxes(); savePrintSettings(); updatePreview();
+            });
+        }
+
+        function applyPrintSettings() {
+            const rowHeight  = parseInt(printRowHeight.value, 10) || 28;
+            const fontSize   = parseFloat(printFontSize.value) || 8.5;
+            const colScale   = (parseInt(printColScale.value, 10) || 100) / 100;
+            const firmaWidth = parseInt(printFirmaWidth.value, 10) || 180;
+
+            let padY, lineHeight, density;
+            if (rowHeight <= 16) { padY = 1; lineHeight = 1.0; density = "ultra"; }
+            else if (rowHeight <= 22) { padY = 2; lineHeight = 1.1; density = "compact"; }
+            else if (rowHeight <= 32) { padY = 3; lineHeight = 1.2; density = "normal"; }
+            else { padY = 4; lineHeight = 1.3; density = "relaxed"; }
+
+            const sigHeight = Math.max(rowHeight - 2 * padY, 8);
+            const firmaFont = Math.max(fontSize * 0.82, 5.5);
+
+            const root = document.documentElement;
+            root.dataset.density = density;
+            root.style.setProperty("--print-row-height", rowHeight + "px");
+            root.style.setProperty("--print-font-size", fontSize + "pt");
+            root.style.setProperty("--print-firma-width", firmaWidth + "px");
+            root.style.setProperty("--print-sig-height", sigHeight + "px");
+            root.style.setProperty("--print-firma-font", firmaFont.toFixed(1) + "pt");
+            root.style.setProperty("--print-cell-pad-y", padY + "px");
+            root.style.setProperty("--print-cell-pad-x", Math.max(padY + 1, 3) + "px");
+            root.style.setProperty("--print-row-line-height", lineHeight);
+
+            root.style.setProperty("--print-col-num",  Math.round(30  * colScale) + "px");
+            root.style.setProperty("--print-col-id",   Math.round(80  * colScale) + "px");
+            root.style.setProperty("--print-col-zona", Math.round(90  * colScale) + "px");
+            root.style.setProperty("--print-col-obs",  Math.round(120 * colScale) + "px");
+            root.style.setProperty("--print-col-custom",Math.round(120 * colScale) + "px");
+        }
+
+        function savePrintSettings() {
+            const settings = {
+                rowHeight: printRowHeight.value,
+                fontSize: printFontSize.value,
+                colScale: printColScale.value,
+                firmaWidth: printFirmaWidth.value,
+                columns: Array.from(enabledColumns)
+            };
+            try {
+                localStorage.setItem(PRINT_SETTINGS_KEY, JSON.stringify(settings));
+                saveStatus.style.opacity = "1";
+                setTimeout(() => saveStatus.style.opacity = "0", 1500);
+            } catch (err) {}
+        }
 
         // ────────────────────────────────────────────────
-        // PREVIEW / RENDER
+        // PREVIEW
         // ────────────────────────────────────────────────
+        function getEnabledColumnKeys() { return COLUMN_ORDER.filter(key => enabledColumns.has(key)); }
+
         function updatePreview() {
-    const list = getFilteredAgencies();
-    countPrint.textContent = list.length;
-    printTotalDisplay.textContent = `${list.length} agencia${list.length === 1 ? "" : "s"}`;
+            const list = getFilteredAgencies();
+            const cols = getEnabledColumnKeys();
 
-    const mode = document.querySelector('input[name="printMode"]:checked').value;
-    if (mode === "all") {
-        printFilterDisplay.textContent = "Todas las agencias activas";
-    } else if (selectedZones.size === 0) {
-        printFilterDisplay.textContent = "Ninguna zona seleccionada";
-    } else {
-        printFilterDisplay.textContent = `${Array.from(selectedZones).sort().join(", ")}`;
-    }
+            countPrint.textContent = list.length;
+            printTotalDisplay.textContent = `${list.length} agencia${list.length === 1 ? "" : "s"}`;
 
-    printNameDisplay.textContent = printNameInput.value.trim();
-    printTableBody.innerHTML = "";
+            const mode = document.querySelector('input[name="printMode"]:checked').value;
+            printFilterDisplay.textContent = mode === "all" 
+                ? "Todas las agencias activas" 
+                : (selectedZones.size === 0 ? "Ninguna zona seleccionada" : Array.from(selectedZones).sort().join(", "));
 
-    if (list.length === 0) {
-        printTableBody.innerHTML = `
-            <tr>
-                <!-- Colspan ajustado a 5 columnas -->
-                <td colspan="5" style="text-align: center; padding: 30px; color: #888;">
-                    No hay agencias activas para mostrar con los filtros seleccionados.
-                </td>
-            </tr>`;
-        return;
-    }
+            printNameDisplay.textContent = printNameInput.value.trim();
 
-    list.forEach((agency, idx) => {
-        const tr = document.createElement("tr");
+            renderTableHeader(cols);
+            printTableBody.innerHTML = "";
 
-        tr.innerHTML = `
-            <td style="border: 1px solid #888; padding: 4px 6px; text-align: center; font-family: monospace;">${idx + 1}</td>
-            <td style="border: 1px solid #888; padding: 4px 6px; font-weight: 700;">${escapeHtml(agency.idReal || "—")}</td>
-            <td style="border: 1px solid #888; padding: 4px 6px;">${escapeHtml(agency.zona)}</td>
-            <td style="border: 1px solid #888; padding: 4px 6px;">${escapeHtml(agency.direccion || "—")}</td>
-            <!-- Columna de Firma Digitadora ampliada y con espacio para firmar -->
-            <td style="border: 1px solid #888; padding: 4px 6px; text-align: center; vertical-align: middle;">
-                <div style="height: 80px; display: flex; flex-direction: column; justify-content: space-between; align-items: center; padding: 5px 0;">
-                    <div style="flex-grow: 1;"></div>
-                    <div style="width: 90%; border-top: 1px dashed #666; font-size: 7.5pt; color: #888; padding-top: 2px;">Firma y Nº</div>
-                </div>
-            </td>
-        `;
-        printTableBody.appendChild(tr);
-    });
-}
-       
-        // ────────────────────────────────────────────────
-        // UTILIDADES
-        // ────────────────────────────────────────────────
-        function escapeHtml(str) {
-            return String(str ?? "").replace(/[&<>"']/g, (c) => ({
-                "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
-            }[c]));
+            if (list.length === 0) {
+                const td = document.createElement("td");
+                td.colSpan = cols.length || 1;
+                td.style = "text-align: center; padding: 30px; color: #888;";
+                td.textContent = "No hay agencias activas para mostrar.";
+                const tr = document.createElement("tr"); tr.appendChild(td); printTableBody.appendChild(tr);
+                return;
+            }
+
+            list.forEach((agency, idx) => {
+                const tr = document.createElement("tr");
+                cols.forEach(key => tr.appendChild(buildCell(key, agency, idx)));
+                printTableBody.appendChild(tr);
+            });
+        }
+
+        function renderTableHeader(cols) {
+            printTableHead.innerHTML = "";
+            const tr = document.createElement("tr");
+            cols.forEach(key => {
+                const def = COLUMN_DEFS[key];
+                const th = document.createElement("th");
+                th.style.width = def.width;
+                if (def.align === "center") th.style.textAlign = "center";
+                th.innerHTML = def.label;
+                tr.appendChild(th);
+            });
+            printTableHead.appendChild(tr);
+        }
+
+        function buildCell(key, agency, idx) {
+            const td = document.createElement("td");
+            switch (key) {
+                case "num": td.className = "cell-num"; td.textContent = idx + 1; break;
+                case "idReal": td.className = "cell-id"; td.textContent = agency.idReal || "—"; break;
+                case "zona": td.className = "cell-zona"; td.textContent = agency.zona; break;
+                case "direccion": 
+                    td.className = "cell-dir"; 
+                    // Si está vacío, ponemos un guion; si no, mostramos la dirección limpia
+                    td.textContent = agency.direccion ? agency.direccion : "—"; 
+                    break;
+                case "observaciones": td.className = "cell-obs"; td.textContent = ""; break;
+                case "personalizado": td.className = "cell-custom"; td.textContent = ""; break;
+                case "firma":
+                    td.className = "cell-firma";
+                    const box = document.createElement("div"); box.className = "firma-box";
+                    const line = document.createElement("div"); line.className = "firma-line"; line.textContent = "";
+                    box.appendChild(line); td.appendChild(box); break;
+            }
+            return td;
         }
     </script>
 </body>
@@ -2460,10 +2739,7 @@ ARCHIVO: index.html
         const activeBadge     = document.getElementById("activeBadge");
         const inactiveBadge   = document.getElementById("inactiveBadge");
         const loading         = document.getElementById("loading");
-        const btnLogout       = document.getElementById("btnLogout");
-        const userEmailSpan   = document.getElementById("userEmail");
-        const userRoleSpan    = document.getElementById("userRole");
-
+      
         // Modal editar
         const editModal       = document.getElementById("editModal");
         const editForm        = document.getElementById("editForm");
@@ -2527,7 +2803,6 @@ ARCHIVO: index.html
             }
 
             currentUser = user;
-            userEmailSpan.innerText = user.email;
 
             try {
                 const userSnap = await getDoc(doc(db, "users", user.uid));
@@ -2559,11 +2834,7 @@ ARCHIVO: index.html
                 }
 
                 isAdmin = userData.role === "admin";
-                userRoleSpan.innerText = isAdmin ? "Administrador" : "Visualizador";
-                userRoleSpan.className = isAdmin
-                    ? "text-[10px] font-bold text-indigo-400 uppercase tracking-wider"
-                    : "text-[10px] font-bold text-slate-500 uppercase tracking-wider";
-
+              
                 // Ocultar elementos solo-admin para viewers
                 if (!isAdmin) {
                     document.querySelectorAll("[data-admin-only]").forEach(el => el.remove());
@@ -2585,48 +2856,7 @@ ARCHIVO: index.html
                 window.location.replace("login.html");
             }
         });
-
-        // Logout
-        
-btnLogout.addEventListener("click", async () => {
-    const result = await Swal.fire({
-        title: "¿Cerrar sesión?",
-        text: "¿Seguro que deseas cerrar sesión?",
-        icon: "question",
-        showCancelButton: true,
-        confirmButtonColor: "#d33",
-        cancelButtonColor: "#6c757d",
-        confirmButtonText: "Sí, cerrar sesión",
-        cancelButtonText: "Cancelar",
-        reverseButtons: true
-    });
-
-    if (!result.isConfirmed) return;
-
-    try {
-        await signOut(auth);
-
-        await Swal.fire({
-            title: "¡Sesión cerrada!",
-            text: "Has cerrado sesión correctamente.",
-            icon: "success",
-            timer: 1200,
-            showConfirmButton: false,
-            allowOutsideClick: false
-        });
-
-        window.location.replace("login.html");
-    } catch (error) {
-        Swal.fire({
-            title: "Error",
-            text: "No se pudo cerrar la sesión. Inténtalo nuevamente.",
-            icon: "error",
-            confirmButtonText: "Aceptar"
-        });
-    }
-});
-
-
+    
         // ────────────────────────────────────────────────
         // CARGA DE AGENCIAS
         // ────────────────────────────────────────────────
@@ -4570,53 +4800,65 @@ ARCHIVO: reportes.html
         ];
 
         onAuthStateChanged(auth, async (user) => {
-            if (!user) {
-                window.location.replace("login.html");
-                return;
-            }
+    if (!user) {
+        window.location.replace("login.html");
+        return;
+    }
 
-            userEmailSpan.innerText = user.email;
+    userEmailSpan.innerText = user.email;
 
-            try {
-                const userSnap = await getDoc(doc(db, "users", user.uid));
-                if (!userSnap.exists()) {
-                    await Swal.fire("Cuenta no registrada", "Contacta al administrador.", "error");
-                    await signOut(auth);
-                    window.location.replace("login.html");
-                    return;
-                }
+    try {
+        const userSnap = await getDoc(doc(db, "users", user.uid));
+        if (!userSnap.exists()) {
+            await Swal.fire("Cuenta no registrada", "Contacta al administrador.", "error");
+            await signOut(auth);
+            window.location.replace("login.html");
+            return;
+        }
 
-                const userData = userSnap.data();
-                if (userData.enabled === false) {
-                    await Swal.fire("Usuario inhabilitado", "Tu acceso ha sido revocado.", "warning");
-                    await signOut(auth);
-                    window.location.replace("login.html");
-                    return;
-                }
+        const userData = userSnap.data();
+        if (userData.enabled === false) {
+            await Swal.fire("Usuario inhabilitado", "Tu acceso ha sido revocado.", "warning");
+            await signOut(auth);
+            window.location.replace("login.html");
+            return;
+        }
 
-                const isAdmin = userData.role === "admin";
-                userRoleSpan.innerText = isAdmin ? "Administrador" : "Visualizador";
-                userRoleSpan.className = isAdmin
-                    ? "text-[10px] font-bold text-indigo-400 uppercase tracking-wider"
-                    : "text-[10px] font-bold text-slate-500 uppercase tracking-wider";
-
-                if (!isAdmin) {
-                    document.querySelectorAll("[data-admin-only]").forEach(el => el.remove());
-                }
-
-                bootOverlay.classList.add("hidden");
-                mainContent.classList.remove("hidden");
-
-                await loadReportData();
-
-            } catch (err) {
-                console.error("Error al validar sesión:", err);
-                Swal.fire("Error", "No se pudieron verificar tus credenciales.", "error");
-                window.location.replace("login.html");
-            }
-        });
-
+        const isAdmin = userData.role === "admin";
+        const modulos = Array.isArray(userData.modulos) ? userData.modulos : [];
         
+        // 🔒 Validación para Reportes
+        if (!isAdmin && !modulos.includes("reportes")) {
+            await Swal.fire({
+                icon: "error",
+                title: "Acceso denegado",
+                text: "No tienes permiso para acceder al módulo de reportes.",
+                confirmButtonText: "Aceptar"
+            });
+            window.location.replace("index.html");
+            return;
+        }
+
+        userRoleSpan.innerText = isAdmin ? "Administrador" : "Visualizador";
+        userRoleSpan.className = isAdmin
+            ? "text-[10px] font-bold text-indigo-400 uppercase tracking-wider"
+            : "text-[10px] font-bold text-slate-500 uppercase tracking-wider";
+
+        if (!isAdmin) {
+            document.querySelectorAll("[data-admin-only]").forEach(el => el.remove());
+        }
+
+        bootOverlay.classList.add("hidden");
+        mainContent.classList.remove("hidden");
+
+        await loadReportData();
+
+    } catch (err) {
+        console.error("Error al validar sesión:", err);
+        Swal.fire("Error", "No se pudieron verificar tus credenciales.", "error");
+        window.location.replace("login.html");
+    }
+});
 btnLogout.addEventListener("click", async () => {
     const result = await Swal.fire({
         title: '¿Cerrar sesión?',
@@ -5015,6 +5257,7 @@ btnLogout.addEventListener("click", async () => {
 ================================================================================
 ARCHIVO: rutas.html
 ================================================================================
+
 
 <!DOCTYPE html>
 <html lang="es" class="h-full bg-slate-950">
@@ -5775,6 +6018,23 @@ ARCHIVO: rutas.html
                             </div>
                         </div>
 
+                        <div class="mb-4 rounded-2xl border border-sky-500/20 bg-sky-950/20 p-3 space-y-3" aria-live="polite">
+                            <div class="flex items-center justify-between gap-2">
+                                <span class="text-xs font-bold text-sky-200"><i class="fa fa-location-crosshairs mr-1"></i> GPS inteligente</span>
+                                <span id="smartGpsAccuracy" class="text-[11px] text-slate-400">Sin ubicación</span>
+                            </div>
+                            <p id="smartGpsNext" class="text-xs text-slate-300">Activa el GPS para ver la distancia a la siguiente agencia.</p>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button id="btnSmartReroute" disabled class="py-2.5 rounded-xl bg-sky-700 hover:bg-sky-600 disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs font-bold">
+                                    <i class="fa fa-arrows-rotate mr-1"></i> Reoptimizar pendientes
+                                </button>
+                                <button id="btnStopGps" class="py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold">
+                                    <i class="fa fa-location-dot mr-1"></i> Detener GPS
+                                </button>
+                            </div>
+                            <p class="text-[10px] text-slate-500">Se solicitará confirmación al llegar. El rastreo funciona mientras la página permanezca abierta y el navegador permita GPS.</p>
+                        </div>
+
                         <div id="routeStopsList" class="space-y-2"></div>
                     </div>
                 </div>
@@ -5876,7 +6136,13 @@ ARCHIVO: rutas.html
         }, 8000);
 
         const OSRM_BASE = "https://router.project-osrm.org";
-        const MAX_STOPS = 90;
+        // El servidor OSRM público es de demostración y no garantiza matrices grandes.
+        const MAX_STOPS = 25;
+        const OSRM_TIMEOUT_MS = 30000;
+        const GPS_MAX_ACCURACY_M = 75;
+        const GPS_ARRIVAL_RADIUS_M = 100;
+        const GPS_MAX_AGE_MS = 30000;
+        const GPS_TRAIL_MAX_POINTS = 600;
         const DEFAULT_CENTER = [18.7357, -70.1627];
 
         const bootOverlay      = document.getElementById("bootOverlay");
@@ -5934,6 +6200,10 @@ ARCHIVO: rutas.html
         const progressFill     = document.getElementById("progressFill");
         const btnMarkNext      = document.getElementById("btnMarkNext");
         const btnResetProgress = document.getElementById("btnResetProgress");
+        const btnSmartReroute = document.getElementById("btnSmartReroute");
+        const btnStopGps = document.getElementById("btnStopGps");
+        const smartGpsAccuracy = document.getElementById("smartGpsAccuracy");
+        const smartGpsNext = document.getElementById("smartGpsNext");
 
         const btnOpenGoogleMaps   = document.getElementById("btnOpenGoogleMaps");
         const btnShowDetails      = document.getElementById("btnShowDetails");
@@ -5965,6 +6235,12 @@ ARCHIVO: rutas.html
         let currentSheetState = "peek";
         let visitedStops = new Set();
         let watchId = null; // ID del rastreo en tiempo real
+        let isCalculating = false;
+        let controlsInitialized = false;
+        let latestGpsFix = null;
+        let arrivalCandidate = null;
+        let promptedArrivalKey = null;
+        let arrivalPromptOpen = false;
 
 
         btnLogout.addEventListener("click", async () => {
@@ -5984,57 +6260,73 @@ ARCHIVO: rutas.html
         });
 
         onAuthStateChanged(auth, async (user) => {
-            if (!user) {
-                window.location.replace("login.html");
-                return;
-            }
+    if (!user) {
+        window.location.replace("login.html");
+        return;
+    }
 
-            userEmailSpan.innerText = user.email;
+    userEmailSpan.innerText = user.email;
 
-            try {
-                const userSnap = await getDoc(doc(db, "users", user.uid));
-                if (!userSnap.exists()) {
-                    await Swal.fire("Cuenta no registrada", "Contacta al administrador.", "error");
-                    await signOut(auth);
-                    window.location.replace("login.html");
-                    return;
-                }
+    try {
+        const userSnap = await getDoc(doc(db, "users", user.uid));
+        if (!userSnap.exists()) {
+            await Swal.fire("Cuenta no registrada", "Contacta al administrador.", "error");
+            await signOut(auth);
+            window.location.replace("login.html");
+            return;
+        }
 
-                const userData = userSnap.data();
-                if (userData.enabled === false) {
-                    await Swal.fire("Usuario inhabilitado", "Tu acceso ha sido revocado.", "warning");
-                    await signOut(auth);
-                    window.location.replace("login.html");
-                    return;
-                }
+        const userData = userSnap.data();
+        if (userData.enabled === false) {
+            await Swal.fire("Usuario inhabilitado", "Tu acceso ha sido revocado.", "warning");
+            await signOut(auth);
+            window.location.replace("login.html");
+            return;
+        }
 
-                isAdmin = userData.role === "admin";
-                userRoleSpan.innerText = isAdmin ? "Administrador" : "Visualizador";
+        const isAdmin = userData.role === "admin";
+        const modulos = Array.isArray(userData.modulos) ? userData.modulos : [];
+        
+        // 🔒 VALIDACIÓN DE ACCESO AL MÓDULO DE RUTAS
+        if (!isAdmin && !modulos.includes("rutas")) {
+            await Swal.fire({
+                icon: "error",
+                title: "Acceso denegado",
+                text: "No tienes permiso para acceder al módulo de optimización de rutas.",
+                confirmButtonText: "Aceptar"
+            });
+            window.location.replace("index.html");
+            return;
+        }
 
-                if (!isAdmin) {
-                    document.querySelectorAll("[data-admin-only]").forEach(el => el.remove());
-                }
+        userRoleSpan.innerText = isAdmin ? "Administrador" : "Visualizador";
 
-                if (!mapInitialized) {
-                    initMap();
-                    mapInitialized = true;
-                }
+        if (!isAdmin) {
+            document.querySelectorAll("[data-admin-only]").forEach(el => el.remove());
+        }
 
-                setupBottomSheet();
-                setupSheetTabs();
-                setupProfileButtons();
-                setupStartModeButtons();
-                setupEventListeners();
+        if (!mapInitialized) {
+            initMap();
+            mapInitialized = true;
+        }
 
-                await loadAgencies();
-                bootOverlay.style.display = "none";
+        if (!controlsInitialized) {
+            setupBottomSheet();
+            setupSheetTabs();
+            setupProfileButtons();
+            setupStartModeButtons();
+            setupEventListeners();
+            controlsInitialized = true;
+        }
 
-            } catch (err) {
-                console.error("[boot] ❌ ERROR:", err);
-                window.location.replace("login.html");
-            }
-        });
+        await loadAgencies();
+        bootOverlay.style.display = "none";
 
+    } catch (err) {
+        console.error("[boot] ❌ ERROR:", err);
+        window.location.replace("login.html");
+    }
+});
         function initMap() {
             map = L.map("map", {
                 zoomControl: true,
@@ -6167,7 +6459,16 @@ ARCHIVO: rutas.html
         function setupProfileButtons() {
             const btns = document.querySelectorAll(".profile-btn");
             btns.forEach(btn => {
-                btn.addEventListener("click", () => {
+                btn.addEventListener("click", async () => {
+                    if (btn.dataset.profile !== "driving") {
+                        await Swal.fire({
+                            icon: "info",
+                            title: "Modo todavía no disponible",
+                            text: "El servidor OSRM configurado calcula rutas de conducción. Para caminar o ir en bicicleta necesitamos un servicio con perfiles específicos.",
+                            confirmButtonText: "Entendido"
+                        });
+                        return;
+                    }
                     btns.forEach(b => {
                         b.className = "profile-btn py-3 rounded-xl border transition-all flex flex-col items-center gap-1 border-slate-800 bg-slate-950 text-slate-400";
                     });
@@ -6228,6 +6529,8 @@ ARCHIVO: rutas.html
             btnSaveRoute.addEventListener("click", showSaveRouteModal);
             btnMarkNext.addEventListener("click", markNextStop);
             btnResetProgress.addEventListener("click", resetProgress);
+            btnSmartReroute.addEventListener("click", reroutePendingFromGps);
+            btnStopGps.addEventListener("click", stopGpsTracking);
 
             btnCloseStopsModal.addEventListener("click", () => stopsModal.classList.add("hidden"));
             stopsModal.addEventListener("click", (e) => { if (e.target === stopsModal) stopsModal.classList.add("hidden"); });
@@ -6244,6 +6547,11 @@ ARCHIVO: rutas.html
                     closeMenu();
                 }
             });
+            window.addEventListener('pagehide', () => {
+                if (watchId !== null && navigator.geolocation) navigator.geolocation.clearWatch(watchId);
+            });
+            document.addEventListener('visibilitychange', updateSmartGpsUI);
+            setInterval(updateSmartGpsUI, 10000);
         }
 
         // ════════════════════════════════════════════════════════
@@ -6251,22 +6559,99 @@ ARCHIVO: rutas.html
         // ════════════════════════════════════════════════════════
 
         function updateTravelTrail() {
-    if (!travelTrailLayer) return;
-    travelTrailLayer.clearLayers();
+            if (!travelTrailLayer) return;
+            travelTrailLayer.clearLayers();
+            if (travelHistory.length < 2) return;
+            travelTrailLayer.addLayer(L.polyline(travelHistory, {
+                color: '#22d3ee', weight: 5, opacity: 0.65,
+                lineCap: 'round', lineJoin: 'round'
+            }));
+        }
 
-    if (travelHistory.length < 2) return;
+        function getReliableGpsFix() {
+            return latestGpsFix &&
+                Date.now() - latestGpsFix.timestamp <= GPS_MAX_AGE_MS &&
+                latestGpsFix.accuracy <= GPS_MAX_ACCURACY_M
+                ? latestGpsFix : null;
+        }
 
-    // Estela más ancha y llamativa por donde vas pasando
-    const trailLine = L.polyline(travelHistory, {
-        color: '#00ffff',     // Color cian brillante o el que prefieras (#3b82f6 para azul)
-        weight: 10,           // Grosor ancho (mayor que la ruta principal que suele ser de 5)
-        opacity: 0.6,         // Semi-transparente para que luzca como una estela
-        lineCap: 'round',
-        lineJoin: 'round'
-    });
+        function updateSmartGpsUI() {
+            const fix = getReliableGpsFix();
+            const nextIndex = getNextPendingIndex();
+            btnSmartReroute.disabled = !fix || nextIndex < 1 || isCalculating;
+            if (!latestGpsFix) {
+                smartGpsAccuracy.textContent = 'Sin ubicación';
+                smartGpsNext.textContent = 'Activa el GPS para ver la próxima agencia.';
+                return;
+            }
+            smartGpsAccuracy.textContent = `Precisión ±${Math.round(latestGpsFix.accuracy)} m`;
+            if (!fix) {
+                smartGpsNext.textContent = 'Se necesita una posición reciente con precisión de 75 m o mejor.';
+                return;
+            }
+            if (nextIndex < 1) {
+                smartGpsNext.textContent = lastRoute ? 'No quedan agencias pendientes.' : 'Calcula una ruta para activar las alertas de llegada.';
+                return;
+            }
+            const point = lastRoute.points[nextIndex];
+            const distance = haversine(fix.lat, fix.lng, point.lat, point.lng) * 1000;
+            smartGpsNext.textContent = `Próxima: ${point.idReal || 'Agencia'} · ${formatDistance(distance)} en línea recta (aproximado).`;
+        }
 
-    travelTrailLayer.addLayer(trailLine);
-}
+        async function checkGpsArrival(fix) {
+            if (!lastRoute || arrivalPromptOpen || !getReliableGpsFix()) return;
+            const index = getNextPendingIndex();
+            if (index < 1) return;
+            const point = lastRoute.points[index];
+            const key = `${point.docId || point.idReal || index}:${index}`;
+            const distance = haversine(fix.lat, fix.lng, point.lat, point.lng) * 1000;
+            if (distance > GPS_ARRIVAL_RADIUS_M) {
+                arrivalCandidate = null;
+                return;
+            }
+            if (promptedArrivalKey === key) return;
+            if (arrivalCandidate !== key) {
+                arrivalCandidate = key;
+                return; // Dos posiciones consecutivas dentro del radio.
+            }
+
+            promptedArrivalKey = key;
+            arrivalPromptOpen = true;
+            try {
+                const answer = await Swal.fire({
+                    icon: 'question',
+                    title: '¿Llegaste a la agencia?',
+                    text: `${point.idReal || 'Agencia'} está aproximadamente a ${Math.round(distance)} metros de tu GPS. ¿Marcar como visitada?`,
+                    showCancelButton: true,
+                    confirmButtonText: 'Sí, visitada',
+                    cancelButtonText: 'Todavía no',
+                    confirmButtonColor: '#059669'
+                });
+                if (answer.isConfirmed && lastRoute?.points[index] === point && !visitedStops.has(index)) {
+                    toggleStopVisited(index);
+                }
+            } finally {
+                arrivalPromptOpen = false;
+                arrivalCandidate = null;
+            }
+        }
+
+        function stopGpsTracking() {
+            if (watchId !== null && navigator.geolocation) navigator.geolocation.clearWatch(watchId);
+            watchId = null;
+            latestGpsFix = null;
+            arrivalCandidate = null;
+            if (userLiveMarker && map) {
+                map.removeLayer(userLiveMarker);
+                userLiveMarker = null;
+            }
+            btnUseMyLocation.disabled = false;
+            btnUseMyLocationText.textContent = 'Usar mi ubicación actual';
+            geoStatus.textContent = 'GPS detenido';
+            geoStatus.className = 'text-xs text-slate-400 text-center';
+            updateSmartGpsUI();
+        }
+
         function useMyLocation() {
             if (!navigator.geolocation) {
                 geoStatus.textContent = "Tu navegador no soporta geolocalización.";
@@ -6280,19 +6665,28 @@ ARCHIVO: rutas.html
             geoStatus.className = "text-xs text-amber-400 text-center";
 
             // Limpiar watch anterior si ya existía
-            if (watchId !== null) {
-                navigator.geolocation.clearWatch(watchId);
-            }
+            if (watchId !== null) navigator.geolocation.clearWatch(watchId);
 
             watchId = navigator.geolocation.watchPosition(
                 (pos) => {
                     const lat = pos.coords.latitude;
                     const lng = pos.coords.longitude;
                     const liveLabel = "Mi ubicación actual (En vivo)";
-
-
-                    travelHistory.push([lat, lng]);
-                    updateTravelTrail();
+                    const accuracy = pos.coords.accuracy;
+                    if (!Number.isFinite(lat) || !Number.isFinite(lng) || !Number.isFinite(accuracy)) return;
+                    if (accuracy > GPS_MAX_ACCURACY_M) {
+                        smartGpsAccuracy.textContent = `GPS impreciso ±${Math.round(accuracy)} m`;
+                        return;
+                    }
+                    const fix = { lat, lng, accuracy, timestamp: pos.timestamp || Date.now() };
+                    if (Date.now() - fix.timestamp > GPS_MAX_AGE_MS) return;
+                    const previous = latestGpsFix;
+                    latestGpsFix = fix;
+                    if (!previous || haversine(previous.lat, previous.lng, lat, lng) * 1000 >= 8) {
+                        travelHistory.push([lat, lng]);
+                        if (travelHistory.length > GPS_TRAIL_MAX_POINTS) travelHistory.shift();
+                        updateTravelTrail();
+                    }
                     // 1. Si aún no hay un punto de partida definido, lo establecemos por primera vez
                     if (!startPoint) {
                         setStartPoint({ lat, lng, label: liveLabel }, true);
@@ -6305,6 +6699,8 @@ ARCHIVO: rutas.html
                     geoStatus.className = "text-xs text-emerald-400 text-center";
                     btnUseMyLocation.disabled = false;
                     btnUseMyLocationText.textContent = "Ubicación en vivo activa";
+                    updateSmartGpsUI();
+                    void checkGpsArrival(fix);
                 },
                 (err) => {
                     let msg = "No se pudo obtener la ubicación.";
@@ -6315,6 +6711,9 @@ ARCHIVO: rutas.html
                     geoStatus.className = "text-xs text-rose-400 text-center";
                     btnUseMyLocation.disabled = false;
                     btnUseMyLocationText.textContent = "Usar mi ubicación actual";
+                    stopGpsTracking();
+                    geoStatus.textContent = msg;
+                    geoStatus.className = "text-xs text-rose-400 text-center";
                 },
                 { enableHighAccuracy: true, timeout: 15000, maximumAge: 5000 }
             );
@@ -6382,6 +6781,8 @@ ARCHIVO: rutas.html
                 navigator.geolocation.clearWatch(watchId);
                 watchId = null;
             }
+            latestGpsFix = null;
+            updateSmartGpsUI();
             startPoint = null;
             startPointStatus.classList.add("hidden");
             routeLayer.clearLayers();
@@ -6561,7 +6962,7 @@ ARCHIVO: rutas.html
                 tabAgencyCount.classList.add("hidden");
             }
 
-            const canCalculate = count >= 2 && startPoint;
+            const canCalculate = count >= 2 && count <= MAX_STOPS && !!startPoint && !isCalculating;
             fabCalculate.disabled = !canCalculate;
             if (btnCalculateDesktop) {
                 btnCalculateDesktop.disabled = !canCalculate;
@@ -6580,62 +6981,70 @@ ARCHIVO: rutas.html
                 topBarStatus.textContent = `Selecciona 2+ agencias (${count})`;
                 return;
             }
+            if (count > MAX_STOPS) {
+                topBarStatus.textContent = `Máximo ${MAX_STOPS} agencias por ruta (${count} seleccionadas)`;
+                return;
+            }
             topBarStatus.textContent = `${count} paradas listas`;
         }
 
-        async function calculateRoute() {
-            if (!startPoint) {
+        async function calculateRoute(options = {}) {
+            if (isCalculating) return;
+            const rerouting = !!options.rerouting;
+            const calculationStart = options.startOverride || startPoint;
+            if (!calculationStart) {
                 Swal.fire("Falta el punto de partida", "Define desde dónde comenzar la ruta.", "warning");
                 return;
             }
 
-            const stopAgencies = allAgencies.filter(a => selectedIds.has(a.docId));
-            if (stopAgencies.length < 2) {
-                Swal.fire("Muy pocas paradas", "Selecciona al menos 2 agencias.", "warning");
+            const stopAgencies = options.stopsOverride || allAgencies.filter(a => selectedIds.has(a.docId));
+            if (stopAgencies.length < (rerouting ? 1 : 2)) {
+                Swal.fire("Muy pocas paradas", "Selecciona las agencias para calcular el recorrido.", "warning");
+                return;
+            }
+            if (stopAgencies.length > MAX_STOPS) {
+                Swal.fire("Demasiadas paradas", `Selecciona un máximo de ${MAX_STOPS} agencias por ruta.`, "warning");
                 return;
             }
 
             const profile = profileInput.value;
-            const roundTrip = roundTripCheck.checked;
+            const roundTrip = rerouting ? false : roundTripCheck.checked;
 
+            if (profile !== "driving") {
+                Swal.fire("Perfil no disponible", "El servicio de rutas configurado solo admite conducción.", "warning");
+                return;
+            }
+
+            isCalculating = true;
+            updateSelectionUI();
             calcOverlay.style.display = "flex";
             updateCalcStatus("Optimizando ruta...", "Consultando distancias reales");
 
             try {
                 const allPoints = [
-                    { lat: startPoint.lat, lng: startPoint.lng, type: "start", label: startPoint.label },
+                    { lat: calculationStart.lat, lng: calculationStart.lng, type: "start", label: calculationStart.label },
                     ...stopAgencies.map(a => ({ ...a, type: "stop" }))
                 ];
 
                 updateCalcStatus("Consultando distancias reales...", "OSRM Table API");
                 const matrix = await getDistanceMatrix(allPoints, profile);
-                if (!matrix) throw new Error("No se pudo obtener la matriz de distancias");
 
-                updateCalcStatus("Optimizando orden...", "Nearest Neighbor + 2-opt");
-                const order = solveTSP(matrix.distances, 0);
+                updateCalcStatus("Optimizando orden...", "Menor tiempo de viaje + mejora 2-opt");
+                const order = solveTSP(matrix.durations, 0, roundTrip);
                 const orderedPoints = order.map(idx => allPoints[idx]);
 
                 updateCalcStatus("Trazando carretera...", "OSRM Route API");
                 const routeGeometry = await getRouteGeometry(orderedPoints, profile, roundTrip);
 
-                const segments = [];
                 const pointsSeq = roundTrip ? [...orderedPoints, orderedPoints[0]] : orderedPoints;
-
-                for (let i = 0; i < pointsSeq.length - 1; i++) {
-                    const from = pointsSeq[i];
-                    const to = pointsSeq[i + 1];
-                    const d = haversine(from.lat, from.lng, to.lat, to.lng) * 1000;
-                    segments.push({ from, to, distance: d });
-                }
-
+                const segments = routeGeometry.legs.map((leg, i) => ({
+                    from: pointsSeq[i],
+                    to: pointsSeq[i + 1],
+                    distance: leg.distance,
+                    duration: leg.duration
+                }));
                 const totalDist = routeGeometry.distance;
                 const totalDur = routeGeometry.duration;
-
-                const sumSegments = segments.reduce((s, x) => s + x.distance, 0) || 1;
-                segments.forEach(s => {
-                    s.distance = (s.distance / sumSegments) * totalDist;
-                    s.duration = (s.distance / totalDist) * totalDur;
-                });
 
                 lastRoute = {
                     order,
@@ -6646,9 +7055,16 @@ ARCHIVO: rutas.html
                     totalDuration: totalDur,
                     profile,
                     roundTrip,
-                    startPoint
+                    startPoint: calculationStart
                 };
 
+                if (rerouting) {
+                    selectedIds = new Set(stopAgencies.map(a => a.docId));
+                    setStartPoint(calculationStart, false);
+                    renderAgencyList();
+                }
+                promptedArrivalKey = null;
+                arrivalCandidate = null;
                 renderRouteOnMap(lastRoute);
                 updateRoutePanel(lastRoute);
                 switchSheetTab("route");
@@ -6660,7 +7076,38 @@ ARCHIVO: rutas.html
                 Swal.fire("Error", "No se pudo calcular la ruta: " + err.message, "error");
             } finally {
                 calcOverlay.style.display = "none";
+                isCalculating = false;
+                updateSelectionUI();
+                updateSmartGpsUI();
             }
+        }
+
+        async function reroutePendingFromGps() {
+            const fix = getReliableGpsFix();
+            if (!fix) {
+                Swal.fire('GPS no disponible', 'Activa el GPS y espera una posición reciente con buena precisión.', 'warning');
+                return;
+            }
+            if (!lastRoute || isCalculating) return;
+            const remaining = lastRoute.points.slice(1).filter((point, index) => !visitedStops.has(index + 1));
+            if (!remaining.length) {
+                Swal.fire('Sin paradas pendientes', 'Todas las agencias ya están visitadas.', 'info');
+                return;
+            }
+            const confirmation = await Swal.fire({
+                title: 'Reoptimizar pendientes',
+                text: `Se calculará una nueva ruta para ${remaining.length} agencia(s) desde tu GPS. Las visitas completadas quedarán fuera del nuevo recorrido.`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Recalcular',
+                cancelButtonText: 'Cancelar'
+            });
+            if (!confirmation.isConfirmed) return;
+            await calculateRoute({
+                rerouting: true,
+                startOverride: { lat: fix.lat, lng: fix.lng, label: 'GPS al reoptimizar' },
+                stopsOverride: remaining
+            });
         }
 
         function updateCalcStatus(main, sub) {
@@ -6668,32 +7115,38 @@ ARCHIVO: rutas.html
             calcStatusSub.textContent = sub || "";
         }
 
+        async function fetchOSRM(url) {
+            const controller = new AbortController();
+            const timeout = setTimeout(() => controller.abort(), OSRM_TIMEOUT_MS);
+            try {
+                const response = await fetch(url, { signal: controller.signal });
+                if (!response.ok) throw new Error(`OSRM respondió HTTP ${response.status}`);
+                const data = await response.json();
+                if (data.code !== "Ok") throw new Error(data.message || data.code || "Respuesta inválida de OSRM");
+                return data;
+            } catch (error) {
+                if (error.name === "AbortError") throw new Error("OSRM tardó demasiado. Intenta con menos agencias.");
+                throw error;
+            } finally {
+                clearTimeout(timeout);
+            }
+        }
+
+        function validateMatrix(matrix, size) {
+            if (!Array.isArray(matrix) || matrix.length !== size ||
+                matrix.some(row => !Array.isArray(row) || row.length !== size ||
+                    row.some(value => !Number.isFinite(value) || value < 0))) {
+                throw new Error("No hay conexión por carretera entre todas las paradas. Revisa las coordenadas o reduce la selección.");
+            }
+        }
+
         async function getDistanceMatrix(points, profile = "driving") {
             const coordStr = points.map(p => `${p.lng},${p.lat}`).join(";");
             const url = `${OSRM_BASE}/table/v1/${profile}/${coordStr}?annotations=distance,duration`;
-
-            try {
-                const res = await fetch(url);
-                if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                const data = await res.json();
-                if (data.code !== "Ok") throw new Error(data.message || data.code);
-                return { distances: data.distances, durations: data.durations };
-            } catch (err) {
-                const n = points.length;
-                const dist = Array.from({ length: n }, () => Array(n).fill(0));
-                const dur = Array.from({ length: n }, () => Array(n).fill(0));
-                const SPEED_KMH = profile === "walking" ? 5 : profile === "cycling" ? 18 : 45;
-
-                for (let i = 0; i < n; i++) {
-                    for (let j = 0; j < n; j++) {
-                        if (i === j) continue;
-                        const d = haversine(points[i].lat, points[i].lng, points[j].lat, points[j].lng);
-                        dist[i][j] = d * 1000;
-                        dur[i][j] = (d / SPEED_KMH) * 3600;
-                    }
-                }
-                return { distances: dist, durations: dur };
-            }
+            const data = await fetchOSRM(url);
+            validateMatrix(data.distances, points.length);
+            validateMatrix(data.durations, points.length);
+            return { distances: data.distances, durations: data.durations };
         }
 
         async function getRouteGeometry(points, profile = "driving", roundTrip = false) {
@@ -6701,20 +7154,21 @@ ARCHIVO: rutas.html
             const coordStr = seq.map(p => `${p.lng},${p.lat}`).join(";");
             const url = `${OSRM_BASE}/route/v1/${profile}/${coordStr}?overview=full&geometries=geojson`;
 
-            const res = await fetch(url);
-            if (!res.ok) throw new Error(`OSRM HTTP ${res.status}`);
-            const data = await res.json();
-            if (data.code !== "Ok") throw new Error(data.message || data.code);
-
-            const route = data.routes[0];
+            const data = await fetchOSRM(url);
+            const route = data.routes?.[0];
+            if (!route || !Array.isArray(route.legs) || route.legs.length !== seq.length - 1 ||
+                !Number.isFinite(route.distance) || !Number.isFinite(route.duration)) {
+                throw new Error("OSRM devolvió una ruta incompleta. Intenta nuevamente.");
+            }
             return {
                 geometry: route.geometry,
                 distance: route.distance,
-                duration: route.duration
+                duration: route.duration,
+                legs: route.legs
             };
         }
 
-        function solveTSP(matrix, startIdx = 0) {
+        function solveTSP(matrix, startIdx = 0, roundTrip = false) {
             const n = matrix.length;
             if (n === 0) return [];
             if (n === 1) return [0];
@@ -6739,31 +7193,36 @@ ARCHIVO: rutas.html
                 current = bestIdx;
             }
 
-            return twoOpt(order, matrix);
+            return twoOpt(order, matrix, roundTrip);
         }
 
-        function twoOpt(order, matrix) {
+        function routeCost(order, matrix, roundTrip) {
+            let cost = 0;
+            for (let i = 1; i < order.length; i++) cost += matrix[order[i - 1]][order[i]];
+            if (roundTrip && order.length > 1) cost += matrix[order[order.length - 1]][order[0]];
+            return cost;
+        }
+
+        function twoOpt(order, matrix, roundTrip = false) {
             const n = order.length;
-            let improved = true;
             let best = [...order];
-            let iterations = 0;
-
-            while (improved && iterations < 200) {
-                improved = false;
-                iterations++;
-
+            let bestCost = routeCost(best, matrix, roundTrip);
+            // La matriz vial es dirigida: invertir un tramo cambia todos sus arcos.
+            // Comparar el costo completo evita aplicar la fórmula 2-opt simétrica.
+            for (let pass = 0; pass < 25; pass++) {
+                let improved = false;
                 for (let i = 1; i < n - 1; i++) {
                     for (let j = i + 1; j < n; j++) {
-                        const a = best[i - 1], b = best[i], c = best[j], d = j + 1 < n ? best[j + 1] : -1;
-                        const currentDist = matrix[a][b] + (d >= 0 ? matrix[c][d] : 0);
-                        const newDist = matrix[a][c] + (d >= 0 ? matrix[b][d] : 0);
-
-                        if (newDist < currentDist - 0.1) {
-                            best = [...best.slice(0, i), ...best.slice(i, j + 1).reverse(), ...best.slice(j + 1)];
+                        const candidate = [...best.slice(0, i), ...best.slice(i, j + 1).reverse(), ...best.slice(j + 1)];
+                        const candidateCost = routeCost(candidate, matrix, roundTrip);
+                        if (candidateCost < bestCost - 0.1) {
+                            best = candidate;
+                            bestCost = candidateCost;
                             improved = true;
                         }
                     }
                 }
+                if (!improved) break;
             }
             return best;
         }
@@ -6796,7 +7255,7 @@ ARCHIVO: rutas.html
                 });
 
                 L.marker([point.lat, point.lng], { icon, zIndexOffset: isStart ? 1000 : 0 })
-                    .bindPopup(`<strong>${isStart ? '🏁 Origen' : idx + '. ' + (point.idReal || '')}</strong><br>${escapeHtml(point.direccion || '')}`)
+                    .bindPopup(`<strong>${escapeHtml(isStart ? '🏁 Origen' : idx + '. ' + (point.idReal || ''))}</strong><br>${escapeHtml(point.direccion || '')}`)
                     .addTo(routeLayer);
             });
         }
@@ -6812,6 +7271,7 @@ ARCHIVO: rutas.html
             visitedStops.clear();
             renderStopsList();
             updateProgressUI();
+            updateSmartGpsUI();
         }
 
         function renderStopsList() {
@@ -6842,7 +7302,7 @@ ARCHIVO: rutas.html
                 const content = document.createElement("div");
                 content.className = "min-w-0 flex-1";
                 content.innerHTML = `
-                    <p class="stop-name text-xs font-bold text-slate-100 truncate">${isStart ? lastRoute.startPoint.label : (point.idReal || "Agencia")}</p>
+                    <p class="stop-name text-xs font-bold text-slate-100 truncate">${escapeHtml(isStart ? lastRoute.startPoint.label : (point.idReal || "Agencia"))}</p>
                     <p class="text-[11px] text-slate-400 truncate mt-0.5">${escapeHtml(point.direccion || 'Sin dirección')}</p>
                 `;
                 row.appendChild(content);
@@ -6875,6 +7335,8 @@ ARCHIVO: rutas.html
 
             renderStopsList();
             updateProgressUI();
+            arrivalCandidate = null;
+            updateSmartGpsUI();
         }
 
         function markNextStop() {
@@ -6884,8 +7346,11 @@ ARCHIVO: rutas.html
 
         function resetProgress() {
             visitedStops.clear();
+            promptedArrivalKey = null;
+            arrivalCandidate = null;
             renderStopsList();
             updateProgressUI();
+            updateSmartGpsUI();
         }
 
         function updateProgressUI() {
@@ -6916,11 +7381,16 @@ ARCHIVO: rutas.html
         // ════════════════════════════════════════════════════════
         function openInNavigationApps() {
             if (!lastRoute || lastRoute.points.length === 0) return;
-            const dest = lastRoute.points[lastRoute.points.length - 1];
+            const nextIndex = getNextPendingIndex();
+            if (nextIndex === -1) {
+                Swal.fire("Recorrido completado", "Todas las agencias fueron marcadas como visitadas.", "success");
+                return;
+            }
+            const dest = lastRoute.points[nextIndex];
 
             Swal.fire({
                 title: '¿Cómo deseas navegar?',
-                text: 'Selecciona tu aplicación favorita',
+                text: `Abrir navegación a la próxima parada (${nextIndex} de ${lastRoute.points.length - 1}).`,
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonText: '<i class="fa fa-map mr-1"></i> Google Maps',
@@ -6932,11 +7402,10 @@ ARCHIVO: rutas.html
                 reverseButtons: true
             }).then((res) => {
                 if (res.isConfirmed) {
-                    const origin = `${lastRoute.points[0].lat},${lastRoute.points[0].lng}`;
                     const destination = `${dest.lat},${dest.lng}`;
-                    window.open(`https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}&travelmode=${lastRoute.profile}`, '_blank');
+                    window.open(`https://www.google.com/maps/dir/?api=1&destination=${destination}&travelmode=driving`, '_blank', 'noopener,noreferrer');
                 } else if (res.dismiss === Swal.DismissReason.cancel) {
-                    window.open(`https://waze.com/ul?ll=${dest.lat},${dest.lng}&navigate=yes`, '_blank');
+                    window.open(`https://waze.com/ul?ll=${dest.lat},${dest.lng}&navigate=yes`, '_blank', 'noopener,noreferrer');
                 }
             });
         }
@@ -6983,6 +7452,8 @@ ARCHIVO: rutas.html
                     stops,
                     totalDistance: lastRoute.totalDistance,
                     totalDuration: lastRoute.totalDuration,
+                    profile: lastRoute.profile,
+                    roundTrip: lastRoute.roundTrip,
                     createdBy: auth.currentUser.uid,
                     createdAt: serverTimestamp()
                 });
@@ -7019,6 +7490,9 @@ ARCHIVO: rutas.html
     </script>
 </body>
 </html>
+
+
+
 
 
 ================================================================================
@@ -10104,203 +10578,243 @@ export function getCurrentModules() {
 ARCHIVO: js\sidebar.js
 ================================================================================
 
-// js/sidebar.js
-import { db, auth } from "./firebase/firebase.init.js";
-import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { auth, db } from "./firebase/firebase.init.js";
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+/**
+ * Inicializa la barra lateral dinámicamente y filtra los accesos según permisos
+ * @param {string} containerId - ID del contenedor HTML donde se montará el sidebar
+ */
 export function initSidebar(containerId = "sidebar-container") {
     const container = document.getElementById(containerId);
     if (!container) return;
 
-    // Detectar página actual para marcarla como activa automáticamente
-    const currentPath = window.location.pathname.split("/").pop() || "index.html";
-
-    const isActive = (page) => currentPath === page;
-
-    // Estilos para enlaces activos vs inactivos
-    const linkClass = (page) => isActive(page)
-        ? "flex items-center gap-3 px-3.5 py-2.5 rounded-xl bg-brand-600/10 text-brand-400 font-semibold text-xs border border-brand-500/20 shadow-sm transition-all"
-        : "flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 text-xs font-medium transition-all";
-
+    // Renderizado base de la estructura HTML del Sidebar
     container.innerHTML = `
-        <!-- BACKDROP MOBILE (sidebar) -->
-        <div id="mobileBackdrop" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-40 hidden lg:hidden"></div>
+        <!-- Overlay Móvil -->
+        <div id="sidebarBackdrop" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-40 hidden lg:hidden transition-opacity"></div>
 
-        <!-- SIDEBAR HTML -->
-        <aside id="sidebar" class="fixed lg:static inset-y-0 left-0 z-50 w-72 bg-slate-900/90 border-r border-slate-800/80 flex flex-col justify-between -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out backdrop-blur-xl shrink-0">
-            <div>
-                <div class="h-16 px-6 flex items-center justify-between border-b border-slate-800/80">
-                    <div class="flex items-center gap-3">
-                        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-600/20 to-indigo-500/20 border border-brand-500/30 flex items-center justify-center text-white shadow-lg shadow-brand-500/10">
-                            <svg class="w-5 h-6 text-brand-400 fill-current" viewBox="0 0 100 130" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                                <g>
-                                    <rect x="0" y="0" width="18" height="130" rx="4" />
-                                    <rect x="26" y="0" width="18" height="70" rx="4" />
-                                    <rect x="52" y="0" width="18" height="130" rx="4" />
-                                    <rect x="78" y="0" width="18" height="38" rx="4" />
-                                    <rect x="78" y="68" width="18" height="62" rx="4" />
-                                </g>
-                            </svg>
-                        </div>
-                        <div>
-                            <h1 class="font-bold text-sm tracking-wide text-white">Gesag<span class="text-brand-500">PRO</span></h1>
-                            <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Pedro Garcia 2026</p>
-                        </div>
+        <!-- Panel Lateral -->
+        <aside id="sidebar" class="fixed lg:static top-0 bottom-0 left-0 z-50 w-64 bg-slate-900 border-r border-slate-800/80 flex flex-col transition-transform duration-300 -translate-x-full lg:translate-x-0">
+            
+            <!-- Header Marca -->
+            <div class="h-16 px-5 flex items-center justify-between border-b border-slate-800/80 shrink-0">
+                <a href="index.html" class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400 font-black">
+                        G
                     </div>
-                    <button id="closeSidebarMobile" class="lg:hidden text-slate-400 hover:text-white text-lg" aria-label="Cerrar menú">
-                        <i class="fa fa-xmark"></i>
-                    </button>
-                </div>
-
-                <nav class="p-4 space-y-1.5 custom-scroll overflow-y-auto max-h-[calc(100vh-140px)]">
-                    <p class="px-3 pt-2 pb-1 text-[10px] font-bold uppercase tracking-widest text-slate-500">Menú Principal</p>
-
-                    <a href="index.html" class="${linkClass('index.html')}">
-                        <i class="fa fa-house w-4 text-center text-sm"></i>
-                        <span>Inicio</span>
-                    </a>
-                    <a href="mapa.html" class="${linkClass('mapa.html')}">
-                        <i class="fa fa-map-location-dot w-4 text-center text-sm"></i>
-                        <span>Mapa de Agencias</span>
-                    </a>
-                    <a href="rutas.html" class="${linkClass('rutas.html')}">
-                        <i class="fa fa-route w-4 text-center text-sm"></i>
-                        <span>Optimizador de Rutas</span>
-                    </a>
-                    <a href="cercana.html" class="${linkClass('cercana.html')}">
-                        <i class="fa fa-route w-4 text-center text-sm"></i>
-                        <span>Agencias cercana</span>
-                    </a>
-                    <a href="imprimir.html" class="${linkClass('imprimir.html')}">
-                        <i class="fa fa-route w-4 text-center text-sm"></i>
-                        <span>Imprimir</span>
-                    </a>
-                    <a href="zonas.html" data-admin-only class="${linkClass('zonas.html')}">
-                        <i class="fa fa-layer-group w-4 text-center text-sm"></i>
-                        <span>Gestión de Zonas</span>
-                    </a>
-                    <a href="sugerencias.html" data-admin-only class="${linkClass('sugerencias.html')}">
-                        <i class="fa fa-layer-group w-4 text-center text-sm"></i>
-                        <span>Sugerencias</span>
-                    </a>
-
-                    <p class="px-3 pt-4 pb-1 text-[10px] font-bold uppercase tracking-widest text-slate-500" data-admin-only>Administración</p>
-
-                    <a href="users.html" data-admin-only class="${linkClass('users.html')}">
-                        <i class="fa fa-users-gear w-4 text-center text-sm"></i>
-                        <span>Usuarios y Permisos</span>
-                    </a>
-                    <a href="reportes.html" class="${linkClass('reportes.html')}">
-                        <i class="fa fa-chart-pie w-4 text-center text-sm"></i>
-                        <span>Reportes</span>
-                    </a>
-                    <a href="configuracion.html" data-admin-only class="${linkClass('configuracion.html')}">
-                        <i class="fa fa-sliders w-4 text-center text-sm"></i>
-                        <span>Configuración</span>
-                    </a>
-                    
-                    <p class="px-3 pt-4 pb-1 text-[10px] font-bold uppercase tracking-widest text-slate-500">Sistema</p>
-                    <a href="acerca.html" class="${linkClass('acerca.html')}">
-                        <i class="fa fa-circle-info w-4 text-center text-sm"></i>
-                        <span>Acerca de</span>
-                    </a>
-                </nav>
+                    <div>
+                        <h1 class="text-sm font-extrabold text-white tracking-tight">Gesag<span class="text-indigo-500">PRO</span></h1>
+                        <p class="text-[9px] text-slate-400 uppercase tracking-widest font-mono">v3.2.1</p>
+                    </div>
+                </a>
+                <button id="closeSidebarMobile" class="lg:hidden text-slate-400 hover:text-white p-1" aria-label="Cerrar menú">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
             </div>
 
-            <div class="p-4 border-t border-slate-800/80 bg-slate-900/50">
-                <div class="flex items-center justify-between gap-2">
-                    <div class="flex items-center gap-2.5 min-w-0">
-                        <div class="w-8 h-8 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center text-brand-400 font-bold text-xs shrink-0">
-                            <i class="fa fa-user"></i>
-                        </div>
-                        <div class="min-w-0">
-                            <p id="userEmail" class="text-xs font-semibold text-slate-200 truncate">Cargando...</p>
-                            <p id="userRole" class="text-[10px] text-slate-500">Sesión Activa</p>
-                        </div>
+            <!-- Navegación Principal -->
+            <nav class="flex-1 overflow-y-auto p-3 space-y-1 custom-scroll">
+                <p class="px-3 text-[10px] font-black text-slate-500 uppercase tracking-wider my-2">Módulos</p>
+
+                <!-- Dashboard (Visible para todos los usuarios autenticados) -->
+                <a href="index.html" data-nav-link class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:bg-slate-800 hover:text-white transition-all">
+                    <i class="fa-solid fa-house text-slate-400 w-4 text-center"></i>
+                    <span>Inicio / Directorio</span>
+                </a>
+
+                <!-- Mapa Interactivo -->
+                <a href="mapa.html" data-module="mapa" data-nav-link class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:bg-slate-800 hover:text-white transition-all">
+                    <i class="fa-solid fa-map-location-dot text-slate-400 w-4 text-center"></i>
+                    <span>Mapa Interactivo</span>
+                </a>
+
+                <!-- Optimizador de Rutas -->
+                <a href="rutas.html" data-module="rutas" data-nav-link class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:bg-slate-800 hover:text-white transition-all">
+                    <i class="fa-solid fa-route text-slate-400 w-4 text-center"></i>
+                    <span>Optimizador de Rutas</span>
+                </a>
+
+                <!-- Agencias Cercanas GPS -->
+                <a href="cercana.html" data-module="cercana" data-nav-link class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:bg-slate-800 hover:text-white transition-all">
+                    <i class="fa-solid fa-location-arrow text-slate-400 w-4 text-center"></i>
+                    <span>Agencias Cercanas</span>
+                </a>
+
+                <!-- Generador de Impresión -->
+                <a href="imprimir.html" data-module="imprimir" data-nav-link class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:bg-slate-800 hover:text-white transition-all">
+                    <i class="fa-solid fa-print text-slate-400 w-4 text-center"></i>
+                    <span>Generador de Impresión</span>
+                </a>
+
+                <!-- Reportes y Analítica -->
+                <a href="reportes.html" data-module="reportes" data-nav-link class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:bg-slate-800 hover:text-white transition-all">
+                    <i class="fa-solid fa-chart-pie text-slate-400 w-4 text-center"></i>
+                    <span>Reportes y Analítica</span>
+                </a>
+
+                <p class="px-3 text-[10px] font-black text-slate-500 uppercase tracking-wider mt-5 mb-2">Administración</p>
+
+                <!-- Carga / Configuración (Solo Administradores) -->
+                <a href="configuracion.html" data-admin-only data-nav-link class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:bg-slate-800 hover:text-white transition-all">
+                    <i class="fa-solid fa-sliders text-slate-400 w-4 text-center"></i>
+                    <span>Carga / Configuración</span>
+                </a>
+
+                <!-- Sugerencias -->
+                <a href="sugerencias.html" data-nav-link class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:bg-slate-800 hover:text-white transition-all">
+                    <i class="fa-solid fa-lightbulb text-slate-400 w-4 text-center"></i>
+                    <span>Buzón de Ideas</span>
+                </a>
+
+                <!-- Acerca de -->
+                <a href="acerca.html" data-nav-link class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:bg-slate-800 hover:text-white transition-all">
+                    <i class="fa-solid fa-circle-info text-slate-400 w-4 text-center"></i>
+                    <span>Acerca de</span>
+                </a>
+            </nav>
+
+            <!-- Perfil del Usuario Autenticado -->
+            <div class="p-3 border-t border-slate-800/80 bg-slate-950/40 shrink-0 space-y-2">
+                <div class="flex items-center gap-3 px-2 py-1.5">
+                    <div class="w-8 h-8 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 shrink-0">
+                        <i class="fa-solid fa-user text-xs"></i>
                     </div>
-                    <button id="btnLogout" class="text-slate-400 hover:text-rose-400 p-2 rounded-lg hover:bg-rose-500/10 transition-colors" title="Cerrar Sesión" aria-label="Cerrar Sesión">
-                        <i class="fa fa-arrow-right-from-bracket"></i>
-                    </button>
+                    <div class="min-w-0 flex-1">
+                        <p id="sbUserEmail" class="text-xs font-bold text-slate-200 truncate">Cargando...</p>
+                        <p id="sbUserRole" class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">...</p>
+                    </div>
                 </div>
+
+                <button id="sbBtnLogout" class="w-full py-2 bg-slate-900 hover:bg-rose-500/10 hover:text-rose-400 text-slate-400 border border-slate-800 hover:border-rose-500/20 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    <span>Cerrar Sesión</span>
+                </button>
             </div>
+
         </aside>
     `;
 
-    // Conectar eventos del menú móvil y sesión de Firebase
-    bindSidebarEvents();
+    // Eventos UI del Menú Móvil
+    setupMobileEvents();
+
+    // Resaltar ruta activa actual
+    highlightActivePage();
+
+    // Verificación de sesión y filtrado por módulos
+    setupAuthenticationAndPermissions();
 }
 
-function bindSidebarEvents() {
+/**
+ * Eventos para abrir/cerrar sidebar en móviles
+ */
+function setupMobileEvents() {
     const sidebar = document.getElementById("sidebar");
-    const openSidebarMobile = document.getElementById("openSidebarMobile");
-    const closeSidebarMobile = document.getElementById("closeSidebarMobile");
-    const mobileBackdrop = document.getElementById("mobileBackdrop");
-    const userEmailSpan = document.getElementById("userEmail");
-    const userRoleSpan = document.getElementById("userRole");
-    const btnLogout = document.getElementById("btnLogout");
+    const backdrop = document.getElementById("sidebarBackdrop");
+    const closeBtn = document.getElementById("closeSidebarMobile");
+    const openBtn = document.getElementById("openSidebarMobile");
 
-    openSidebarMobile?.addEventListener("click", () => {
-        sidebar.classList.remove("-translate-x-full");
-        mobileBackdrop.classList.remove("hidden");
-    });
-    const closeSidebar = () => {
-        sidebar.classList.add("-translate-x-full");
-        mobileBackdrop.classList.add("hidden");
+    const toggle = (show) => {
+        if (!sidebar || !backdrop) return;
+        if (show) {
+            sidebar.classList.remove("-translate-x-full");
+            backdrop.classList.remove("hidden");
+        } else {
+            sidebar.classList.add("-translate-x-full");
+            backdrop.classList.add("hidden");
+        }
     };
-    closeSidebarMobile?.addEventListener("click", closeSidebar);
-    mobileBackdrop?.addEventListener("click", closeSidebar);
 
-    // Estado de autenticación y roles para el sidebar
+    if (openBtn) openBtn.addEventListener("click", () => toggle(true));
+    if (closeBtn) closeBtn.addEventListener("click", () => toggle(false));
+    if (backdrop) backdrop.addEventListener("click", () => toggle(false));
+}
+
+/**
+ * Resalta visualmente el enlace de la vista actual
+ */
+function highlightActivePage() {
+    const currentPath = window.location.pathname.split("/").pop() || "index.html";
+    const links = document.querySelectorAll("[data-nav-link]");
+
+    links.forEach(link => {
+        const href = link.getAttribute("href");
+        if (href === currentPath) {
+            link.classList.add("bg-indigo-600/15", "text-indigo-400", "border", "border-indigo-500/30");
+            link.classList.remove("text-slate-300");
+            const icon = link.querySelector("i");
+            if (icon) icon.classList.add("text-indigo-400");
+        }
+    });
+}
+
+/**
+ * Consulta la información del usuario autenticado y filtra las opciones del menú
+ */
+function setupAuthenticationAndPermissions() {
+    const userEmailSpan = document.getElementById("sbUserEmail");
+    const userRoleSpan = document.getElementById("sbUserRole");
+    const btnLogout = document.getElementById("sbBtnLogout");
+
     onAuthStateChanged(auth, async (user) => {
         if (!user) return;
-        userEmailSpan.innerText = user.email;
+
+        if (userEmailSpan) userEmailSpan.textContent = user.email;
+
         try {
             const userSnap = await getDoc(doc(db, "users", user.uid));
-            if (userSnap.exists()) {
-                const userData = userSnap.data();
-                const isAdmin = userData.role === "admin";
-                userRoleSpan.innerText = isAdmin ? "Administrador" : "Visualizador";
-                if (!isAdmin) {
-                    document.querySelectorAll("[data-admin-only]").forEach(el => el.remove());
-                }
+            if (!userSnap.exists()) return;
+
+            const userData = userSnap.data();
+            const isAdmin = userData.role === "admin";
+            const userModules = Array.isArray(userData.modulos) ? userData.modulos : [];
+
+            if (userRoleSpan) {
+                userRoleSpan.textContent = isAdmin ? "Administrador" : "Visualizador";
+                userRoleSpan.className = isAdmin 
+                    ? "text-[10px] font-bold text-indigo-400 uppercase tracking-wider"
+                    : "text-[10px] font-bold text-slate-500 uppercase tracking-wider";
             }
-        } catch (err) {
-            console.error("Error cargando rol en sidebar:", err);
-        }
-    });
 
-    // Evento de cierre de sesión unificado
-    btnLogout.addEventListener("click", async () => {
-        const result = await Swal.fire({
-            title: "¿Cerrar sesión?",
-            text: "¿Seguro que deseas cerrar sesión?",
-            icon: "question",
-            showCancelButton: true,
-            confirmButtonColor: "#d33",
-            cancelButtonColor: "#6c757d",
-            confirmButtonText: "Sí, cerrar sesión",
-            cancelButtonText: "Cancelar",
-            reverseButtons: true
-        });
+            // Ocultar enlaces de administración
+            if (!isAdmin) {
+                document.querySelectorAll("[data-admin-only]").forEach(el => el.remove());
+            }
 
-        if (!result.isConfirmed) return;
-
-        try {
-            await signOut(auth);
-            await Swal.fire({
-                title: "¡Sesión cerrada!",
-                text: "Has cerrado sesión correctamente.",
-                icon: "success",
-                timer: 1200,
-                showConfirmButton: false,
-                allowOutsideClick: false
+            // Ocultar enlaces de módulos sin permiso explícito
+            document.querySelectorAll("[data-module]").forEach(el => {
+                const moduleName = el.getAttribute("data-module");
+                if (!isAdmin && !userModules.includes(moduleName)) {
+                    el.remove();
+                }
             });
-            window.location.replace("login.html");
-        } catch (error) {
-            Swal.fire("Error", "No se pudo cerrar la sesión.", "error");
+
+        } catch (err) {
+            console.error("[Sidebar] Error al verificar permisos:", err);
         }
     });
+
+    // Acción de Cierre de Sesión desde la barra lateral
+    if (btnLogout) {
+        btnLogout.addEventListener("click", async () => {
+            const res = await Swal.fire({
+                title: "¿Cerrar sesión?",
+                text: "¿Deseas salir del sistema?",
+                icon: "question",
+                showCancelButton: true,
+                confirmButtonText: "Sí, salir",
+                cancelButtonText: "Cancelar",
+                confirmButtonColor: "#dc2626",
+                cancelButtonColor: "#475569"
+            });
+
+            if (res.isConfirmed) {
+                await signOut(auth);
+                window.location.replace("login.html");
+            }
+        });
+    }
 }
 
 

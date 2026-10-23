@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es" class="h-full bg-slate-950">
 
@@ -757,6 +758,23 @@
                             </div>
                         </div>
 
+                        <div class="mb-4 rounded-2xl border border-sky-500/20 bg-sky-950/20 p-3 space-y-3" aria-live="polite">
+                            <div class="flex items-center justify-between gap-2">
+                                <span class="text-xs font-bold text-sky-200"><i class="fa fa-location-crosshairs mr-1"></i> GPS inteligente</span>
+                                <span id="smartGpsAccuracy" class="text-[11px] text-slate-400">Sin ubicación</span>
+                            </div>
+                            <p id="smartGpsNext" class="text-xs text-slate-300">Activa el GPS para ver la distancia a la siguiente agencia.</p>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button id="btnSmartReroute" disabled class="py-2.5 rounded-xl bg-sky-700 hover:bg-sky-600 disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs font-bold">
+                                    <i class="fa fa-arrows-rotate mr-1"></i> Reoptimizar pendientes
+                                </button>
+                                <button id="btnStopGps" class="py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold">
+                                    <i class="fa fa-location-dot mr-1"></i> Detener GPS
+                                </button>
+                            </div>
+                            <p class="text-[10px] text-slate-500">Se solicitará confirmación al llegar. El rastreo funciona mientras la página permanezca abierta y el navegador permita GPS.</p>
+                        </div>
+
                         <div id="routeStopsList" class="space-y-2"></div>
                     </div>
                 </div>
@@ -858,7 +876,13 @@
         }, 8000);
 
         const OSRM_BASE = "https://router.project-osrm.org";
-        const MAX_STOPS = 90;
+        // El servidor OSRM público es de demostración y no garantiza matrices grandes.
+        const MAX_STOPS = 25;
+        const OSRM_TIMEOUT_MS = 30000;
+        const GPS_MAX_ACCURACY_M = 75;
+        const GPS_ARRIVAL_RADIUS_M = 100;
+        const GPS_MAX_AGE_MS = 30000;
+        const GPS_TRAIL_MAX_POINTS = 600;
         const DEFAULT_CENTER = [18.7357, -70.1627];
 
         const bootOverlay      = document.getElementById("bootOverlay");
@@ -916,6 +940,10 @@
         const progressFill     = document.getElementById("progressFill");
         const btnMarkNext      = document.getElementById("btnMarkNext");
         const btnResetProgress = document.getElementById("btnResetProgress");
+        const btnSmartReroute = document.getElementById("btnSmartReroute");
+        const btnStopGps = document.getElementById("btnStopGps");
+        const smartGpsAccuracy = document.getElementById("smartGpsAccuracy");
+        const smartGpsNext = document.getElementById("smartGpsNext");
 
         const btnOpenGoogleMaps   = document.getElementById("btnOpenGoogleMaps");
         const btnShowDetails      = document.getElementById("btnShowDetails");
@@ -947,6 +975,12 @@
         let currentSheetState = "peek";
         let visitedStops = new Set();
         let watchId = null; // ID del rastreo en tiempo real
+        let isCalculating = false;
+        let controlsInitialized = false;
+        let latestGpsFix = null;
+        let arrivalCandidate = null;
+        let promptedArrivalKey = null;
+        let arrivalPromptOpen = false;
 
 
         btnLogout.addEventListener("click", async () => {
@@ -966,57 +1000,73 @@
         });
 
         onAuthStateChanged(auth, async (user) => {
-            if (!user) {
-                window.location.replace("login.html");
-                return;
-            }
+    if (!user) {
+        window.location.replace("login.html");
+        return;
+    }
 
-            userEmailSpan.innerText = user.email;
+    userEmailSpan.innerText = user.email;
 
-            try {
-                const userSnap = await getDoc(doc(db, "users", user.uid));
-                if (!userSnap.exists()) {
-                    await Swal.fire("Cuenta no registrada", "Contacta al administrador.", "error");
-                    await signOut(auth);
-                    window.location.replace("login.html");
-                    return;
-                }
+    try {
+        const userSnap = await getDoc(doc(db, "users", user.uid));
+        if (!userSnap.exists()) {
+            await Swal.fire("Cuenta no registrada", "Contacta al administrador.", "error");
+            await signOut(auth);
+            window.location.replace("login.html");
+            return;
+        }
 
-                const userData = userSnap.data();
-                if (userData.enabled === false) {
-                    await Swal.fire("Usuario inhabilitado", "Tu acceso ha sido revocado.", "warning");
-                    await signOut(auth);
-                    window.location.replace("login.html");
-                    return;
-                }
+        const userData = userSnap.data();
+        if (userData.enabled === false) {
+            await Swal.fire("Usuario inhabilitado", "Tu acceso ha sido revocado.", "warning");
+            await signOut(auth);
+            window.location.replace("login.html");
+            return;
+        }
 
-                isAdmin = userData.role === "admin";
-                userRoleSpan.innerText = isAdmin ? "Administrador" : "Visualizador";
+        const isAdmin = userData.role === "admin";
+        const modulos = Array.isArray(userData.modulos) ? userData.modulos : [];
+        
+        // 🔒 VALIDACIÓN DE ACCESO AL MÓDULO DE RUTAS
+        if (!isAdmin && !modulos.includes("rutas")) {
+            await Swal.fire({
+                icon: "error",
+                title: "Acceso denegado",
+                text: "No tienes permiso para acceder al módulo de optimización de rutas.",
+                confirmButtonText: "Aceptar"
+            });
+            window.location.replace("index.html");
+            return;
+        }
 
-                if (!isAdmin) {
-                    document.querySelectorAll("[data-admin-only]").forEach(el => el.remove());
-                }
+        userRoleSpan.innerText = isAdmin ? "Administrador" : "Visualizador";
 
-                if (!mapInitialized) {
-                    initMap();
-                    mapInitialized = true;
-                }
+        if (!isAdmin) {
+            document.querySelectorAll("[data-admin-only]").forEach(el => el.remove());
+        }
 
-                setupBottomSheet();
-                setupSheetTabs();
-                setupProfileButtons();
-                setupStartModeButtons();
-                setupEventListeners();
+        if (!mapInitialized) {
+            initMap();
+            mapInitialized = true;
+        }
 
-                await loadAgencies();
-                bootOverlay.style.display = "none";
+        if (!controlsInitialized) {
+            setupBottomSheet();
+            setupSheetTabs();
+            setupProfileButtons();
+            setupStartModeButtons();
+            setupEventListeners();
+            controlsInitialized = true;
+        }
 
-            } catch (err) {
-                console.error("[boot] ❌ ERROR:", err);
-                window.location.replace("login.html");
-            }
-        });
+        await loadAgencies();
+        bootOverlay.style.display = "none";
 
+    } catch (err) {
+        console.error("[boot] ❌ ERROR:", err);
+        window.location.replace("login.html");
+    }
+});
         function initMap() {
             map = L.map("map", {
                 zoomControl: true,
@@ -1149,7 +1199,16 @@
         function setupProfileButtons() {
             const btns = document.querySelectorAll(".profile-btn");
             btns.forEach(btn => {
-                btn.addEventListener("click", () => {
+                btn.addEventListener("click", async () => {
+                    if (btn.dataset.profile !== "driving") {
+                        await Swal.fire({
+                            icon: "info",
+                            title: "Modo todavía no disponible",
+                            text: "El servidor OSRM configurado calcula rutas de conducción. Para caminar o ir en bicicleta necesitamos un servicio con perfiles específicos.",
+                            confirmButtonText: "Entendido"
+                        });
+                        return;
+                    }
                     btns.forEach(b => {
                         b.className = "profile-btn py-3 rounded-xl border transition-all flex flex-col items-center gap-1 border-slate-800 bg-slate-950 text-slate-400";
                     });
@@ -1210,6 +1269,8 @@
             btnSaveRoute.addEventListener("click", showSaveRouteModal);
             btnMarkNext.addEventListener("click", markNextStop);
             btnResetProgress.addEventListener("click", resetProgress);
+            btnSmartReroute.addEventListener("click", reroutePendingFromGps);
+            btnStopGps.addEventListener("click", stopGpsTracking);
 
             btnCloseStopsModal.addEventListener("click", () => stopsModal.classList.add("hidden"));
             stopsModal.addEventListener("click", (e) => { if (e.target === stopsModal) stopsModal.classList.add("hidden"); });
@@ -1226,6 +1287,11 @@
                     closeMenu();
                 }
             });
+            window.addEventListener('pagehide', () => {
+                if (watchId !== null && navigator.geolocation) navigator.geolocation.clearWatch(watchId);
+            });
+            document.addEventListener('visibilitychange', updateSmartGpsUI);
+            setInterval(updateSmartGpsUI, 10000);
         }
 
         // ════════════════════════════════════════════════════════
@@ -1233,22 +1299,99 @@
         // ════════════════════════════════════════════════════════
 
         function updateTravelTrail() {
-    if (!travelTrailLayer) return;
-    travelTrailLayer.clearLayers();
+            if (!travelTrailLayer) return;
+            travelTrailLayer.clearLayers();
+            if (travelHistory.length < 2) return;
+            travelTrailLayer.addLayer(L.polyline(travelHistory, {
+                color: '#22d3ee', weight: 5, opacity: 0.65,
+                lineCap: 'round', lineJoin: 'round'
+            }));
+        }
 
-    if (travelHistory.length < 2) return;
+        function getReliableGpsFix() {
+            return latestGpsFix &&
+                Date.now() - latestGpsFix.timestamp <= GPS_MAX_AGE_MS &&
+                latestGpsFix.accuracy <= GPS_MAX_ACCURACY_M
+                ? latestGpsFix : null;
+        }
 
-    // Estela más ancha y llamativa por donde vas pasando
-    const trailLine = L.polyline(travelHistory, {
-        color: '#00ffff',     // Color cian brillante o el que prefieras (#3b82f6 para azul)
-        weight: 10,           // Grosor ancho (mayor que la ruta principal que suele ser de 5)
-        opacity: 0.6,         // Semi-transparente para que luzca como una estela
-        lineCap: 'round',
-        lineJoin: 'round'
-    });
+        function updateSmartGpsUI() {
+            const fix = getReliableGpsFix();
+            const nextIndex = getNextPendingIndex();
+            btnSmartReroute.disabled = !fix || nextIndex < 1 || isCalculating;
+            if (!latestGpsFix) {
+                smartGpsAccuracy.textContent = 'Sin ubicación';
+                smartGpsNext.textContent = 'Activa el GPS para ver la próxima agencia.';
+                return;
+            }
+            smartGpsAccuracy.textContent = `Precisión ±${Math.round(latestGpsFix.accuracy)} m`;
+            if (!fix) {
+                smartGpsNext.textContent = 'Se necesita una posición reciente con precisión de 75 m o mejor.';
+                return;
+            }
+            if (nextIndex < 1) {
+                smartGpsNext.textContent = lastRoute ? 'No quedan agencias pendientes.' : 'Calcula una ruta para activar las alertas de llegada.';
+                return;
+            }
+            const point = lastRoute.points[nextIndex];
+            const distance = haversine(fix.lat, fix.lng, point.lat, point.lng) * 1000;
+            smartGpsNext.textContent = `Próxima: ${point.idReal || 'Agencia'} · ${formatDistance(distance)} en línea recta (aproximado).`;
+        }
 
-    travelTrailLayer.addLayer(trailLine);
-}
+        async function checkGpsArrival(fix) {
+            if (!lastRoute || arrivalPromptOpen || !getReliableGpsFix()) return;
+            const index = getNextPendingIndex();
+            if (index < 1) return;
+            const point = lastRoute.points[index];
+            const key = `${point.docId || point.idReal || index}:${index}`;
+            const distance = haversine(fix.lat, fix.lng, point.lat, point.lng) * 1000;
+            if (distance > GPS_ARRIVAL_RADIUS_M) {
+                arrivalCandidate = null;
+                return;
+            }
+            if (promptedArrivalKey === key) return;
+            if (arrivalCandidate !== key) {
+                arrivalCandidate = key;
+                return; // Dos posiciones consecutivas dentro del radio.
+            }
+
+            promptedArrivalKey = key;
+            arrivalPromptOpen = true;
+            try {
+                const answer = await Swal.fire({
+                    icon: 'question',
+                    title: '¿Llegaste a la agencia?',
+                    text: `${point.idReal || 'Agencia'} está aproximadamente a ${Math.round(distance)} metros de tu GPS. ¿Marcar como visitada?`,
+                    showCancelButton: true,
+                    confirmButtonText: 'Sí, visitada',
+                    cancelButtonText: 'Todavía no',
+                    confirmButtonColor: '#059669'
+                });
+                if (answer.isConfirmed && lastRoute?.points[index] === point && !visitedStops.has(index)) {
+                    toggleStopVisited(index);
+                }
+            } finally {
+                arrivalPromptOpen = false;
+                arrivalCandidate = null;
+            }
+        }
+
+        function stopGpsTracking() {
+            if (watchId !== null && navigator.geolocation) navigator.geolocation.clearWatch(watchId);
+            watchId = null;
+            latestGpsFix = null;
+            arrivalCandidate = null;
+            if (userLiveMarker && map) {
+                map.removeLayer(userLiveMarker);
+                userLiveMarker = null;
+            }
+            btnUseMyLocation.disabled = false;
+            btnUseMyLocationText.textContent = 'Usar mi ubicación actual';
+            geoStatus.textContent = 'GPS detenido';
+            geoStatus.className = 'text-xs text-slate-400 text-center';
+            updateSmartGpsUI();
+        }
+
         function useMyLocation() {
             if (!navigator.geolocation) {
                 geoStatus.textContent = "Tu navegador no soporta geolocalización.";
@@ -1262,19 +1405,28 @@
             geoStatus.className = "text-xs text-amber-400 text-center";
 
             // Limpiar watch anterior si ya existía
-            if (watchId !== null) {
-                navigator.geolocation.clearWatch(watchId);
-            }
+            if (watchId !== null) navigator.geolocation.clearWatch(watchId);
 
             watchId = navigator.geolocation.watchPosition(
                 (pos) => {
                     const lat = pos.coords.latitude;
                     const lng = pos.coords.longitude;
                     const liveLabel = "Mi ubicación actual (En vivo)";
-
-
-                    travelHistory.push([lat, lng]);
-                    updateTravelTrail();
+                    const accuracy = pos.coords.accuracy;
+                    if (!Number.isFinite(lat) || !Number.isFinite(lng) || !Number.isFinite(accuracy)) return;
+                    if (accuracy > GPS_MAX_ACCURACY_M) {
+                        smartGpsAccuracy.textContent = `GPS impreciso ±${Math.round(accuracy)} m`;
+                        return;
+                    }
+                    const fix = { lat, lng, accuracy, timestamp: pos.timestamp || Date.now() };
+                    if (Date.now() - fix.timestamp > GPS_MAX_AGE_MS) return;
+                    const previous = latestGpsFix;
+                    latestGpsFix = fix;
+                    if (!previous || haversine(previous.lat, previous.lng, lat, lng) * 1000 >= 8) {
+                        travelHistory.push([lat, lng]);
+                        if (travelHistory.length > GPS_TRAIL_MAX_POINTS) travelHistory.shift();
+                        updateTravelTrail();
+                    }
                     // 1. Si aún no hay un punto de partida definido, lo establecemos por primera vez
                     if (!startPoint) {
                         setStartPoint({ lat, lng, label: liveLabel }, true);
@@ -1287,6 +1439,8 @@
                     geoStatus.className = "text-xs text-emerald-400 text-center";
                     btnUseMyLocation.disabled = false;
                     btnUseMyLocationText.textContent = "Ubicación en vivo activa";
+                    updateSmartGpsUI();
+                    void checkGpsArrival(fix);
                 },
                 (err) => {
                     let msg = "No se pudo obtener la ubicación.";
@@ -1297,6 +1451,9 @@
                     geoStatus.className = "text-xs text-rose-400 text-center";
                     btnUseMyLocation.disabled = false;
                     btnUseMyLocationText.textContent = "Usar mi ubicación actual";
+                    stopGpsTracking();
+                    geoStatus.textContent = msg;
+                    geoStatus.className = "text-xs text-rose-400 text-center";
                 },
                 { enableHighAccuracy: true, timeout: 15000, maximumAge: 5000 }
             );
@@ -1364,6 +1521,8 @@
                 navigator.geolocation.clearWatch(watchId);
                 watchId = null;
             }
+            latestGpsFix = null;
+            updateSmartGpsUI();
             startPoint = null;
             startPointStatus.classList.add("hidden");
             routeLayer.clearLayers();
@@ -1543,7 +1702,7 @@
                 tabAgencyCount.classList.add("hidden");
             }
 
-            const canCalculate = count >= 2 && startPoint;
+            const canCalculate = count >= 2 && count <= MAX_STOPS && !!startPoint && !isCalculating;
             fabCalculate.disabled = !canCalculate;
             if (btnCalculateDesktop) {
                 btnCalculateDesktop.disabled = !canCalculate;
@@ -1562,62 +1721,70 @@
                 topBarStatus.textContent = `Selecciona 2+ agencias (${count})`;
                 return;
             }
+            if (count > MAX_STOPS) {
+                topBarStatus.textContent = `Máximo ${MAX_STOPS} agencias por ruta (${count} seleccionadas)`;
+                return;
+            }
             topBarStatus.textContent = `${count} paradas listas`;
         }
 
-        async function calculateRoute() {
-            if (!startPoint) {
+        async function calculateRoute(options = {}) {
+            if (isCalculating) return;
+            const rerouting = !!options.rerouting;
+            const calculationStart = options.startOverride || startPoint;
+            if (!calculationStart) {
                 Swal.fire("Falta el punto de partida", "Define desde dónde comenzar la ruta.", "warning");
                 return;
             }
 
-            const stopAgencies = allAgencies.filter(a => selectedIds.has(a.docId));
-            if (stopAgencies.length < 2) {
-                Swal.fire("Muy pocas paradas", "Selecciona al menos 2 agencias.", "warning");
+            const stopAgencies = options.stopsOverride || allAgencies.filter(a => selectedIds.has(a.docId));
+            if (stopAgencies.length < (rerouting ? 1 : 2)) {
+                Swal.fire("Muy pocas paradas", "Selecciona las agencias para calcular el recorrido.", "warning");
+                return;
+            }
+            if (stopAgencies.length > MAX_STOPS) {
+                Swal.fire("Demasiadas paradas", `Selecciona un máximo de ${MAX_STOPS} agencias por ruta.`, "warning");
                 return;
             }
 
             const profile = profileInput.value;
-            const roundTrip = roundTripCheck.checked;
+            const roundTrip = rerouting ? false : roundTripCheck.checked;
 
+            if (profile !== "driving") {
+                Swal.fire("Perfil no disponible", "El servicio de rutas configurado solo admite conducción.", "warning");
+                return;
+            }
+
+            isCalculating = true;
+            updateSelectionUI();
             calcOverlay.style.display = "flex";
             updateCalcStatus("Optimizando ruta...", "Consultando distancias reales");
 
             try {
                 const allPoints = [
-                    { lat: startPoint.lat, lng: startPoint.lng, type: "start", label: startPoint.label },
+                    { lat: calculationStart.lat, lng: calculationStart.lng, type: "start", label: calculationStart.label },
                     ...stopAgencies.map(a => ({ ...a, type: "stop" }))
                 ];
 
                 updateCalcStatus("Consultando distancias reales...", "OSRM Table API");
                 const matrix = await getDistanceMatrix(allPoints, profile);
-                if (!matrix) throw new Error("No se pudo obtener la matriz de distancias");
 
-                updateCalcStatus("Optimizando orden...", "Nearest Neighbor + 2-opt");
-                const order = solveTSP(matrix.distances, 0);
+                updateCalcStatus("Optimizando orden...", "Menor tiempo de viaje + mejora 2-opt");
+                const order = solveTSP(matrix.durations, 0, roundTrip);
                 const orderedPoints = order.map(idx => allPoints[idx]);
 
                 updateCalcStatus("Trazando carretera...", "OSRM Route API");
                 const routeGeometry = await getRouteGeometry(orderedPoints, profile, roundTrip);
 
-                const segments = [];
                 const pointsSeq = roundTrip ? [...orderedPoints, orderedPoints[0]] : orderedPoints;
-
-                for (let i = 0; i < pointsSeq.length - 1; i++) {
-                    const from = pointsSeq[i];
-                    const to = pointsSeq[i + 1];
-                    const d = haversine(from.lat, from.lng, to.lat, to.lng) * 1000;
-                    segments.push({ from, to, distance: d });
-                }
-
+                const segments = routeGeometry.legs.map((leg, i) => ({
+                    from: pointsSeq[i],
+                    to: pointsSeq[i + 1],
+                    distance: leg.distance,
+                    duration: leg.duration
+                }));
                 const totalDist = routeGeometry.distance;
                 const totalDur = routeGeometry.duration;
-
-                const sumSegments = segments.reduce((s, x) => s + x.distance, 0) || 1;
-                segments.forEach(s => {
-                    s.distance = (s.distance / sumSegments) * totalDist;
-                    s.duration = (s.distance / totalDist) * totalDur;
-                });
 
                 lastRoute = {
                     order,
@@ -1628,9 +1795,16 @@
                     totalDuration: totalDur,
                     profile,
                     roundTrip,
-                    startPoint
+                    startPoint: calculationStart
                 };
 
+                if (rerouting) {
+                    selectedIds = new Set(stopAgencies.map(a => a.docId));
+                    setStartPoint(calculationStart, false);
+                    renderAgencyList();
+                }
+                promptedArrivalKey = null;
+                arrivalCandidate = null;
                 renderRouteOnMap(lastRoute);
                 updateRoutePanel(lastRoute);
                 switchSheetTab("route");
@@ -1642,7 +1816,38 @@
                 Swal.fire("Error", "No se pudo calcular la ruta: " + err.message, "error");
             } finally {
                 calcOverlay.style.display = "none";
+                isCalculating = false;
+                updateSelectionUI();
+                updateSmartGpsUI();
             }
+        }
+
+        async function reroutePendingFromGps() {
+            const fix = getReliableGpsFix();
+            if (!fix) {
+                Swal.fire('GPS no disponible', 'Activa el GPS y espera una posición reciente con buena precisión.', 'warning');
+                return;
+            }
+            if (!lastRoute || isCalculating) return;
+            const remaining = lastRoute.points.slice(1).filter((point, index) => !visitedStops.has(index + 1));
+            if (!remaining.length) {
+                Swal.fire('Sin paradas pendientes', 'Todas las agencias ya están visitadas.', 'info');
+                return;
+            }
+            const confirmation = await Swal.fire({
+                title: 'Reoptimizar pendientes',
+                text: `Se calculará una nueva ruta para ${remaining.length} agencia(s) desde tu GPS. Las visitas completadas quedarán fuera del nuevo recorrido.`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Recalcular',
+                cancelButtonText: 'Cancelar'
+            });
+            if (!confirmation.isConfirmed) return;
+            await calculateRoute({
+                rerouting: true,
+                startOverride: { lat: fix.lat, lng: fix.lng, label: 'GPS al reoptimizar' },
+                stopsOverride: remaining
+            });
         }
 
         function updateCalcStatus(main, sub) {
@@ -1650,32 +1855,38 @@
             calcStatusSub.textContent = sub || "";
         }
 
+        async function fetchOSRM(url) {
+            const controller = new AbortController();
+            const timeout = setTimeout(() => controller.abort(), OSRM_TIMEOUT_MS);
+            try {
+                const response = await fetch(url, { signal: controller.signal });
+                if (!response.ok) throw new Error(`OSRM respondió HTTP ${response.status}`);
+                const data = await response.json();
+                if (data.code !== "Ok") throw new Error(data.message || data.code || "Respuesta inválida de OSRM");
+                return data;
+            } catch (error) {
+                if (error.name === "AbortError") throw new Error("OSRM tardó demasiado. Intenta con menos agencias.");
+                throw error;
+            } finally {
+                clearTimeout(timeout);
+            }
+        }
+
+        function validateMatrix(matrix, size) {
+            if (!Array.isArray(matrix) || matrix.length !== size ||
+                matrix.some(row => !Array.isArray(row) || row.length !== size ||
+                    row.some(value => !Number.isFinite(value) || value < 0))) {
+                throw new Error("No hay conexión por carretera entre todas las paradas. Revisa las coordenadas o reduce la selección.");
+            }
+        }
+
         async function getDistanceMatrix(points, profile = "driving") {
             const coordStr = points.map(p => `${p.lng},${p.lat}`).join(";");
             const url = `${OSRM_BASE}/table/v1/${profile}/${coordStr}?annotations=distance,duration`;
-
-            try {
-                const res = await fetch(url);
-                if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                const data = await res.json();
-                if (data.code !== "Ok") throw new Error(data.message || data.code);
-                return { distances: data.distances, durations: data.durations };
-            } catch (err) {
-                const n = points.length;
-                const dist = Array.from({ length: n }, () => Array(n).fill(0));
-                const dur = Array.from({ length: n }, () => Array(n).fill(0));
-                const SPEED_KMH = profile === "walking" ? 5 : profile === "cycling" ? 18 : 45;
-
-                for (let i = 0; i < n; i++) {
-                    for (let j = 0; j < n; j++) {
-                        if (i === j) continue;
-                        const d = haversine(points[i].lat, points[i].lng, points[j].lat, points[j].lng);
-                        dist[i][j] = d * 1000;
-                        dur[i][j] = (d / SPEED_KMH) * 3600;
-                    }
-                }
-                return { distances: dist, durations: dur };
-            }
+            const data = await fetchOSRM(url);
+            validateMatrix(data.distances, points.length);
+            validateMatrix(data.durations, points.length);
+            return { distances: data.distances, durations: data.durations };
         }
 
         async function getRouteGeometry(points, profile = "driving", roundTrip = false) {
@@ -1683,20 +1894,21 @@
             const coordStr = seq.map(p => `${p.lng},${p.lat}`).join(";");
             const url = `${OSRM_BASE}/route/v1/${profile}/${coordStr}?overview=full&geometries=geojson`;
 
-            const res = await fetch(url);
-            if (!res.ok) throw new Error(`OSRM HTTP ${res.status}`);
-            const data = await res.json();
-            if (data.code !== "Ok") throw new Error(data.message || data.code);
-
-            const route = data.routes[0];
+            const data = await fetchOSRM(url);
+            const route = data.routes?.[0];
+            if (!route || !Array.isArray(route.legs) || route.legs.length !== seq.length - 1 ||
+                !Number.isFinite(route.distance) || !Number.isFinite(route.duration)) {
+                throw new Error("OSRM devolvió una ruta incompleta. Intenta nuevamente.");
+            }
             return {
                 geometry: route.geometry,
                 distance: route.distance,
-                duration: route.duration
+                duration: route.duration,
+                legs: route.legs
             };
         }
 
-        function solveTSP(matrix, startIdx = 0) {
+        function solveTSP(matrix, startIdx = 0, roundTrip = false) {
             const n = matrix.length;
             if (n === 0) return [];
             if (n === 1) return [0];
@@ -1721,31 +1933,36 @@
                 current = bestIdx;
             }
 
-            return twoOpt(order, matrix);
+            return twoOpt(order, matrix, roundTrip);
         }
 
-        function twoOpt(order, matrix) {
+        function routeCost(order, matrix, roundTrip) {
+            let cost = 0;
+            for (let i = 1; i < order.length; i++) cost += matrix[order[i - 1]][order[i]];
+            if (roundTrip && order.length > 1) cost += matrix[order[order.length - 1]][order[0]];
+            return cost;
+        }
+
+        function twoOpt(order, matrix, roundTrip = false) {
             const n = order.length;
-            let improved = true;
             let best = [...order];
-            let iterations = 0;
-
-            while (improved && iterations < 200) {
-                improved = false;
-                iterations++;
-
+            let bestCost = routeCost(best, matrix, roundTrip);
+            // La matriz vial es dirigida: invertir un tramo cambia todos sus arcos.
+            // Comparar el costo completo evita aplicar la fórmula 2-opt simétrica.
+            for (let pass = 0; pass < 25; pass++) {
+                let improved = false;
                 for (let i = 1; i < n - 1; i++) {
                     for (let j = i + 1; j < n; j++) {
-                        const a = best[i - 1], b = best[i], c = best[j], d = j + 1 < n ? best[j + 1] : -1;
-                        const currentDist = matrix[a][b] + (d >= 0 ? matrix[c][d] : 0);
-                        const newDist = matrix[a][c] + (d >= 0 ? matrix[b][d] : 0);
-
-                        if (newDist < currentDist - 0.1) {
-                            best = [...best.slice(0, i), ...best.slice(i, j + 1).reverse(), ...best.slice(j + 1)];
+                        const candidate = [...best.slice(0, i), ...best.slice(i, j + 1).reverse(), ...best.slice(j + 1)];
+                        const candidateCost = routeCost(candidate, matrix, roundTrip);
+                        if (candidateCost < bestCost - 0.1) {
+                            best = candidate;
+                            bestCost = candidateCost;
                             improved = true;
                         }
                     }
                 }
+                if (!improved) break;
             }
             return best;
         }
@@ -1778,7 +1995,7 @@
                 });
 
                 L.marker([point.lat, point.lng], { icon, zIndexOffset: isStart ? 1000 : 0 })
-                    .bindPopup(`<strong>${isStart ? '🏁 Origen' : idx + '. ' + (point.idReal || '')}</strong><br>${escapeHtml(point.direccion || '')}`)
+                    .bindPopup(`<strong>${escapeHtml(isStart ? '🏁 Origen' : idx + '. ' + (point.idReal || ''))}</strong><br>${escapeHtml(point.direccion || '')}`)
                     .addTo(routeLayer);
             });
         }
@@ -1794,6 +2011,7 @@
             visitedStops.clear();
             renderStopsList();
             updateProgressUI();
+            updateSmartGpsUI();
         }
 
         function renderStopsList() {
@@ -1824,7 +2042,7 @@
                 const content = document.createElement("div");
                 content.className = "min-w-0 flex-1";
                 content.innerHTML = `
-                    <p class="stop-name text-xs font-bold text-slate-100 truncate">${isStart ? lastRoute.startPoint.label : (point.idReal || "Agencia")}</p>
+                    <p class="stop-name text-xs font-bold text-slate-100 truncate">${escapeHtml(isStart ? lastRoute.startPoint.label : (point.idReal || "Agencia"))}</p>
                     <p class="text-[11px] text-slate-400 truncate mt-0.5">${escapeHtml(point.direccion || 'Sin dirección')}</p>
                 `;
                 row.appendChild(content);
@@ -1857,6 +2075,8 @@
 
             renderStopsList();
             updateProgressUI();
+            arrivalCandidate = null;
+            updateSmartGpsUI();
         }
 
         function markNextStop() {
@@ -1866,8 +2086,11 @@
 
         function resetProgress() {
             visitedStops.clear();
+            promptedArrivalKey = null;
+            arrivalCandidate = null;
             renderStopsList();
             updateProgressUI();
+            updateSmartGpsUI();
         }
 
         function updateProgressUI() {
@@ -1898,11 +2121,16 @@
         // ════════════════════════════════════════════════════════
         function openInNavigationApps() {
             if (!lastRoute || lastRoute.points.length === 0) return;
-            const dest = lastRoute.points[lastRoute.points.length - 1];
+            const nextIndex = getNextPendingIndex();
+            if (nextIndex === -1) {
+                Swal.fire("Recorrido completado", "Todas las agencias fueron marcadas como visitadas.", "success");
+                return;
+            }
+            const dest = lastRoute.points[nextIndex];
 
             Swal.fire({
                 title: '¿Cómo deseas navegar?',
-                text: 'Selecciona tu aplicación favorita',
+                text: `Abrir navegación a la próxima parada (${nextIndex} de ${lastRoute.points.length - 1}).`,
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonText: '<i class="fa fa-map mr-1"></i> Google Maps',
@@ -1914,11 +2142,10 @@
                 reverseButtons: true
             }).then((res) => {
                 if (res.isConfirmed) {
-                    const origin = `${lastRoute.points[0].lat},${lastRoute.points[0].lng}`;
                     const destination = `${dest.lat},${dest.lng}`;
-                    window.open(`https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}&travelmode=${lastRoute.profile}`, '_blank');
+                    window.open(`https://www.google.com/maps/dir/?api=1&destination=${destination}&travelmode=driving`, '_blank', 'noopener,noreferrer');
                 } else if (res.dismiss === Swal.DismissReason.cancel) {
-                    window.open(`https://waze.com/ul?ll=${dest.lat},${dest.lng}&navigate=yes`, '_blank');
+                    window.open(`https://waze.com/ul?ll=${dest.lat},${dest.lng}&navigate=yes`, '_blank', 'noopener,noreferrer');
                 }
             });
         }
@@ -1965,6 +2192,8 @@
                     stops,
                     totalDistance: lastRoute.totalDistance,
                     totalDuration: lastRoute.totalDuration,
+                    profile: lastRoute.profile,
+                    roundTrip: lastRoute.roundTrip,
                     createdBy: auth.currentUser.uid,
                     createdAt: serverTimestamp()
                 });
@@ -2001,3 +2230,5 @@
     </script>
 </body>
 </html>
+
+
