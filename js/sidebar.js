@@ -83,7 +83,7 @@ export function initSidebar(containerId = "sidebar-container") {
                 </a>
 
                 <!-- Sugerencias -->
-                <a href="sugerencias.html" data-nav-link class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:bg-slate-800 hover:text-white transition-all">
+                <a href="sugerencias.html" data-module="sugerencias" data-nav-link class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:bg-slate-800 hover:text-white transition-all">
                     <i class="fa-solid fa-lightbulb text-slate-400 w-4 text-center"></i>
                     <span>Buzón de Ideas</span>
                 </a>
