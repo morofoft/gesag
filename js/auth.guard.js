@@ -275,10 +275,13 @@ export const AVAILABLE_MODULES = [
     { key: "reportes",    label: "Reportes",    icon: "fa-chart-pie" },
     { key: "imprimir",    label: "Imprimir",    icon: "fa-print" },
     { key: "sugerencias", label: "Sugerencias", icon: "fa-lightbulb" },
-    { key: "acerca",      label: "Acerca de",   icon: "fa-circle-info" }
+    { key: "acerca",      label: "Acerca de",   icon: "fa-circle-info" },
+    { key: "bitacora",    label: "Bitacora",     icon: "fa-circle-info" },
+    { key: "user",        label: "Usuario",      icon: "fa-user" },
+    { key: "configuracion",label: "Configuracion",icon: "fa-gear" },
 ];
 
-export const DEFAULT_VIEWER_MODULES = ["index", "mapa", "reportes"];
+export const DEFAULT_VIEWER_MODULES = ["index"];
 
 // ────────────────────────────────────────────────
 // GUARD POR MÓDULO

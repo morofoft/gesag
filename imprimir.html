@@ -63,6 +63,56 @@
             font-size: var(--print-font-size);
         }
 
+        /* Contenedor base de la hoja de vista previa */
+        .paper-sheet {
+            background: #ffffff;
+            color: #0f172a;
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.3), 0 8px 10px -6px rgb(0 0 0 / 0.3);
+            margin: 2rem auto;
+            padding: 15mm; /* Margen interno típico de impresión */
+            box-sizing: border-box;
+            transition: width 0.3s ease, min-height 0.3s ease;
+        }
+
+        /* Tamaños estándar simulados en pantalla */
+        .paper-a4 {
+            width: 210mm;
+            min-height: 297mm;
+        }
+
+        .paper-letter {
+            width: 8.5in;
+            min-height: 11in;
+        }
+
+        .paper-legal {
+            width: 8.5in;
+            min-height: 14in;
+        }
+
+        /* Paginación visual en pantalla */
+        .page-break-divider {
+            border: none;
+            border-top: 2px dashed #6366f1;
+            margin: 20px 0;
+            position: relative;
+            text-align: center;
+        }
+        .page-break-divider::after {
+            content: attr(data-page-text);
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #4f46e5;
+            color: #fff;
+            font-size: 8pt;
+            font-weight: bold;
+            padding: 2px 10px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
         .print-header-block {
             border: 1px solid #999;
             border-radius: 6px;
@@ -110,7 +160,6 @@
         .cell-num   { text-align: center; font-family: monospace; }
         .cell-id    { font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: center;}
         .cell-zona  { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: center;}
-        /* Dirección: permitimos que ocupe el resto y cortamos el texto si es muy largo */
         .cell-dir   { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: left; }
         .cell-obs   { text-align: left; }
         .cell-custom{ text-align: left; }
@@ -136,8 +185,8 @@
         }
 
         @page {
-            size: A4;
-            margin: 12mm 8mm 10mm 8mm; 
+            size: A4 portrait;
+            margin: 0mm; 
         }
 
         @media print {
@@ -158,16 +207,20 @@
                 flex: none !important;
             }
             main { padding: 0 !important; margin: 0 !important; background: #fff !important; }
-            #sidebar-container, .no-print { display: none !important; }
+            #sidebar-container, .no-print, header, nav, .toolbar { display: none !important; }
 
-            #printArea {
+            .paper-sheet {
                 box-shadow: none !important;
                 border-radius: 0 !important;
-                padding: 0 !important;
                 margin: 0 !important;
+                width: 210mm !important;
+                min-height: 297mm !important;
+                padding: 12mm !important;
                 background: #fff !important;
-                width: 100% !important;
-                max-width: none !important;
+            }
+
+            .page-break-divider {
+                display: none !important;
             }
 
             #printTable {
@@ -301,11 +354,20 @@
                     </div>
                 </div>
 
-                <!-- Nombre -->
+                <!-- Nombre y Plantillas de Encabezado -->
                 <div>
-                    <label for="printName" class="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">
-                        Nombre en el encabezado (opcional)
-                    </label>
+                    <div class="flex items-center justify-between mb-2">
+                        <label for="printName" class="block text-xs font-bold text-slate-400 uppercase tracking-wider">
+                            Nombre o Motivo en el encabezado
+                        </label>
+                        <select id="headerTemplateSelect" class="bg-slate-900 border border-slate-800 text-slate-300 text-[11px] rounded-lg px-2 py-1 focus:outline-none focus:border-brand-500 cursor-pointer">
+                            <option value="">-- Plantillas rápidas --</option>
+                            <option value="Auditoría Interna de Rutas">Auditoría Interna</option>
+                            <option value="Control de Ruta Ordinario">Control Ordinario</option>
+                            <option value="Supervisión y Monitoreo de Agencias">Supervisión de Agencias</option>
+                            <option value="Levantamiento de Zona">Levantamiento de Zona</option>
+                        </select>
+                    </div>
                     <input type="text" id="printName" maxlength="80" placeholder="Ej. Juan Pérez" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-200 focus:outline-none focus:border-brand-500">
                 </div>
 
@@ -368,7 +430,15 @@
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 items-end">
+                            <div>
+                                <label for="paperSizeSelect" class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Tamaño de Papel</label>
+                                <select id="paperSizeSelect" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-brand-500 font-semibold cursor-pointer">
+                                    <option value="a4" selected>A4 (210 × 297 mm)</option>
+                                    <option value="letter">Carta / Letter (8.5 × 11 in)</option>
+                                    <option value="legal">Oficio / Legal (8.5 × 14 in)</option>
+                                </select>
+                            </div>
                             <div>
                                 <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Altura de fila</label>
                                 <select id="printRowHeight" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-brand-500 font-semibold cursor-pointer">
@@ -437,66 +507,68 @@
                 </div>
             </div>
 
-            <!-- ÁREA IMPRIMIBLE -->
-            <div id="printArea" class="rounded-2xl p-6 sm:p-10 shadow-2xl">
+            <!-- ÁREA IMPRIMIBLE (CONTENEDOR CON TAMAÑO DE HOJA DINÁMICO) -->
+            <div id="printContainer" class="paper-sheet paper-a4 rounded-2xl shadow-2xl transition-all duration-300">
+                <div id="printArea">
 
-                <!-- ENCABEZADO -->
-                <div class="print-header-block">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;">
-                        <div style="display: flex; align-items: center; gap: 12px;">
-                            <svg style="width: 32px; height: 42px; fill: #4f46e5;" viewBox="0 0 100 130" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                                <g>
-                                    <rect x="0" y="0" width="18" height="130" rx="4" />
-                                    <rect x="26" y="0" width="18" height="70" rx="4" />
-                                    <rect x="52" y="0" width="18" height="130" rx="4" />
-                                    <rect x="78" y="0" width="18" height="38" rx="4" />
-                                    <rect x="78" y="68" width="18" height="62" rx="4" />
-                                </g>
-                            </svg>
-                            <div>
-                                <div style="font-weight: 800; font-size: 15pt; line-height: 1.1;">GesagPro</div>
-                                <div style="font-size: 8pt; color: #555;">Sistema de Gestión de Agencias</div>
+                    <!-- ENCABEZADO -->
+                    <div class="print-header-block">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <svg style="width: 32px; height: 42px; fill: #4f46e5;" viewBox="0 0 100 130" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                    <g>
+                                        <rect x="0" y="0" width="18" height="130" rx="4" />
+                                        <rect x="26" y="0" width="18" height="70" rx="4" />
+                                        <rect x="52" y="0" width="18" height="130" rx="4" />
+                                        <rect x="78" y="0" width="18" height="38" rx="4" />
+                                        <rect x="78" y="68" width="18" height="62" rx="4" />
+                                    </g>
+                                </svg>
+                                <div>
+                                    <div style="font-weight: 800; font-size: 15pt; line-height: 1.1;">GesagPro</div>
+                                    <div style="font-size: 8pt; color: #555;">Sistema de Gestión de Agencias</div>
+                                </div>
+                            </div>
+                            <div style="text-align: right; font-size: 9pt;">
+                                <div style="font-weight: 700;">Reporte de Agencias</div>
+                                <div style="margin-top: 4px;"><b>Fecha de impresión:</b></div>
+                                <div id="printDate" style="font-family: monospace; font-size: 9pt;">—</div>
                             </div>
                         </div>
-                        <div style="text-align: right; font-size: 9pt;">
-                            <div style="font-weight: 700;">Reporte de Agencias</div>
-                            <div style="margin-top: 4px;"><b>Fecha de impresión:</b></div>
-                            <div id="printDate" style="font-family: monospace; font-size: 9pt;">—</div>
+
+                        <div class="header-inner">
+                            <div style="font-size: 10.5pt; margin-bottom: 6px;">
+                                <b>Nombre:</b>
+                                <span id="printNameDisplay" style="display: inline-block; min-width: 280px; border-bottom: 1px solid #000; padding: 0 6px 2px;"></span>
+                            </div>
+                            <div style="font-size: 10pt;">
+                                <b>Filtro aplicado:</b>
+                                <span id="printFilterDisplay">Todas las agencias</span>
+                                &nbsp;·&nbsp;
+                                <b>Total:</b>
+                                <span id="printTotalDisplay">0 agencias</span>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="header-inner">
-                        <div style="font-size: 10.5pt; margin-bottom: 6px;">
-                            <b>Nombre:</b>
-                            <span id="printNameDisplay" style="display: inline-block; min-width: 280px; border-bottom: 1px solid #000; padding: 0 6px 2px;"></span>
-                        </div>
-                        <div style="font-size: 10pt;">
-                            <b>Filtro aplicado:</b>
-                            <span id="printFilterDisplay">Todas las agencias</span>
-                            &nbsp;·&nbsp;
-                            <b>Total:</b>
-                            <span id="printTotalDisplay">0 agencias</span>
-                        </div>
-                    </div>
+                    <!-- TABLA CON <tfoot> PARA EL PIE DE PÁGINA -->
+                    <table id="printTable">
+                        <thead id="printTableHead"></thead>
+                        <tbody id="printTableBody">
+                            <tr>
+                                <td colspan="5" style="text-align: center; padding: 24px; color: #666;">Cargando agencias...</td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="100%" style="border: none !important; padding-top: 15px !important; text-align: center; font-size: 8pt; color: #666;">
+                                    Generado por <b>Gesag Dev Pedro Garcia</b> · GesagPro © 2026
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+
                 </div>
-
-                <!-- TABLA CON <tfoot> PARA EL PIE DE PÁGINA -->
-                <table id="printTable">
-                    <thead id="printTableHead"></thead>
-                    <tbody id="printTableBody">
-                        <tr>
-                            <td colspan="5" style="text-align: center; padding: 24px; color: #666;">Cargando agencias...</td>
-                        </tr>
-                    </tbody>
-                    <tfoot>
-                        <tr>
-                            <td colspan="100%" style="border: none !important; padding-top: 15px !important; text-align: center; font-size: 8pt; color: #666;">
-                                Generado por <b>Gesag Dev Pedro Garcia</b> · GesagPro © 2026
-                            </td>
-                        </tr>
-                    </tfoot>
-                </table>
-
             </div>
 
         </main>
@@ -520,6 +592,7 @@
         const btnClearZones = document.getElementById("btnClearZones");
         const printNameInput = document.getElementById("printName");
         const printNameDisplay = document.getElementById("printNameDisplay");
+        const headerTemplateSelect = document.getElementById("headerTemplateSelect");
         const countPrint = document.getElementById("countPrint");
         const printTotalDisplay = document.getElementById("printTotalDisplay");
         const btnPrint = document.getElementById("btnPrint");
@@ -540,6 +613,8 @@
         const columnsCount = document.getElementById("columnsCount");
         const btnShowAllColumns = document.getElementById("btnShowAllColumns");
         const btnDefaultColumns = document.getElementById("btnDefaultColumns");
+        const paperSizeSelect = document.getElementById("paperSizeSelect");
+        const printContainer = document.getElementById("printContainer");
 
         // ────────────────────────────────────────────────
         // ESTADO
@@ -549,13 +624,14 @@
         let selectedZones = new Set();
         let enabledColumns = new Set();
 
-        const PRINT_SETTINGS_KEY = "gesagpro.printSettings.v4";
+        const PRINT_SETTINGS_KEY = "gesagpro.printSettings.v5";
 
         const DEFAULTS = {
             rowHeight: "28",
             fontSize: "8.5",
             colScale: "100",
             firmaWidth: "180",
+            paperSize: "a4",
             columns: ["num", "idReal", "zona", "direccion", "firma"]
         };
 
@@ -565,16 +641,14 @@
             ultra:   { rowHeight: "14", fontSize: "6",   colScale: "85",  firmaWidth: "120" }
         };
 
-        // Columnas actualizadas
         const COLUMN_DEFS = {
             num:           { label: "#",                     icon: "fa-hashtag",             width: "var(--print-col-num)",  align: "center" },
             idReal:        { label: "ID Real",               icon: "fa-barcode",             width: "var(--print-col-id)",   align: "center" },
             zona:          { label: "Zona",                  icon: "fa-map",                 width: "var(--print-col-zona)", align: "left" },
-            /* Dirección ahora ocupa el 100% del espacio sobrante */
             direccion:     { label: "Dirección",             icon: "fa-location-dot",        width: "100%",                  align: "left" },
             observaciones: { label: "Observaciones",         icon: "fa-pen-to-square",       width: "var(--print-col-obs)",  align: "left" },
             personalizado: { label: "Personalizado",         icon: "fa-square-plus",         width: "var(--print-col-custom)",align: "left" },
-            firma:         { label: "Firma",   icon: "fa-signature",           width: "var(--print-firma-width)",align: "center" }
+            firma:         { label: "Firma",                 icon: "fa-signature",           width: "var(--print-firma-width)",align: "center" }
         };
 
         const COLUMN_ORDER = ["num", "idReal", "zona", "direccion", "observaciones", "personalizado", "firma"];
@@ -625,7 +699,7 @@
         });
 
         // ────────────────────────────────────────────────
-        // CARGA DE AGENCIAS (Mejorada la lectura de dirección)
+        // CARGA DE AGENCIAS
         // ────────────────────────────────────────────────
         async function loadAgencies() {
             const snap = await getDocs(collection(db, "agencias"));
@@ -638,7 +712,6 @@
                 const zona = data.zona ? String(data.zona).toUpperCase().trim() : "SIN ZONA";
                 if (zona) zonesSet.add(zona);
 
-                // Aseguramos leer el campo aunque tenga variaciones (direccion, dirección, address)
                 const direccionRaw = data.direccion ?? data.dirección ?? data.address ?? "";
                 
                 allAgencies.push({
@@ -746,6 +819,17 @@
             btnClearZones.addEventListener("click", () => { selectedZones.clear(); syncZoneCheckboxes(); updatePreview(); });
 
             printNameInput.addEventListener("input", () => { printNameDisplay.textContent = printNameInput.value.trim(); });
+            
+            if (headerTemplateSelect) {
+                headerTemplateSelect.addEventListener("change", (e) => {
+                    if (e.target.value) {
+                        printNameInput.value = e.target.value;
+                        printNameDisplay.textContent = e.target.value;
+                        savePrintSettings();
+                    }
+                });
+            }
+
             btnPreviewRefresh.addEventListener("click", updatePreview);
 
             btnPrint.addEventListener("click", () => {
@@ -757,6 +841,20 @@
 
             btnShowAllColumns.addEventListener("click", () => { enabledColumns = new Set(COLUMN_ORDER); syncColumnCheckboxes(); savePrintSettings(); updatePreview(); });
             btnDefaultColumns.addEventListener("click", () => { enabledColumns = new Set(DEFAULTS.columns); syncColumnCheckboxes(); savePrintSettings(); updatePreview(); });
+
+            if (paperSizeSelect && printContainer) {
+                paperSizeSelect.addEventListener("change", (e) => {
+                    updatePaperSize(e.target.value);
+                    savePrintSettings();
+                    updatePreview();
+                });
+            }
+        }
+
+        function updatePaperSize(size) {
+            if (!printContainer) return;
+            printContainer.classList.remove("paper-a4", "paper-letter", "paper-legal");
+            printContainer.classList.add(`paper-${size}`);
         }
 
         function syncZoneCheckboxes() {
@@ -789,6 +887,11 @@
                 if (saved.fontSize) printFontSize.value = saved.fontSize;
                 if (saved.colScale) printColScale.value = saved.colScale;
                 if (saved.firmaWidth) printFirmaWidth.value = saved.firmaWidth;
+                if (saved.paperSize && paperSizeSelect) paperSizeSelect.value = saved.paperSize;
+                if (saved.printName && printNameInput) {
+                    printNameInput.value = saved.printName;
+                    printNameDisplay.textContent = saved.printName;
+                }
 
                 if (Array.isArray(saved.columns) && saved.columns.length > 0) {
                     const valid = saved.columns.filter(c => COLUMN_ORDER.includes(c));
@@ -800,10 +903,19 @@
                 enabledColumns = new Set(DEFAULTS.columns);
             }
 
+            if (paperSizeSelect) {
+                updatePaperSize(paperSizeSelect.value);
+            }
+
             applyPrintSettings();
 
-            [printRowHeight, printFontSize, printColScale, printFirmaWidth].forEach(el => {
-                el.addEventListener("change", () => { applyPrintSettings(); savePrintSettings(); updatePreview(); });
+            [printRowHeight, printFontSize, printColScale, printFirmaWidth, printNameInput].forEach(el => {
+                if (el) {
+                    el.addEventListener("change", () => { applyPrintSettings(); savePrintSettings(); updatePreview(); });
+                    if (el === printNameInput) {
+                        el.addEventListener("input", () => { savePrintSettings(); });
+                    }
+                }
             });
 
             document.querySelectorAll(".preset-btn").forEach(btn => {
@@ -826,7 +938,11 @@
                 printFontSize.value = DEFAULTS.fontSize;
                 printColScale.value = DEFAULTS.colScale;
                 printFirmaWidth.value = DEFAULTS.firmaWidth;
+                if (paperSizeSelect) paperSizeSelect.value = DEFAULTS.paperSize;
+                updatePaperSize(DEFAULTS.paperSize);
                 enabledColumns = new Set(DEFAULTS.columns);
+                printNameInput.value = "";
+                printNameDisplay.textContent = "";
 
                 applyPrintSettings(); syncColumnCheckboxes(); savePrintSettings(); updatePreview();
             });
@@ -871,6 +987,8 @@
                 fontSize: printFontSize.value,
                 colScale: printColScale.value,
                 firmaWidth: printFirmaWidth.value,
+                paperSize: paperSizeSelect ? paperSizeSelect.value : "a4",
+                printName: printNameInput ? printNameInput.value : "",
                 columns: Array.from(enabledColumns)
             };
             try {
@@ -881,13 +999,25 @@
         }
 
         // ────────────────────────────────────────────────
-        // PREVIEW
+        // PREVIEW & PAGINACIÓN AUTOMÁTICA
         // ────────────────────────────────────────────────
         function getEnabledColumnKeys() { return COLUMN_ORDER.filter(key => enabledColumns.has(key)); }
+
+        function getEstimatedRowsPerPage() {
+            const rowHeight = parseInt(printRowHeight.value, 10) || 28;
+            const paperSize = paperSizeSelect ? paperSizeSelect.value : "a4";
+            
+            let usableHeight = 900; // A4 por defecto
+            if (paperSize === "letter") usableHeight = 850;
+            if (paperSize === "legal") usableHeight = 1150;
+            
+            return Math.max(Math.floor(usableHeight / rowHeight), 5);
+        }
 
         function updatePreview() {
             const list = getFilteredAgencies();
             const cols = getEnabledColumnKeys();
+            const rowsPerPage = getEstimatedRowsPerPage();
 
             countPrint.textContent = list.length;
             printTotalDisplay.textContent = `${list.length} agencia${list.length === 1 ? "" : "s"}`;
@@ -911,7 +1041,20 @@
                 return;
             }
 
+            let pageNum = 1;
             list.forEach((agency, idx) => {
+                if (idx > 0 && idx % rowsPerPage === 0) {
+                    pageNum++;
+                    const dividerTr = document.createElement("tr");
+                    const dividerTd = document.createElement("td");
+                    dividerTd.colSpan = cols.length;
+                    dividerTd.style.border = "none";
+                    dividerTd.style.padding = "0";
+                    dividerTd.innerHTML = `<div class="page-break-divider" data-page-text="Página ${pageNum}"></div>`;
+                    dividerTr.appendChild(dividerTd);
+                    printTableBody.appendChild(dividerTr);
+                }
+
                 const tr = document.createElement("tr");
                 cols.forEach(key => tr.appendChild(buildCell(key, agency, idx)));
                 printTableBody.appendChild(tr);
@@ -940,7 +1083,6 @@
                 case "zona": td.className = "cell-zona"; td.textContent = agency.zona; break;
                 case "direccion": 
                     td.className = "cell-dir"; 
-                    // Si está vacío, ponemos un guion; si no, mostramos la dirección limpia
                     td.textContent = agency.direccion ? agency.direccion : "—"; 
                     break;
                 case "observaciones": td.className = "cell-obs"; td.textContent = ""; break;

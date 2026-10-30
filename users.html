@@ -248,23 +248,10 @@
             serverTimestamp
         } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-        // ────────────────────────────────────────────────
-        // MÓDULOS DISPONIBLES EN EL SISTEMA
-        // ────────────────────────────────────────────────
-        const AVAILABLE_MODULES = [
-            { key: "index", label: "Dashboard", icon: "fa-house" },
-            { key: "mapa", label: "Mapa", icon: "fa-map-location-dot" },
-            { key: "cercana", label: "Cercanas", icon: "fa-location-dot" },
-            { key: "rutas", label: "Rutas", icon: "fa-route" },
-            { key: "reportes", label: "Reportes", icon: "fa-chart-pie" },
-            { key: "imprimir", label: "Imprimir", icon: "fa-print" },
-            { key: "sugerencias", label: "Sugerencias", icon: "fa-lightbulb" },
-            { key: "acerca", label: "Acerca de", icon: "fa-circle-info" }
-        ];
-
-        // Módulos por defecto para un viewer sin configuración previa
-        const DEFAULT_VIEWER_MODULES = ["index", "mapa", "reportes", "rutas", "sugerencias", "cercana"];
-
+        import {
+            AVAILABLE_MODULES,
+            DEFAULT_VIEWER_MODULES
+        } from "./js/auth.guard.js"
 
 
         // ────────────────────────────────────────────────
@@ -377,12 +364,16 @@
                     return;
                 }
 
-                if (userData.role !== "admin") {
-                    Swal.fire({
-                        icon: 'error',
-                        title: '¡Error!',
-                        text: 'Acceso denegado: Solo los administradores pueden gestionar usuarios.',
-                        confirmButtonText: 'Aceptar'
+                const isAdmin = userData.role === "admin";
+                const modulos = Array.isArray(userData.modulos) ? userData.modulos : [];
+
+                // 🔒 Validación de acceso al módulo de Mapa
+                if (!isAdmin && !modulos.includes("user")) {
+                    await Swal.fire({
+                        icon: "error",
+                        title: "Acceso denegado",
+                        text: "No tienes permiso para acceder al módulo de usuario.",
+                        confirmButtonText: "Aceptar"
                     });
                     window.location.replace("index.html");
                     return;

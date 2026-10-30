@@ -62,6 +62,15 @@ export function initSidebar(containerId = "sidebar-container") {
                     <span>Agencias Cercanas</span>
                 </a>
 
+                <!-- Bitacora -->
+                <a href="bitacora.html" data-module="bitacora" data-nav-link class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:bg-slate-800 hover:text-white transition-all">
+                    <i class="fa-solid fa-location-arrow text-slate-400 w-4 text-center"></i>
+                    <span>Bitacora</span>
+                </a>
+
+
+                
+
                 <!-- Generador de Impresión -->
                 <a href="imprimir.html" data-module="imprimir" data-nav-link class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:bg-slate-800 hover:text-white transition-all">
                     <i class="fa-solid fa-print text-slate-400 w-4 text-center"></i>
@@ -77,9 +86,15 @@ export function initSidebar(containerId = "sidebar-container") {
                 <p class="px-3 text-[10px] font-black text-slate-500 uppercase tracking-wider mt-5 mb-2">Administración</p>
 
                 <!-- Carga / Configuración (Solo Administradores) -->
-                <a href="configuracion.html" data-admin-only data-nav-link class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:bg-slate-800 hover:text-white transition-all">
+                <a href="configuracion.html" data-module="configuracion" data-nav-link class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:bg-slate-800 hover:text-white transition-all">
                     <i class="fa-solid fa-sliders text-slate-400 w-4 text-center"></i>
                     <span>Carga / Configuración</span>
+                </a>
+
+                <!-- Carga / Configuración (Solo Administradores) -->
+                <a href="users.html" data-module="user" data-nav-link class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:bg-slate-800 hover:text-white transition-all">
+                    <i class="fa-solid fa-sliders text-slate-400 w-4 text-center"></i>
+                    <span>Usuarios</span>
                 </a>
 
                 <!-- Sugerencias -->
@@ -195,12 +210,7 @@ function setupAuthenticationAndPermissions() {
                 userRoleSpan.className = isAdmin 
                     ? "text-[10px] font-bold text-indigo-400 uppercase tracking-wider"
                     : "text-[10px] font-bold text-slate-500 uppercase tracking-wider";
-            }
-
-            // Ocultar enlaces de administración
-            if (!isAdmin) {
-                document.querySelectorAll("[data-admin-only]").forEach(el => el.remove());
-            }
+            }   
 
             // Ocultar enlaces de módulos sin permiso explícito
             document.querySelectorAll("[data-module]").forEach(el => {

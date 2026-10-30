@@ -364,7 +364,6 @@
         const btnSaveSingleIcon = document.getElementById("btnSaveSingleIcon");
         const btnSaveSingleText = document.getElementById("btnSaveSingleText");
 
-        const userEmailSpan = document.getElementById("userEmail");
         const userRoleSpan = document.getElementById("userRole");
 
         let parsedAgencies = [];
@@ -403,8 +402,6 @@
                 return;
             }
 
-            userEmailSpan.innerText = user.email;
-
             try {
                 const userSnap = await getDoc(doc(db, "users", user.uid));
                 if (!userSnap.exists()) {
@@ -432,18 +429,16 @@
                     return;
                 }
 
-                isAdmin = userData.role === "admin";
-                userRoleSpan.innerText = isAdmin ? "Administrador" : "Visualizador";
-                userRoleSpan.className = isAdmin
-                    ? "text-[10px] font-bold text-indigo-400 uppercase tracking-wider"
-                    : "text-[10px] font-bold text-slate-500 uppercase tracking-wider";
+                const isAdmin = userData.role === "admin";
+                const modulos = Array.isArray(userData.modulos) ? userData.modulos : [];
 
-                if (!isAdmin) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: '¡Error!',
-                        text: 'Acceso denegado: solo administradores pueden importar datos.',
-                        confirmButtonText: 'Aceptar'
+                // 🔒 Validación de acceso al módulo de Mapa
+                if (!isAdmin && !modulos.includes("configuracion")) {
+                    await Swal.fire({
+                        icon: "error",
+                        title: "Acceso denegado",
+                        text: "No tienes permiso para acceder al módulo de configuracion.",
+                        confirmButtonText: "Aceptar"
                     });
                     window.location.replace("index.html");
                     return;

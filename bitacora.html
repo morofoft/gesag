@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bitácora y Pendientes | GesagPro</title>
+
+    <link rel="icon" type="image/svg+xml" href="./img/favicon.svg">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: { 50: '#eef2ff', 100: '#e0e7ff', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca', 800: '#3730a3', 900: '#312e81' }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 8px; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in { animation: fadeIn 0.25s ease-out; }
+    </style>
+</head>
+
+<body class="bg-slate-950 text-slate-100 min-h-screen flex antialiased">
+
+    <!-- OVERLAY DE VERIFICACIÓN DE SESIÓN -->
+    <div id="bootOverlay" class="fixed inset-0 bg-slate-950 z-[100] flex flex-col items-center justify-center space-y-3">
+        <div class="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+        <p class="text-xs font-bold text-slate-400 tracking-wider uppercase">Verificando Sesión...</p>
+    </div>
+
+    <!-- SIDEBAR -->
+    <div id="sidebar-container" class="h-full flex shrink-0"></div>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <div id="mainContent" class="flex-1 flex flex-col min-h-screen overflow-hidden hidden">
+
+        <!-- HEADER -->
+        <header class="h-16 bg-slate-900/80 border-b border-slate-800/80 px-4 sm:px-6 flex items-center justify-between gap-3 shrink-0 backdrop-blur-md">
+            <div class="flex items-center gap-3 min-w-0">
+                <button id="openSidebarMobile" class="lg:hidden text-slate-400 hover:text-white p-2 shrink-0" aria-label="Abrir menú">
+                    <i class="fa fa-bars"></i>
+                </button>
+                <div class="min-w-0">
+                    <h1 class="text-base font-bold text-slate-100 truncate">Bitácora de Campo & Pendientes</h1>
+                    <p class="text-[11px] text-slate-400 truncate">Notas rápidas, retiros, seguimiento e historial</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <span id="roleBadge" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+                    <i class="fa-solid fa-clipboard-list text-xs"></i>
+                    <span id="roleBadgeText">Bitácora</span>
+                </span>
+            </div>
+        </header>
+
+        <!-- MAIN -->
+        <main class="flex-1 overflow-y-auto custom-scroll p-4 sm:p-8 space-y-6 bg-slate-950">
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+
+                <!-- FORMULARIO NUEVA NOTA / PENDIENTE (5 columnas) -->
+                <div class="lg:col-span-5 bg-slate-900/80 border border-slate-800 p-6 rounded-3xl shadow-xl backdrop-blur-xl space-y-5">
+                    <h2 class="text-sm font-bold text-slate-200 flex items-center gap-2">
+                        <i class="fa-solid fa-pen-to-square text-brand-500"></i>
+                        Registrar Nuevo Pendiente / Nota
+                    </h2>
+
+                    <form id="bitacoraForm" class="space-y-4" novalidate>
+                        
+                        <!-- Tipo de Registro (Agencia BD vs Libre/Construcción) -->
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider">
+                                    Ubicación / Agencia <span class="text-rose-400">*</span>
+                                </label>
+                                <label class="flex items-center gap-1.5 text-[11px] text-brand-400 cursor-pointer font-semibold">
+                                    <input type="checkbox" id="chkCustomAgency" class="accent-brand-500 rounded">
+                                    <span>Agencia libre / En construcción</span>
+                                </label>
+                            </div>
+
+                            <!-- Buscador Interactivo de Agencias de la BD -->
+                            <div id="agencySelectWrap" class="relative">
+                                <input type="text" id="searchAgencyInput" placeholder="🔍 Escribe para buscar agencia o zona..." class="w-full bg-slate-950 border border-slate-800 text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand-500">
+                                <input type="hidden" id="selectedAgencyId" value="">
+                                
+                                <!-- Dropdown de resultados de búsqueda -->
+                                <div id="agencyDropdown" class="hidden absolute left-0 right-0 top-full mt-1 bg-slate-900 border border-slate-800 rounded-xl shadow-2xl max-h-56 overflow-y-auto custom-scroll z-50">
+                                    <!-- Dinámico -->
+                                </div>
+                            </div>
+
+                            <!-- Inputs para Agencia Libre / En Construcción -->
+                            <div id="agencyCustomWrap" class="hidden space-y-3">
+                                <input type="text" id="customAgencyName" maxlength="80" placeholder="Nombre de la agencia o lugar (ej. Local en Plaza Central)" class="w-full bg-slate-950 border border-slate-800 text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand-500">
+                                <input type="text" id="customAgencyZone" maxlength="50" placeholder="Zona o sector (ej. ZONA NORTE / EN OBRA)" class="w-full bg-slate-950 border border-slate-800 text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand-500">
+                            </div>
+                        </div>
+
+                        <!-- Categoría / Tipo de Nota -->
+                        <div>
+                            <label for="selectCategory" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
+                                Categoría <span class="text-rose-400">*</span>
+                            </label>
+                            <select id="selectCategory" required class="w-full bg-slate-950 border border-slate-800 text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand-500 cursor-pointer">
+                                <option value="Pendiente a retirar / Entregar">Pendiente a retirar / Entregar</option>
+                                <option value="Incidencia / Faltante técnico">Incidencia / Faltante técnico</option>
+                                <option value="Visita de supervisión realizada">Visita de supervisión realizada</option>
+                                <option value="Nota general / En construcción">Nota general / En construcción</option>
+                            </select>
+                        </div>
+
+                        <!-- Prioridad -->
+                        <div>
+                            <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Prioridad</label>
+                            <div class="grid grid-cols-3 gap-2">
+                                <label class="cursor-pointer bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-center text-xs font-bold text-slate-300 hover:border-slate-600 transition flex items-center justify-center gap-1.5">
+                                    <input type="radio" name="priority" value="baja" class="accent-brand-500"> Baja
+                                </label>
+                                <label class="cursor-pointer bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-center text-xs font-bold text-amber-400 hover:border-amber-500/50 transition flex items-center justify-center gap-1.5">
+                                    <input type="radio" name="priority" value="media" checked class="accent-brand-500"> Media
+                                </label>
+                                <label class="cursor-pointer bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-center text-xs font-bold text-rose-400 hover:border-rose-500/50 transition flex items-center justify-center gap-1.5">
+                                    <input type="radio" name="priority" value="alta" class="accent-brand-500"> Urgente
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Detalle / Mensaje -->
+                        <div>
+                            <label for="txtMessage" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
+                                Detalle de la nota / pendiente <span class="text-rose-400">*</span>
+                            </label>
+                            <textarea id="txtMessage" required rows="4" maxlength="500" placeholder="Ej. Dejé 2 rollos de etiquetas y falta retirar el dispositivo dañado..." class="w-full bg-slate-950 border border-slate-800 text-white rounded-xl p-4 text-sm focus:outline-none focus:border-brand-500 custom-scroll resize-none"></textarea>
+                        </div>
+
+                        <button type="submit" id="btnSubmitNote" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-bold py-3.5 px-6 rounded-xl transition shadow-lg shadow-brand-600/25 flex items-center justify-center gap-2 text-sm">
+                            <i class="fa-solid fa-plus text-xs"></i>
+                            Guardar en Bitácora
+                        </button>
+                    </form>
+                </div>
+
+                <!-- LISTADO DE NOTAS Y PENDIENTES (7 columnas) -->
+                <div class="lg:col-span-7 space-y-4">
+
+                    <!-- Filtros de Estado -->
+                    <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-1.5 flex gap-1">
+                        <button data-filter="ALL" class="filter-btn flex-1 px-3 py-2 rounded-xl text-xs font-bold transition bg-brand-600 text-white">Todos</button>
+                        <button data-filter="pendiente" class="filter-btn flex-1 px-3 py-2 rounded-xl text-xs font-bold transition text-slate-400 hover:text-white">Pendientes</button>
+                        <button data-filter="en_proceso" class="filter-btn flex-1 px-3 py-2 rounded-xl text-xs font-bold transition text-slate-400 hover:text-white">En Proceso</button>
+                        <button data-filter="resuelto" class="filter-btn flex-1 px-3 py-2 rounded-xl text-xs font-bold transition text-slate-400 hover:text-white">Resueltos</button>
+                    </div>
+
+                    <!-- Contenedor de Tarjetas -->
+                    <div id="notesList" class="space-y-3 custom-scroll max-h-[700px] overflow-y-auto pr-1">
+                        <!-- Dinámico -->
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- SCRIPT DE LÓGICA -->
+    <script type="module">
+        import { initSidebar } from "./js/sidebar.js";
+        initSidebar("sidebar-container");
+
+        import { db, auth } from "./js/firebase/firebase.init.js";
+        import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, getDoc, query, orderBy, onSnapshot, serverTimestamp, arrayUnion } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+        // DOM Elements
+        const bootOverlay = document.getElementById("bootOverlay");
+        const mainContent = document.getElementById("mainContent");
+        const chkCustomAgency = document.getElementById("chkCustomAgency");
+        const agencySelectWrap = document.getElementById("agencySelectWrap");
+        const agencyCustomWrap = document.getElementById("agencyCustomWrap");
+        const searchAgencyInput = document.getElementById("searchAgencyInput");
+        const selectedAgencyId = document.getElementById("selectedAgencyId");
+        const agencyDropdown = document.getElementById("agencyDropdown");
+        const customAgencyName = document.getElementById("customAgencyName");
+        const customAgencyZone = document.getElementById("customAgencyZone");
+        const bitacoraForm = document.getElementById("bitacoraForm");
+        const notesList = document.getElementById("notesList");
+        
+        let currentUser = null;
+        let allAgencies = [];
+        let allNotes = [];
+        let activeFilter = "ALL";
+        let unsubscribe = null;
+
+        // Autenticación y permisos
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) { window.location.replace("login.html"); return; }
+            currentUser = user;
+
+            try {
+                const userSnap = await getDoc(doc(db, "users", user.uid));
+                if (!userSnap.exists() || userSnap.data().enabled === false) {
+                    await Swal.fire("Acceso denegado", "Tu cuenta no está autorizada.", "error");
+                    window.location.replace("login.html"); return;
+                }
+
+                bootOverlay.classList.add("hidden");
+                mainContent.classList.remove("hidden");
+
+                await loadAgenciesForSearch();
+                subscribeToNotes();
+                bindEvents();
+
+            } catch (err) {
+                console.error("Error al iniciar bitácora:", err);
+                window.location.replace("index.html");
+            }
+        });
+
+        // Cargar agencias para el buscador
+        async function loadAgenciesForSearch() {
+            try {
+                const snap = await getDocs(collection(db, "agencias"));
+                allAgencies = [];
+                snap.forEach(d => {
+                    const data = d.data();
+                    const realId = data.idReal ?? data.codigo ?? "";
+                    const zona = data.zona ? String(data.zona).toUpperCase() : "SIN ZONA";
+                    const name = data.nombre || `Agencia ID: ${realId}`;
+                    allAgencies.push({ id: d.id, name, zona, realId });
+                });
+                allAgencies.sort((a, b) => a.name.localeCompare(b.name));
+            } catch (err) {
+                console.error("Error cargando agencias:", err);
+            }
+        }
+
+        // Lógica del buscador interactivo
+        searchAgencyInput.addEventListener("input", () => {
+            const queryText = searchAgencyInput.value.toLowerCase().trim();
+            selectedAgencyId.value = ""; // Limpiar selección previa si edita
+            if (!queryText) {
+                agencyDropdown.classList.add("hidden");
+                return;
+            }
+
+            const filtered = allAgencies.filter(ag => 
+                ag.name.toLowerCase().includes(queryText) || 
+                ag.zona.toLowerCase().includes(queryText) || 
+                ag.realId.toLowerCase().includes(queryText)
+            );
+
+            agencyDropdown.innerHTML = "";
+            if (filtered.length === 0) {
+                agencyDropdown.innerHTML = `<div class="p-3 text-xs text-slate-500 text-center">No se encontraron agencias.</div>`;
+            } else {
+                filtered.forEach(ag => {
+                    const item = document.createElement("div");
+                    item.className = "p-3 hover:bg-slate-800 cursor-pointer text-xs transition border-b border-slate-800/50 last:border-none";
+                    item.innerHTML = `<div class="font-bold text-white">${escapeHtml(ag.name)}</div><div class="text-slate-400 text-[10px]">Zona: ${escapeHtml(ag.zona)} · ID: ${escapeHtml(ag.realId)}</div>`;
+                    item.addEventListener("click", () => {
+                        searchAgencyInput.value = `${ag.name} [${ag.zona}]`;
+                        selectedAgencyId.value = ag.id;
+                        agencyDropdown.classList.add("hidden");
+                    });
+                    agencyDropdown.appendChild(item);
+                });
+            }
+            agencyDropdown.classList.remove("hidden");
+        });
+
+        // Cerrar dropdown al hacer clic fuera
+        document.addEventListener("click", (e) => {
+            if (!agencySelectWrap.contains(e.target)) {
+                agencyDropdown.classList.add("hidden");
+            }
+        });
+
+        // Alternar entre Agencia Registrada vs Libre / En Construcción
+        chkCustomAgency.addEventListener("change", () => {
+            const isCustom = chkCustomAgency.checked;
+            agencySelectWrap.classList.toggle("hidden", isCustom);
+            agencyCustomWrap.classList.toggle("hidden", !isCustom);
+            if(isCustom) {
+                searchAgencyInput.value = "";
+                selectedAgencyId.value = "";
+            } else {
+                customAgencyName.value = "";
+                customAgencyZone.value = "";
+            }
+        });
+
+        // Eventos generales
+        function bindEvents() {
+            bitacoraForm.addEventListener("submit", async (e) => {
+                e.preventDefault();
+                const isCustom = chkCustomAgency.checked;
+                
+                let agencyName = "";
+                let agencyZone = "";
+                let agencyIdRef = null;
+
+                if (isCustom) {
+                    agencyName = customAgencyName.value.trim();
+                    agencyZone = customAgencyZone.value.trim() ? customAgencyZone.value.trim().toUpperCase() : "EN CONSTRUCCIÓN / LIBRE";
+                    if (!agencyName) {
+                        Swal.fire("Falta nombre", "Indica el nombre de la agencia libre o en construcción.", "warning");
+                        return;
+                    }
+                } else {
+                    const selectedId = selectedAgencyId.value;
+                    if (!selectedId) {
+                        Swal.fire("Selección requerida", "Busca y selecciona una agencia válida de la lista.", "warning");
+                        return;
+                    }
+                    const found = allAgencies.find(a => a.id === selectedId);
+                    if (found) {
+                        agencyName = found.name;
+                        agencyZone = found.zona;
+                        agencyIdRef = found.id;
+                    }
+                }
+
+                const categoria = document.getElementById("selectCategory").value;
+                const prioridad = document.querySelector('input[name="priority"]:checked').value;
+                const mensaje = document.getElementById("txtMessage").value.trim();
+
+                if (!mensaje) {
+                    Swal.fire("Falta detalle", "Escribe el contenido de la nota o pendiente.", "warning");
+                    return;
+                }
+
+                try {
+                    await addDoc(collection(db, "bitacora"), {
+                        agencyName,
+                        agencyZone,
+                        agencyIdRef,
+                        categoria,
+                        prioridad,
+                        mensaje,
+                        status: "pendiente",
+                        historial: [
+                            { texto: mensaje, fecha: new Date().toISOString(), autor: currentUser.email || "Usuario" }
+                        ],
+                        createdBy: currentUser.uid,
+                        createdAt: serverTimestamp()
+                    });
+
+                    bitacoraForm.reset();
+                    agencyCustomWrap.classList.add("hidden");
+                    agencySelectWrap.classList.remove("hidden");
+                    chkCustomAgency.checked = false;
+                    selectedAgencyId.value = "";
+
+                    Swal.fire({
+                        toast: true, position: "top-end", icon: "success",
+                        title: "¡Nota guardada en bitácora!", showConfirmButton: false, timer: 2000
+                    });
+                } catch (err) {
+                    console.error("Error guardando nota:", err);
+                    Swal.fire("Error", "No se pudo guardar la nota.", "error");
+                }
+            });
+
+            // Filtros
+            document.querySelectorAll(".filter-btn").forEach(btn => {
+                btn.addEventListener("click", () => {
+                    activeFilter = btn.dataset.filter;
+                    document.querySelectorAll(".filter-btn").forEach(b => {
+                        b.className = b.dataset.filter === activeFilter 
+                            ? "filter-btn flex-1 px-3 py-2 rounded-xl text-xs font-bold transition bg-brand-600 text-white"
+                            : "filter-btn flex-1 px-3 py-2 rounded-xl text-xs font-bold transition text-slate-400 hover:text-white";
+                    });
+                    renderNotes();
+                });
+            });
+        }
+
+        // Suscripción a Firestore en tiempo real
+        function subscribeToNotes() {
+            const q = query(collection(db, "bitacora"), orderBy("createdAt", "desc"));
+            unsubscribe = onSnapshot(q, (snapshot) => {
+                allNotes = [];
+                snapshot.forEach(d => allNotes.push({ id: d.id, ...d.data() }));
+                renderNotes();
+            }, (error) => {
+                console.error("Error escuchando bitácora:", error);
+            });
+        }
+
+        // Renderizado de tarjetas
+        function renderNotes() {
+            notesList.innerHTML = "";
+            let filtered = allNotes;
+            if (activeFilter !== "ALL") {
+                filtered = allNotes.filter(n => n.status === activeFilter);
+            }
+
+            if (filtered.length === 0) {
+                notesList.innerHTML = `
+                    <div class="text-center py-12 bg-slate-900/40 border border-dashed border-slate-800 rounded-2xl">
+                        <i class="fa-solid fa-clipboard text-3xl text-slate-600 mb-2 block"></i>
+                        <p class="text-slate-400 text-sm font-bold">No hay registros</p>
+                        <p class="text-slate-500 text-xs mt-1">Usa el formulario para registrar notas o pendientes.</p>
+                    </div>`;
+                return;
+            }
+
+            filtered.forEach(note => {
+                notesList.appendChild(buildNoteCard(note));
+            });
+        }
+
+        function buildNoteCard(note) {
+            const card = document.createElement("div");
+            card.className = "fade-in bg-slate-900/70 border border-slate-800 rounded-2xl p-4 space-y-3 hover:border-slate-700 transition";
+
+            let priorityBadge = "";
+            if (note.prioridad === "alta") priorityBadge = `<span class="px-2 py-0.5 bg-rose-500/10 text-rose-400 border border-rose-500/20 text-[10px] font-bold rounded-full">Urgente</span>`;
+            else if (note.prioridad === "media") priorityBadge = `<span class="px-2 py-0.5 bg-amber-500/10 text-amber-400 border border-amber-500/20 text-[10px] font-bold rounded-full">Media</span>`;
+            else priorityBadge = `<span class="px-2 py-0.5 bg-slate-800 text-slate-400 text-[10px] font-bold rounded-full">Baja</span>`;
+
+            let statusBadge = "";
+            if (note.status === "resuelto") statusBadge = `<span class="px-2.5 py-0.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-bold rounded-full">Resuelto</span>`;
+            else if (note.status === "en_proceso") statusBadge = `<span class="px-2.5 py-0.5 bg-brand-500/10 text-brand-400 border border-brand-500/30 text-[10px] font-bold rounded-full">En Proceso</span>`;
+            else statusBadge = `<span class="px-2.5 py-0.5 bg-amber-500/10 text-amber-400 border border-amber-500/20 text-[10px] font-bold rounded-full">Pendiente</span>`;
+
+            // Historial / Comentarios resumen
+            const historialCount = Array.isArray(note.historial) ? note.historial.length : 1;
+
+            card.innerHTML = `
+                <div class="flex items-start justify-between gap-2">
+                    <div>
+                        <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-building text-brand-400 text-xs"></i>
+                            ${escapeHtml(note.agencyName)}
+                        </h3>
+                        <p class="text-[11px] text-slate-400 mt-0.5 font-semibold">
+                            <i class="fa-solid fa-map-pin mr-1 text-slate-500"></i> Zona: ${escapeHtml(note.agencyZone)}
+                        </p>
+                    </div>
+                    <div class="flex items-center gap-1.5 shrink-0">
+                        ${priorityBadge}
+                        ${statusBadge}
+                    </div>
+                </div>
+
+                <div class="bg-slate-950/50 border border-slate-800/60 rounded-xl p-3 text-xs text-slate-300 space-y-1.5">
+                    <p class="font-bold text-indigo-300 text-[11px]">${escapeHtml(note.categoria)}</p>
+                    <p class="whitespace-pre-wrap leading-relaxed">${escapeHtml(note.mensaje)}</p>
+                </div>
+
+                <div class="flex items-center justify-between gap-2 pt-1 border-t border-slate-800/60 text-[11px]">
+                    <div class="flex items-center gap-2">
+                        <span class="text-slate-500"><i class="fa-regular fa-clock mr-1"></i>${timeAgo(note.createdAt)}</span>
+                        <button onclick="window.openSeguimientoModal('${note.id}')" class="text-brand-400 hover:text-brand-300 font-bold flex items-center gap-1 bg-brand-500/10 px-2 py-0.5 rounded-lg border border-brand-500/20">
+                            <i class="fa-solid fa-comments text-[10px]"></i> Seguimiento (${historialCount})
+                        </button>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <select onchange="window.updateNoteStatus('${note.id}', this.value)" class="bg-slate-950 border border-slate-800 text-slate-300 text-[11px] rounded-lg px-2 py-1 focus:outline-none cursor-pointer">
+                            <option value="pendiente" ${note.status === 'pendiente' ? 'selected' : ''}>Pendiente</option>
+                            <option value="en_proceso" ${note.status === 'en_proceso' ? 'selected' : ''}>En Proceso</option>
+                            <option value="resuelto" ${note.status === 'resuelto' ? 'selected' : ''}>Resuelto</option>
+                        </select>
+                        <button onclick="window.deleteNote('${note.id}')" class="p-1.5 text-slate-500 hover:text-rose-400 rounded-lg transition" title="Eliminar nota">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+            return card;
+        }
+
+        // Modal de Seguimiento e Historial
+        window.openSeguimientoModal = async function(noteId) {
+            const note = allNotes.find(n => n.id === noteId);
+            if (!note) return;
+
+            let historialHtml = '';
+            if (Array.isArray(note.historial) && note.historial.length > 0) {
+                note.historial.forEach((h, i) => {
+                    const fechaFmt = h.fecha ? new Date(h.fecha).toLocaleString("es-DO") : "Reciente";
+                    historialHtml += `
+                        <div class="p-3 bg-slate-900 border border-slate-800 rounded-xl space-y-1 text-left">
+                            <div class="flex justify-between text-[10px] text-slate-400">
+                                <span class="font-bold text-indigo-400">${escapeHtml(h.autor || 'Usuario')}</span>
+                                <span>${fechaFmt}</span>
+                            </div>
+                            <p class="text-xs text-slate-200 whitespace-pre-wrap">${escapeHtml(h.texto)}</p>
+                        </div>
+                    `;
+                });
+            } else {
+                historialHtml = `<p class="text-xs text-slate-500 text-center py-2">No hay comentarios de seguimiento aún.</p>`;
+            }
+
+            const { value: nuevoComentario } = await Swal.fire({
+                title: `<span class="text-sm font-bold text-white">Historial de Seguimiento</span>`,
+                html: `
+                    <div class="space-y-4 text-left">
+                        <div class="text-xs text-slate-300 bg-slate-950 p-3 rounded-xl border border-slate-800">
+                            <strong>Agencia:</strong> ${escapeHtml(note.agencyName)}<br>
+                            <strong>Pendiente original:</strong> ${escapeHtml(note.mensaje)}
+                        </div>
+                        <div class="space-y-2 max-h-48 overflow-y-auto custom-scroll pr-1">
+                            <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Línea de tiempo:</p>
+                            ${historialHtml}
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Añadir nuevo avance / comentario:</label>
+                            <textarea id="swalComment" rows="3" class="w-full bg-slate-950 border border-slate-800 text-white rounded-xl p-3 text-xs focus:outline-none focus:border-brand-500 custom-scroll resize-none" placeholder="Escribe el avance del seguimiento..."></textarea>
+                        </div>
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: "Guardar Comentario",
+                cancelButtonText: "Cerrar",
+                confirmButtonColor: "#6366f1",
+                cancelButtonColor: "#475569",
+                customClass: { popup: 'bg-slate-900 border border-slate-800 rounded-3xl text-white' },
+                preConfirm: () => {
+                    const text = document.getElementById('swalComment').value.trim();
+                    if (!text) {
+                        Swal.showValidationMessage('Escribe un comentario antes de guardar');
+                    }
+                    return text;
+                }
+            });
+
+            if (nuevoComentario) {
+                try {
+                    const nuevoRegistro = {
+                        texto: nuevoComentario,
+                        fecha: new Date().toISOString(),
+                        autor: currentUser.email || "Usuario"
+                    };
+                    await updateDoc(doc(db, "bitacora", noteId), {
+                        historial: arrayUnion(nuevoRegistro)
+                    });
+                    Swal.fire({ toast: true, position: "top-end", icon: "success", title: "Seguimiento actualizado", showConfirmButton: false, timer: 1500 });
+                } catch (err) {
+                    console.error("Error guardando seguimiento:", err);
+                    Swal.fire("Error", "No se pudo registrar el comentario.", "error");
+                }
+            }
+        };
+
+        window.updateNoteStatus = async function(id, newStatus) {
+            try {
+                await updateDoc(doc(db, "bitacora", id), { status: newStatus });
+                Swal.fire({ toast: true, position: "top-end", icon: "success", title: "Estado actualizado", showConfirmButton: false, timer: 1500 });
+            } catch (err) {
+                console.error("Error actualizando estado:", err);
+            }
+        };
+
+        window.deleteNote = async function(id) {
+            const res = await Swal.fire({
+                title: "¿Eliminar registro?", text: "Esta nota se borrará permanentemente.", icon: "warning",
+                showCancelButton: true, confirmButtonText: "Sí, eliminar", cancelButtonText: "Cancelar",
+                confirmButtonColor: "#e11d48", cancelButtonColor: "#475569"
+            });
+            if (!res.isConfirmed) return;
+
+            try {
+                await deleteDoc(doc(db, "bitacora", id));
+                Swal.fire({ toast: true, position: "top-end", icon: "success", title: "Nota eliminada", showConfirmButton: false, timer: 1500 });
+            } catch (err) {
+                console.error("Error eliminando nota:", err);
+            }
+        };
+
+        function timeAgo(ts) {
+            if (!ts) return "hace un momento";
+            const date = ts.toDate ? ts.toDate() : new Date(ts);
+            const diff = Math.floor((Date.now() - date.getTime()) / 1000);
+            if (diff < 60) return "hace unos segundos";
+            const min = Math.floor(diff / 60);
+            if (min < 60) return `hace ${min} min`;
+            const h = Math.floor(min / 60);
+            if (h < 24) return `hace ${h} h`;
+            const d = Math.floor(h / 24);
+            return `hace ${d} d`;
+        }
+
+        function escapeHtml(str) {
+            return String(str ?? "").replace(/[&<>"']/g, (c) => ({
+                "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+            }[c]));
+        }
+    </script>
+</body>
+</html>

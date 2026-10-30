@@ -422,10 +422,6 @@ initSidebar("sidebar-container");
                     return;
                 }
 
-                if (!isAdmin) {
-                    document.querySelectorAll("[data-admin-only]").forEach(el => el.remove());
-                }
-
                 if (!mapInitialized) {
                     initMap();
                     mapInitialized = true;
